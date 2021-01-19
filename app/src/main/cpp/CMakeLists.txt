@@ -1,0 +1,24 @@
+cmake_minimum_required(VERSION 3.10.2)
+add_library(glue STATIC ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c)
+target_include_directories(glue PUBLIC ${ANDROID_NDK}/sources/android/native_app_glue)
+include_directories(${ANDROID_NDK}/sources/android/native_app_glue)
+find_library(log-lib log)
+set(CMAKE_SHARED_LINKER_FLAGS  "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
+#freetype
+#set(FREETYPE F:/androidlibs/freetype)
+#include_directories(${FREETYPE}/include)
+#oboe
+#set(OBOE  F:/androidlibs/oboe)
+#add_subdirectory(${OBOE} ./oboe)
+#include_directories(${OBOE}/include)
+#firebase
+#set(FIREBASE_CPP_SDK_DIR F:/androidlibs/firebasecppsdk)
+#add_subdirectory(${FIREBASE_CPP_SDK_DIR} bin/ EXCLUDE_FROM_ALL)
+#include_directories(${FIREBASE_CPP_SDK_DIR}/include ${FIREBASE_CPP_SDK_DIR}/libs/android/${CMAKE_ANDROID_ARCH_ABI}/C++)
+#set(firebase_libs firebase_analytics firebase_admob firebase_app)
+#
+add_library(main SHARED Main.cpp)
+add_library(graphics STATIC Graphics.cpp UI.cpp)
+add_library(events STATIC Touch.cpp Callbacks.cpp)
+add_library(javacalls STATIC JavaCalls.cpp JavaCalls.h)
+target_link_libraries(main events glue javacalls graphics jnigraphics GLESv3 EGL android ${log-lib})
