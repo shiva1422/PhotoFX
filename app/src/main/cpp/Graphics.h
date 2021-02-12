@@ -45,6 +45,7 @@ public:
 class Graphics{
 public:
 
+    static DisplayParams displayParams;
     static EGLConfig config;
     static status init_display(AppContext* appContext);
     static status onAppReopen(AppContext* appContext);

@@ -6,10 +6,63 @@
 DisplayParams View::displayParams;
 Bitmap ImageView::defaultImage;
 GLint DRAWTYPELOC=0,PARAM1LOC=1,PARAM2LOC=2,SAMPLERARRAYLOC=7;
-GLint IMAGEVIEWDRAWTYPE=0,IMAGEVIEWSTACKDRAWTYPE=1,POSITIONATTRIBLOC=0,TEXTCOODATTRIBLOC=2;
+GLint IMAGEVIEWDRAWTYPE=0,IMAGEVIEWSTACKDRAWTYPE=1,SLIDERSETDRAWTYPE=2;
+GLint POSITIONATTRIBLOC=0,TEXTCOODATTRIBLOC=2;
 //float textureCoords[8]={0.0f,1.0f,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f};
 //GLushort drawElementIndices[6]={0,1,2,2,3,0};
 GLuint ImageView::texCoodBufId=0,ImageView::indexBufId=0;
+void SliderSet::draw()
+{
+  //  View::draw();
+    baseImageView.draw();
+    pointerImageView.draw();
+
+
+}
+void SliderSet::setTexture(Bitmap *image)
+{
+   /* this->baseImage=image;
+    if(glIsBuffer(texBufId))
+    {glDeleteBuffers(1,&texBufId);}
+    glGenBuffers(1, &texBufId);
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, texBufId);//use right buffer or else slow
+    glBufferData(GL_PIXEL_UNPACK_BUFFER, image->width * image->height * 4,image->pixels ,GL_STATIC_COPY);
+    if(Graphics::printGlError("ImageView::ImageView(Bounds,Bitmap *)")==GL_OUT_OF_MEMORY)
+        return;
+    if(glIsTexture(texId))
+        glDeleteTextures(1,&texId);
+    glGenTextures(1, &texId);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texId);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, image->width,image->height);//wiki commonmistakes//use glTexImage for mutable textures.//glpixelstore for way to read(pack)and write(unpack) image using this fun.
+    glTexSubImage2D(GL_TEXTURE_2D,0,0,0,image->width,image->height,GL_RGBA,GL_UNSIGNED_BYTE,0);
+    Graphics::printGlError("ImageView::ImageView(Bounds,Bitmap *),glTextStorage");
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER,0);
+    glBindTexture(GL_TEXTURE_2D,0);
+    if(Graphics::printGlError("ImageView::ImageView(Bounds,Bitmap*)")==GL_NO_ERROR)
+        isTextureSet=true;*/
+}
+void SliderSet::setBounds(float startX, float startY, float width, float height)
+{
+    View::setBounds(startX,startY,width,height);
+    baseImageView.setBounds(startX,startY+height/3,width,height/3);
+    pointerImageView.setBounds(startX+(width/2),startY,50,height);
+
+}
+SliderSet::SliderSet()
+{
+
+    baseImageView.setTexture(&ImageView::defaultImage);
+    pointerImageView.setTexture(&ImageView::defaultImage);
+
+
+
+}
+
 void ImageViewStack::draw()
 {
     //View::draw();
@@ -155,9 +208,14 @@ ImageView::ImageView(float startX, float startY, float width, float height):Imag
 {
     setBounds(startX,startY,width,height);
 }
+void ImageView::setTextureId(GLuint texId)
+{
+    this->texId=texId;/////////////check other thing need to change if changed textureId like clear previous texture;
+}
+
 void ImageView::setTexture(Bitmap *image)
 {
-    this->image=image;
+    this->image=image;//if(image!=this->image)cheeck
     if(glIsBuffer(texBufId))
     {glDeleteBuffers(1,&texBufId);}
     glGenBuffers(1, &texBufId);

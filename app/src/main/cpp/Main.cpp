@@ -8,6 +8,7 @@
 #include "Callbacks.h"
 #include "Main.h"
 #include "JavaCalls.h"
+#include "OffScreenRender.h"
 void android_main(android_app *app)
 {
     app->onAppCmd = onCmd;
@@ -18,6 +19,7 @@ void android_main(android_app *app)
     getDisplayParams(app,&displayParams);
     View::setDisplayParams(displayParams);
     globalData.displayParams=&displayParams;///set App Global data
+    Graphics::displayParams=displayParams;
     globalData.appContext=&appContext;
     app->userData=(void *)&globalData;
     appContext.app=app;
@@ -62,13 +64,29 @@ void android_main(android_app *app)
     MainImageView.setBoundsDeviceIndependent(MainImageView.getStartX(),MainImageView.getStartY(),InputImage.width,InputImage.height);
     MainImageView.fitToCentre(frameBounds);
     globalData.contentView=&MainImageView;
-    ImageViewStack optionsStack(5,ImageView::defaultImage.width,ImageView::defaultImage.height);
-    ImageViewStack subOptionsStack(5,ImageView::defaultImage.width,ImageView::defaultImage.height);
-    optionsStack.setBounds(0,displayParams.screenHeight*92.5/100,displayParams.screenWidth,displayParams.screenHeight*7.5/100);
-    subOptionsStack.setBounds(0,displayParams.screenHeight*4/100,displayParams.screenWidth,optionsStack.getHeight());
+    ImageViewStack optionsStack(6,ImageView::defaultImage.width,ImageView::defaultImage.height);
+    ImageViewStack subOptionsStack(6,ImageView::defaultImage.width,ImageView::defaultImage.height);
+    optionsStack.setBounds(0,displayParams.screenHeight*93/100,displayParams.screenWidth,displayParams.screenHeight*7.5/100);
+    subOptionsStack.setBounds(0,displayParams.screenHeight*85/100,displayParams.screenWidth,optionsStack.getHeight());
     ImageView TestImage(100,100,50,50);
+    SliderSet sliderSet;
+    sliderSet.setBounds(0,displayParams.screenHeight*75/100,displayParams.screenWidth,displayParams.screenHeight*2/100);
+    ImageView fbImage(0,0,displayParams.screenWidth,displayParams.screenHeight);
 
     // MainImageView.setBoundsDeviceIndependent(0,displayParams.screenHeight*20/100,InputImage.width,InputImage.height);
+
+
+
+
+FrameBuffer outputImageBuf;
+
+//
+fbImage.setTextureId(outputImageBuf.getTexId());
+
+
+
+
+
 
     while(true)
     {
@@ -90,6 +108,10 @@ void android_main(android_app *app)
                 MainImageView.draw();
                 optionsStack.draw();
                 subOptionsStack.draw();
+                sliderSet.draw();
+                FrameBuffer::setToDefault();
+                fbImage.draw();
+                outputImageBuf.makeActive();
 
                 if(eglSwapBuffers(appContext.eglDisplay, appContext.eglSurface) == EGL_FALSE)
                 {

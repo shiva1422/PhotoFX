@@ -8,6 +8,7 @@
 #include "Graphics.h"
 #include "commons.h"
 EGLConfig Graphics::config = nullptr;
+DisplayParams Graphics::displayParams;
 GLuint Shader::createShaderProgram(android_app *app,const char *vertexShader, const char *fragmentShader)
 {
     Shader VertexShader,FragmentShader;

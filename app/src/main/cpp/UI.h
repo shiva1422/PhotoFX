@@ -25,7 +25,7 @@ protected:
     float vertices[8];///check can be removed as its stored on gpuside in View.
 
 public:
-    static DisplayParams displayParams;
+    static DisplayParams displayParams;////move this to Graphics
     View(){}
     ~View(){}///////clear buffers if there
     View(float startX,float startY,float width,float height)
@@ -71,9 +71,9 @@ class ImageView : public View{
 private:
 
     bool isTextureSet=false;
-    Bitmap *image;
+    Bitmap *image= nullptr;
 protected:
-    GLuint texId=0,texBufId=0,vertexBufId=0;
+    GLuint texId=0,texBufId=0,vertexBufId=0;///View class also needs vertexBufID(check moving there)
 
 public:
     static GLuint texCoodBufId,indexBufId;///remove static in if these vary for each image
@@ -85,6 +85,7 @@ public:
    // void setupBuffers();
     ImageView(Bitmap *image){}
     void setTexture(Bitmap *image);
+    void setTextureId(GLuint texId);
     static Texture createTexture(Bitmap *image);
     virtual void draw() override;
 
@@ -96,7 +97,7 @@ class ImageViewStack : public View{
 private:
     GLuint texId=0,vertexBufId=0;
     uint numViews=0;
-    float viewGap=50.0f;//in pixels
+    float viewGap=10.0f;//in pixels
     float singleImageWidth=0.0f;
 
 public:
@@ -104,6 +105,18 @@ public:
     ImageViewStack(uint numViews,int32_t imageWidth,int32_t imageHeight);
     void setBounds(float startX, float startY, float width, float height);
     void setNoViews(uint numViews,int32_t imageWidth,int32_t imageHeight);//make private accordtly with default Constructor.
+    virtual void draw() override ;
+};
+
+class SliderSet : public View{
+private:
+    Bitmap *baseImage= nullptr,*pointerImage= nullptr;
+    GLuint vertexBufId=0,baseTexId=0,pointerTexId=0;
+    ImageView baseImageView,pointerImageView;
+public:
+    SliderSet();
+    void setBounds(float startX, float startY, float width, float height);
+    void setTexture(Bitmap *image);
     virtual void draw() override ;
 };
 
