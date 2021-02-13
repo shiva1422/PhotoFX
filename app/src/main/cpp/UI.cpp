@@ -86,7 +86,7 @@ void ImageViewStack::draw()
     glBindBuffer(GL_ARRAY_BUFFER,0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
     glBindTexture(GL_TEXTURE_2D,0);
-    Graphics::printGlError("ImageViewStack::draw");
+   // Graphics::printGlError("ImageViewStack::draw");
 
 }
 void ImageViewStack::setNoViews(uint numViews, int32_t imageWidth, int32_t imageHeight)
@@ -104,7 +104,7 @@ void ImageViewStack::setNoViews(uint numViews, int32_t imageWidth, int32_t image
     for(int i=0;i<numViews;i++)
     {
         glTexSubImage3D(GL_TEXTURE_2D_ARRAY,0,0,0,i,imageWidth,imageHeight,1,GL_RGBA,GL_UNSIGNED_BYTE,ImageView::defaultImage.pixels);
-        ///MAKE LAST PARAMETER IN ABOUve FUNC TO NULL FOR PERFORMANCE(upload image when required).
+        ///MAKE LAST PARAMETER IN ABOUve FUNC TO NULL FOR  speedup initializeing(upload image when required).
 
     }
     glBindTexture(GL_TEXTURE_2D_ARRAY,0);
@@ -158,9 +158,12 @@ ImageViewStack::ImageViewStack()
 void ImageView::draw()
 {
     //View::draw();//DrawsBackGroundColor//remove if not needed
+
     glUniform1i(DRAWTYPELOC,IMAGEVIEWDRAWTYPE);
+
     glEnableVertexAttribArray(POSITIONATTRIBLOC);
     glEnableVertexAttribArray(TEXTCOODATTRIBLOC);
+
     //draw texture rect
     glBindBuffer(GL_ARRAY_BUFFER,vertexBufId);
     glVertexAttribPointer(POSITIONATTRIBLOC, 2, GL_FLOAT, GL_FALSE, 0,(void *)0);
@@ -170,6 +173,7 @@ void ImageView::draw()
     glBindTexture(GL_TEXTURE_2D,texId);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,indexBufId);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT,(void *)0);
+
     //
     glBindBuffer(GL_ARRAY_BUFFER,0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
@@ -215,6 +219,7 @@ void ImageView::setTextureId(GLuint texId)
 
 void ImageView::setTexture(Bitmap *image)
 {
+    ////////need to clear the preious texture;
     this->image=image;//if(image!=this->image)cheeck
     if(glIsBuffer(texBufId))
     {glDeleteBuffers(1,&texBufId);}
@@ -240,6 +245,10 @@ void ImageView::setTexture(Bitmap *image)
     if(Graphics::printGlError("ImageView::ImageView(Bounds,Bitmap*)")==GL_NO_ERROR)
         isTextureSet=true;
 }
+void ImageView::setBounds(ImageView *imageView)
+{
+    setBounds(imageView->getStartX(),imageView->getStartY(),imageView->width,imageView->height);
+}
 void ImageView::setBounds(float startX, float startY, float width, float height)
 {
     View::setBounds(startX,startY,width,height);
@@ -254,8 +263,8 @@ void ImageView::setBounds(float startX, float startY, float width, float height)
         vertices[6] = vertices[0];
       ///Y's
         vertices[1] = 1.0 - ((startY + height) * 2.0) / (float) displayParams.screenHeight;//bottomy
-        vertices[3] = vertices[1];//topy
-        vertices[5] = 1.0 - ((startY) * 2.0) / (float) displayParams.screenHeight;
+        vertices[3] = vertices[1];
+        vertices[5] = 1.0 - ((startY) * 2.0) / (float) displayParams.screenHeight;//topy
         vertices[7] = vertices[5];
     }
     else
@@ -344,7 +353,7 @@ void View::setBounds(float startX, float startY, float width, float height)
     vertices[6] =vertices[0];
 ///Y's
     vertices[1]=1.0-((startY+height)*2.0)/(float)displayParams.screenHeight;//bottomy
-    vertices[3]=vertices[1];//topy
+    vertices[3]=vertices[1];
     vertices[5]=1.0-((startY)*2.0)/(float)displayParams.screenHeight;
     vertices[7]=vertices[5];
     /*  for(int i=0;i<8;i++)
@@ -367,7 +376,7 @@ void InitializeUI()
     {
 
             //0.0f,1.0f,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f
-            textCoords[0]=0.0f,textCoords[1]=1.0f,textCoords[2]=1.0f,textCoords[3]=1.0f,textCoords[4]=1.0f,textCoords[5]=0.0f,textCoords[6]=0.0f,textCoords[7]=0.0f;
+            textCoords[0]=0.0f,textCoords[1]=0.0f,textCoords[2]=1.0f,textCoords[3]=0.0f,textCoords[4]=1.0f,textCoords[5]=1.0f,textCoords[6]=0.0f,textCoords[7]=1.0f;
 
     }
     else

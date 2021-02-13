@@ -1,7 +1,7 @@
 #version 310 es
-precision mediump int;
-precision mediump float;
-precision mediump sampler2DArray;
+precision highp int;
+precision highp float;
+precision highp sampler2DArray;
 in vec4 colorOut;
 in vec2 textCoodsOut;
 out vec4 Fragcolor; 
@@ -15,17 +15,18 @@ void main()
 
 
     vec4 finalColor;//=texture(bassTex,textCoodsOut);
+    vec2 finalTexCoods=vec2(textCoodsOut.x,1.0-textCoodsOut.y);//cause tex cood start at botoom whare as image from top
     switch(drawType)
     {
 
         case 0:
         {
-            finalColor= texture(image,textCoodsOut);
+            finalColor= texture(image,finalTexCoods);
         }
         break;
         case 1:
         {
-            finalColor=texture(images,vec3(textCoodsOut,2.0));
+            finalColor=texture(images,vec3(finalTexCoods,2.0));
         }
         break;
     }

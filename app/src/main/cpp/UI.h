@@ -84,7 +84,9 @@ public:
     void setBounds(float startX, float startY, float width, float height);
    // void setupBuffers();
     ImageView(Bitmap *image){}
+    void setBounds(ImageView *image);
     void setTexture(Bitmap *image);
+    GLuint getTextureId(){return this->texId;}
     void setTextureId(GLuint texId);
     static Texture createTexture(Bitmap *image);
     virtual void draw() override;

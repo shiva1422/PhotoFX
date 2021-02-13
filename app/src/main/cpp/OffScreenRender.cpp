@@ -3,43 +3,58 @@
 //
 #include "OffScreenRender.h"
 #include "Graphics.h"
-void FrameBuffer::makeActive()
-{
-    glBindFramebuffer(GL_FRAMEBUFFER,id);
-}
-void FrameBuffer::setToDefault()
-{
-    glBindFramebuffer(GL_FRAMEBUFFER,0);
-}
+//setup texture,render buffer,gen framebuffer configure;
+
 FrameBuffer::FrameBuffer()
 {
- //setup texture,render buffer,gen framebuffer configure;
     glGenFramebuffers(1,&id);
-    glBindFramebuffer(GL_FRAMEBUFFER,id);
+  //  fbImage.setTextureId(textureToRender);
+}
+FrameBuffer::FrameBuffer(int width, int height):FrameBuffer()
+{
+    this->width=width;
+    this->height=height;
+    configureColorBuffer();
+    configureDepthBuffer();////optional remove if not needed
+    configure();
+}
+FrameBuffer::FrameBuffer(Bitmap *image):FrameBuffer( image->width,image->height)
+{
+
+}
+void FrameBuffer::configureColorBuffer()
+{
 
     glGenTextures(1,&texId);
     glBindTexture(GL_TEXTURE_2D,texId);
-    glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA8,Graphics::displayParams.screenWidth,Graphics::displayParams.screenHeight,0,GL_RGBA,GL_UNSIGNED_BYTE,0);//just make GL_RGB for color only.
+    glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA8,width,height,0,GL_RGBA,GL_UNSIGNED_BYTE,0);//just make GL_RGB for color only.
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);//more filteres
+    glBindTexture(GL_TEXTURE_2D,0);
+}
+void FrameBuffer::configureDepthBuffer()
+{
     //optional DepthBuffer if depth testing needed
+    glBindFramebuffer(GL_FRAMEBUFFER,id);
     glGenRenderbuffers(1,&depthBufId);
     glBindRenderbuffer(GL_RENDERBUFFER,depthBufId);
-    glRenderbufferStorage(GL_RENDERBUFFER,GL_DEPTH_COMPONENT,Graphics::displayParams.screenWidth,Graphics::displayParams.screenHeight);
+    glRenderbufferStorage(GL_RENDERBUFFER,GL_DEPTH_COMPONENT,width,height);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER,GL_DEPTH_COMPONENT,GL_RENDERBUFFER,depthBufId);
+    setToDefault();
+}
 
+void FrameBuffer::configure()
+{
     //configure the frame buffer.
+    glBindFramebuffer(GL_FRAMEBUFFER,id);
     glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,texId,0);
     GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
-    glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers this buffer draws to the specified bufferes.
+    glDrawBuffers(1, DrawBuffers); // draw to the specified  buffers attached to this frame buffer listed in above line.
 
     //draw to framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER,id);
-    glViewport(0,0,Graphics::displayParams.screenWidth,Graphics::displayParams.screenHeight);
-
-
-    // Always check that our framebuffer is ok
+   // glViewport(0,0,width,height);///change immediate after fbo rendering done to default screen
+    // Always check framebuffe status is complete
     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
     {
         //error dfsdf
@@ -47,14 +62,14 @@ FrameBuffer::FrameBuffer()
         //
 
     }
+    setToDefault();
 
-
-//
-  //  fbImage.setTextureId(textureToRender);
-
-
-
-
-
-
+}
+void FrameBuffer::makeActive()
+{
+    glBindFramebuffer(GL_FRAMEBUFFER,id);
+}
+void FrameBuffer::setToDefault()
+{
+    glBindFramebuffer(GL_FRAMEBUFFER,0);
 }

@@ -14,5 +14,6 @@ typedef struct GlobalData
     DisplayParams *displayParams;
     View *contentView=NULL;//can be View &contentView;
     GLuint UIProgram;
+    GLuint frameBufId=0;
 }GlobalData;
 #endif //PHOTOFX_MAIN_H

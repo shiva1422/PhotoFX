@@ -9,6 +9,7 @@
 #include "Main.h"
 #include "JavaCalls.h"
 #include "OffScreenRender.h"
+#include "ImageProcessing.h"
 void android_main(android_app *app)
 {
     app->onAppCmd = onCmd;
@@ -23,6 +24,7 @@ void android_main(android_app *app)
     globalData.appContext=&appContext;
     app->userData=(void *)&globalData;
     appContext.app=app;
+    PhotoFX::app=app;
     int32_t eventId, events, fdesc;
     android_poll_source *source;
 
@@ -75,13 +77,20 @@ void android_main(android_app *app)
 
     // MainImageView.setBoundsDeviceIndependent(0,displayParams.screenHeight*20/100,InputImage.width,InputImage.height);
 
+    FrameBuffer outImgFrameBuf(&InputImage);
+    globalData.frameBufId=outImgFrameBuf.getId();
+ImageView outputImage;
+outputImage.setBounds(&MainImageView);
+outputImage.setTextureId(outImgFrameBuf.getTexId());
 
-
-
-FrameBuffer outputImageBuf;
 
 //
-fbImage.setTextureId(outputImageBuf.getTexId());
+ImageView test(100,100,500,500,&InputImage);
+PhotoFX photoFx;
+
+photoFx.inputTexId=test.getTextureId();
+photoFx.inputImage=&InputImage;
+
 
 
 
@@ -94,24 +103,36 @@ fbImage.setTextureId(outputImageBuf.getTexId());
         {
             if (source != NULL)
             {
+                //FrameBuffer::setToDefault();
                 source->process(app, source);
-                glClearColor(0.0,0.0,0.0,1.0);
-                glClear(GL_COLOR_BUFFER_BIT);
-                frameBounds.draw();
-                float x=(rand()%displayParams.screenWidth);
-                float y=(rand()%displayParams.screenHeight);
 
-              //  MainImageView.setBounds(x,y,MainImageView.getWidth(),MainImageView.getHeight());
-                //MainImageView.draw();
-               // globalData.contentView->draw();
+                //drawing
+                photoFx.apply();
+                glUseProgram(globalData.UIProgram);
+
+
+
+
+                glClearColor(0.0,0.0,0.0,1.0);
+
+                glClear(GL_COLOR_BUFFER_BIT);
+
+                frameBounds.draw();
+
+
                 globalData.contentView->draw();
-                MainImageView.draw();
                 optionsStack.draw();
                 subOptionsStack.draw();
                 sliderSet.draw();
-                FrameBuffer::setToDefault();
-                fbImage.draw();
-                outputImageBuf.makeActive();
+                glUniform1i(glGetUniformLocation(globalData.UIProgram,"frameBuf"),(int)0);
+                outputImage.draw();
+               // glUseProgram(photoFx.shaderProgram);
+
+               // MainImageView.draw();
+
+                /////FrameBufferRendering
+                //////
+                glUseProgram(globalData.UIProgram);
 
                 if(eglSwapBuffers(appContext.eglDisplay, appContext.eglSurface) == EGL_FALSE)
                 {

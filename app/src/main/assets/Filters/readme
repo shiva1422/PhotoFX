@@ -1,1 +1,5 @@
 all shaders here are fragment except vertex that is common for all filter (fragement) shader programs
+
+//all layout(locations) keep same as in uishader
+
+//when shader program changes some getting blanck and glUniform1i give invalid opertaion if keeep getting these getUnifromLocation and set glUniform1i
