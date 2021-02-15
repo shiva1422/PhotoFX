@@ -107,7 +107,7 @@ photoFx.inputImage=&InputImage;
                 source->process(app, source);
 
                 //drawing
-                photoFx.apply();
+
                 glUseProgram(globalData.UIProgram);
 
 
@@ -125,6 +125,7 @@ photoFx.inputImage=&InputImage;
                 subOptionsStack.draw();
                 sliderSet.draw();
                 glUniform1i(glGetUniformLocation(globalData.UIProgram,"frameBuf"),(int)0);
+                photoFx.apply();
                 outputImage.draw();
                // glUseProgram(photoFx.shaderProgram);
 

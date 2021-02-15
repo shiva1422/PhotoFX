@@ -9,12 +9,16 @@ android_app *PhotoFX::app= nullptr;
 void PhotoFX::apply()
 {
     srand(time(nullptr));
-    float param=(rand()%255)/256.0;
+    static float param=1.0;
+
     Loge("param value","the values is %f ",param);
     glUseProgram(shaderProgram);
     GlobalData *globalData=(GlobalData *)(app->userData);
     glBindFramebuffer(GL_FRAMEBUFFER,globalData->frameBufId);
     glViewport(0,0,inputImage->width,inputImage->height);
+    glClearColor(0.0,0.0,0.0,1.0);
+    glClear(GL_COLOR_BUFFER_BIT);
+
     glUniform1i(glGetUniformLocation(shaderProgram,"frameBuf"),1);
     glUniform1f(1,param);
 
@@ -45,7 +49,9 @@ void PhotoFX::apply()
     Graphics::printGlError("2fxShader");
 
 
-
+    param+=0.5;
+    if(param>20.0)
+        param=0.00;
 
 }
 PhotoFX::PhotoFX()
