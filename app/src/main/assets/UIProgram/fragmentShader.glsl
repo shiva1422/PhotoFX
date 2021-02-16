@@ -9,7 +9,9 @@ in float texZ;
 uniform sampler2D image;
 uniform sampler2D image2;
 layout(location=0) uniform int drawType;
+layout(location=4) uniform int param3;
 layout(location = 7)uniform sampler2DArray images;
+
 void main()
 {
 

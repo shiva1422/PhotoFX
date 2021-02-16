@@ -10,6 +10,9 @@
 #include "JavaCalls.h"
 #include "OffScreenRender.h"
 #include "ImageProcessing.h"
+#include "Editing.h"
+#include "UI.h"
+
 void android_main(android_app *app)
 {
     app->onAppCmd = onCmd;
@@ -57,7 +60,7 @@ void android_main(android_app *app)
   //  getPhoto(app,&defaultKalaI,3);
   getPhoto(app,&ImageView::defaultImage,12121);
 
-
+ViewGroup viewGroup;
     Bitmap InputImage;
     getPhoto(app,&InputImage,0);
     View frameBounds(0,displayParams.screenHeight*15/100,displayParams.screenWidth,displayParams.screenHeight*60/100);
@@ -70,10 +73,12 @@ void android_main(android_app *app)
     ImageViewStack subOptionsStack(6,ImageView::defaultImage.width,ImageView::defaultImage.height);
     optionsStack.setBounds(0,displayParams.screenHeight*93/100,displayParams.screenWidth,displayParams.screenHeight*7.5/100);
     subOptionsStack.setBounds(0,displayParams.screenHeight*85/100,displayParams.screenWidth,optionsStack.getHeight());
+    subOptionsStack.setNoViewsVisible(1);
     ImageView TestImage(100,100,50,50);
     SliderSet sliderSet;
     sliderSet.setBounds(0,displayParams.screenHeight*75/100,displayParams.screenWidth,displayParams.screenHeight*2/100);
     ImageView fbImage(0,0,displayParams.screenWidth,displayParams.screenHeight);
+
 
     // MainImageView.setBoundsDeviceIndependent(0,displayParams.screenHeight*20/100,InputImage.width,InputImage.height);
 
@@ -91,6 +96,13 @@ PhotoFX photoFx;
 photoFx.inputTexId=test.getTextureId();
 photoFx.inputImage=&InputImage;
 
+viewGroup.addView(&optionsStack);
+viewGroup.addView(&subOptionsStack);
+//viewGroup.addView(&MainImageView);
+viewGroup.addView(&sliderSet);
+viewGroup.addView(&outputImage);
+globalData.contentView=&viewGroup;
+
 
 
 
@@ -103,37 +115,17 @@ photoFx.inputImage=&InputImage;
         {
             if (source != NULL)
             {
-                //FrameBuffer::setToDefault();
+                FrameBuffer::setToDefault();
                 source->process(app, source);
-
-                //drawing
-
                 glUseProgram(globalData.UIProgram);
-
-
-
-
+                glUniform1i(glGetUniformLocation(globalData.UIProgram,"param3"),1);//active stackView;
                 glClearColor(0.0,0.0,0.0,1.0);
-
                 glClear(GL_COLOR_BUFFER_BIT);
-
-                frameBounds.draw();
-
-
                 globalData.contentView->draw();
-                optionsStack.draw();
-                subOptionsStack.draw();
-                sliderSet.draw();
                 glUniform1i(glGetUniformLocation(globalData.UIProgram,"frameBuf"),(int)0);
                 photoFx.apply();
-                outputImage.draw();
-               // glUseProgram(photoFx.shaderProgram);
-
-               // MainImageView.draw();
-
                 /////FrameBufferRendering
                 //////
-                glUseProgram(globalData.UIProgram);
 
                 if(eglSwapBuffers(appContext.eglDisplay, appContext.eglSurface) == EGL_FALSE)
                 {

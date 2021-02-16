@@ -11,11 +11,53 @@ GLint POSITIONATTRIBLOC=0,TEXTCOODATTRIBLOC=2;
 //float textureCoords[8]={0.0f,1.0f,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f};
 //GLushort drawElementIndices[6]={0,1,2,2,3,0};
 GLuint ImageView::texCoodBufId=0,ImageView::indexBufId=0;
+void ViewGroup::draw()
+{
+    for(int i=0;i<noViews;i++)
+        views[i]->draw();
+
+}
+void ViewGroup::addView(View *view)
+{
+    ////initialize ViewGroup with predefined size and use malloc if exeded that size instead of doing for every add;
+    ///Check malloc error handle accordingly
+   if(noViews<defaultSize)
+   {
+       views[noViews]=view;
+   }
+   noViews++;
+
+   /* View **tempViews=nullptr;
+    tempViews=(View **)malloc(noViews *sizeof(View **));//first row or viewlist pointer
+    for(int i=0;i<noViews;i++)
+    {
+        *(tempViews+i) = *(views+i);
+    }
+
+    //
+    noViews++;
+    if(views)
+    {
+        free(views);
+        *views=(View *)malloc(noViews*sizeof(View *));
+        for(int i=0;i<(noViews-1);i++)
+        {
+           *(views+i)=*(tempViews+i);
+        }
+        *(views+(noViews-1))=*(tempViews+noViews-1);
+    }
+    free(tempViews);*/
+
+}
+ViewGroup::ViewGroup()
+{//should be edited completey just for times sake use new() if pos also use references instead of pointers.
+    views=(View **)malloc(defaultSize*sizeof(View *));
+}
 void SliderSet::draw()
 {
   //  View::draw();
-    baseImageView.draw();
-    pointerImageView.draw();
+    baseImageView.clearRect();
+    pointerImageView.clearRect();//.draw() for images
 
 
 }
@@ -81,7 +123,7 @@ void ImageViewStack::draw()
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D_ARRAY,texId);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ImageView::indexBufId);
-    glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT,(void *)0,numViews);
+    glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT,(void *)0,numViewsToDraw);
     //
     glBindBuffer(GL_ARRAY_BUFFER,0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
@@ -92,6 +134,8 @@ void ImageViewStack::draw()
 void ImageViewStack::setNoViews(uint numViews, int32_t imageWidth, int32_t imageHeight)
 {
     this->numViews=numViews;
+    this->numViewsToDraw=numViews;
+    this->startViewNo=0;
     glGenTextures(1,&texId);//texId is the textureArrayId
     glUniform1i(SAMPLERARRAYLOC,1);
     glActiveTexture(GL_TEXTURE1);

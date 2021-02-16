@@ -10,6 +10,7 @@ layout(location=0) uniform int drawType;
 layout(location=1) uniform float param1;
 layout(location=2) uniform float param2;
 layout(location=3) uniform int frameBuf;
+layout(location=4) uniform int param3;
 
 out vec2 textCoodsOut;
 out vec4 colorOut;
@@ -29,10 +30,14 @@ void main()
         break;
         case 1://ImageViewStack
         {
-            //param1-viewGap,param2-viewWidht
+            //param1-viewGap,param2-viewWidht,param3,active View;
 
             finalVerts.x=verts.x+(instanceId+1.0)*param1+instanceId*param2;
             finalVerts.y=verts.y;
+            if(gl_InstanceID==param3)//just for highlighting the selected View;
+            {
+                finalVerts.y=finalVerts.y+0.01;
+            }
 
         }
         break;

@@ -6,6 +6,7 @@
 #include "Commons.h"
 #include "Main.h"
 #include "JavaCalls.h"
+#include "Graphics.h"
 void onCmd(android_app* app, int32_t cmd)
 {
 

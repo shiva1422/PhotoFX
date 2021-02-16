@@ -18,8 +18,6 @@ int32_t onInput(android_app* papp, AInputEvent* event) {
             case AMOTION_EVENT_ACTION_DOWN:
             {
 
-
-
             }
                 break;
             case AMOTION_EVENT_ACTION_POINTER_DOWN: {

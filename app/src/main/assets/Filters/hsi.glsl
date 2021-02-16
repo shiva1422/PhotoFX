@@ -17,7 +17,7 @@ void main()
     finalColor= texture(image,finalTexCoods);
    // finalColor.r=param1;
     vec3 hsi=rgbToHsi(vec3(finalColor.xyz));
-    hsi.g=hsi.g*param1;
+    hsi.r=hsi.r+param1;
    vec3 rgb=hsiToRgb(hsi);
  //    finalColor.rgb=rgb-finalColor.rgb;
  //   if(finalColor.b==0.0)
@@ -41,12 +41,26 @@ vec3 rgbToHsi(vec3 rgb)//use seperate r,g,b than a vector;no extram memory and c
     }
     else minRGB=b;
     saturation=1.0-(minRGB)/(intensity);
-    hue=sqrt((r-g)*(r-g)+(r-b)*(g-b));
-    hue=((r-g)+(r-b))/(2.0*hue);
-    hue=acos(hue);
-    hue=hue*180.0/PI;//hue in degrees
     if(r==b&&r==g)
-    hue=0.0;
+    {
+        hue=0.0;
+        saturation=0.0;
+    }
+    else
+    {
+        float rootover=(r-g)*(r-g)+(r-b)*(g-b);
+        hue=sqrt(rootover);
+        hue=((r-g)+(r-b))/(2.0*hue);
+        hue=acos(hue);
+        hue=hue*180.0/PI;//hue in degrees
+      //  if(rootover<0.0)
+       // hue=0.0;
+
+    }
+    if(isnan(hue)||isinf(hue))
+    {
+       // hue=0.0;
+    }
     if(b>g)
     {
         hue=360.0-hue;
@@ -76,7 +90,7 @@ vec3 hsiToRgb(vec3 hsi)
         r=3.0*intensity-(g+b);
 
     }
-    else if(hue<120.0)
+    else if(hue<=120.0)
     {
 
         r=intensity*(1.0+( saturation*cos(hue*RADIAN)/cos((60.0-hue)*RADIAN)));
@@ -86,16 +100,11 @@ vec3 hsiToRgb(vec3 hsi)
     }
     else
     {
-        //no need this else;
-      //  b=255.0;
-
-       // r = r+hup;
-     //   g=g+hup;
-      //  b=b+hup;
-        //  BOOM("thre r g b are %lf %lf lf",r,g,b);
-
-
-
+        //this else only for checking error remove after everythhing is set
+        //means the hue is nan or infinity check why this happen try prevent or make color as gray equal to intensity;
+       r=intensity;
+        g=r;
+        b=r;
     }
   /*  if(r>255.0)
     r=255.0;

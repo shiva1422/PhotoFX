@@ -49,8 +49,8 @@ void PhotoFX::apply()
     Graphics::printGlError("2fxShader");
 
 
-    param+=0.5;
-    if(param>20.0)
+    param+=5;
+    if(param>360.0)
         param=0.00;
 
 }

@@ -99,14 +99,18 @@ class ImageViewStack : public View{
 private:
     GLuint texId=0,vertexBufId=0;
     uint numViews=0;
+    uint startViewNo=0;
+    int numViewsToDraw=0.0;
     float viewGap=10.0f;//in pixels
     float singleImageWidth=0.0f;
+
 
 public:
     ImageViewStack();
     ImageViewStack(uint numViews,int32_t imageWidth,int32_t imageHeight);
     void setBounds(float startX, float startY, float width, float height);
     void setNoViews(uint numViews,int32_t imageWidth,int32_t imageHeight);//make private accordtly with default Constructor.
+    void setNoViewsVisible(uint drawCount){this->numViewsToDraw=drawCount;}
     virtual void draw() override ;
 };
 
@@ -121,4 +125,15 @@ public:
     void setTexture(Bitmap *image);
     virtual void draw() override ;
 };
+class ViewGroup : public View{
+private:
+    uint noViews=0;
+    uint defaultSize=10;
+    View **views=nullptr;
+public:
+    ViewGroup();
+    void addView(View  *view);
+    virtual void draw() override ;
 
+
+};

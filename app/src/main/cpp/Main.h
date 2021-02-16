@@ -6,8 +6,7 @@
 #define PHOTOFX_MAIN_H
 
 #include "Commons.h"
-#include "UI.h"
-
+class View;
 typedef struct GlobalData
 {
     AppContext *appContext;
@@ -16,4 +15,5 @@ typedef struct GlobalData
     GLuint UIProgram;
     GLuint frameBufId=0;
 }GlobalData;
+
 #endif //PHOTOFX_MAIN_H
