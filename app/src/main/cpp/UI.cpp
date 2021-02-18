@@ -11,6 +11,20 @@ GLint POSITIONATTRIBLOC=0,TEXTCOODATTRIBLOC=2;
 //float textureCoords[8]={0.0f,1.0f,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f};
 //GLushort drawElementIndices[6]={0,1,2,2,3,0};
 GLuint ImageView::texCoodBufId=0,ImageView::indexBufId=0;
+bool ViewGroup::isTouched(float touchX, float touchY)
+{
+  //  (View::*onTouch)(x,y,ACTION_DOWN);
+  if(touchX >= startX && touchY >= startY && touchX <= (startX + width) &&touchY <= (startY + height))
+  {
+     // (this->*onTouch)(touchX,touchY,ACTION_DOWN);
+      UILogE("ViewGroup touched");
+      onTouchListener->defaultOnTouch(touchX,touchY,ACTION_DOWN);
+      return true;
+
+  }
+  return false;
+
+}
 void ViewGroup::draw()
 {
     for(int i=0;i<noViews;i++)
@@ -52,6 +66,7 @@ void ViewGroup::addView(View *view)
 ViewGroup::ViewGroup()
 {//should be edited completey just for times sake use new() if pos also use references instead of pointers.
     views=(View **)malloc(defaultSize*sizeof(View *));
+   // onTouch=(OnTouch)&ViewGroup::defaultOnTouch;
 }
 void SliderSet::draw()
 {
@@ -199,6 +214,11 @@ ImageViewStack::ImageViewStack()
     glBindBuffer(GL_ARRAY_BUFFER,0);
 
 }
+bool ImageView::defaultOnTouch(float x, float y, TouchAction touchAction)
+{
+    UILogE("touched ImageView");
+    return true;
+}
 void ImageView::draw()
 {
     //View::draw();//DrawsBackGroundColor//remove if not needed
@@ -332,6 +352,7 @@ ImageView::ImageView()
 }
 void View::clearRect()
 {
+
     glEnable(GL_SCISSOR_TEST);
     glScissor(startX,displayParams.screenHeight-startY-height,width,height);
     glClearColor(r,g,b,a);
@@ -404,6 +425,10 @@ void View::setBounds(float startX, float startY, float width, float height)
       {
           UILOG("the vertex %d is %f",i,vertices[i]);
       }*/
+
+}
+View::View()
+{
 
 }
 void InitializeUI()

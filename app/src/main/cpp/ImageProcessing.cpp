@@ -11,7 +11,7 @@ void PhotoFX::apply()
     srand(time(nullptr));
     static float param=1.0;
 
-    Loge("param value","the values is %f ",param);
+   // Loge("param value","the values is %f ",param);
     glUseProgram(shaderProgram);
     GlobalData *globalData=(GlobalData *)(app->userData);
     glBindFramebuffer(GL_FRAMEBUFFER,globalData->frameBufId);
@@ -41,12 +41,12 @@ void PhotoFX::apply()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
     glBindTexture(GL_TEXTURE_2D,0);
     glBindFramebuffer(GL_FRAMEBUFFER,0);
-    Graphics::printGlError("1fxShader");
+   // Graphics::printGlError("1fxShader");
 
     glUseProgram(globalData->UIProgram);
     //glUniform1i(3,0);
     glViewport(0,0,Graphics::displayParams.screenWidth,Graphics::displayParams.screenHeight);
-    Graphics::printGlError("2fxShader");
+   // Graphics::printGlError("2fxShader");
 
 
     param+=5;

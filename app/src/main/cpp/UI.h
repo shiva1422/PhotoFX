@@ -5,7 +5,7 @@
 #ifndef PHOTOFX_UI_H
 #define PHOTOFX_UI_H
 #include "Graphics.h"
-#endif //PHOTOFX_UI_H
+#include "EventHandling.h"
 #define UILogE(...)((void)__android_log_print(ANDROID_LOG_ERROR,"UILOG",__VA_ARGS__))
 #define UILogI(...)((void)__android_log_print(ANDROID_LOG_INFO,"UILOG",__VA_ARGS__))
 typedef struct Color{
@@ -14,7 +14,9 @@ typedef struct Color{
 typedef struct Texture{
     GLuint texBufId=0,texId=0;
 }Texture;
-
+class View;
+class OnTouchListener;
+typedef bool (View::*OnTouch)(float x,float y,TouchAction touchAction);//func nam Ontouch;
 void InitializeUI();
 class View{
     //////displayParams should be set first;
@@ -23,10 +25,13 @@ protected:
     float r=0.5,g=0.5,b=0.5,a=1.0;
     float backgroundColor[4];
     float vertices[8];///check can be removed as its stored on gpuside in View.
+ //Touch:
+      OnTouchListener *onTouchListener=new ViewTouchListener() ;//free in destructor;
+
 
 public:
     static DisplayParams displayParams;////move this to Graphics
-    View(){}
+    View();
     ~View(){}///////clear buffers if there
     View(float startX,float startY,float width,float height)
     {
@@ -48,7 +53,6 @@ public:
     float centerX(){return (startX+width/2);}
     float centreY(){return (startY+height/2);}
     float* getVertexAddr(){return vertices;}
-    virtual void setBounds(float startX, float startY, float width, float height);
     void setBoundsDeviceIndependent(float startX,float startY,float width,float height);//just width and height in dp
     void fitToCentre(float boxStartX,float boxStartY,float boxWidth,float boxHeight);
     void fitToCentre(const View &view);
@@ -56,14 +60,21 @@ public:
     void setBackgroundColor(float red,float green,float blue,float alpha){r=red,g=green,b=blue,a=alpha;};
    // void setBackgroundColor(float *pixel);
 
-
+    virtual void setBounds(float startX, float startY, float width, float height);
     virtual void draw(){clearRect();};////change ClearRect
     void clearRect();
 
+    //Touch:
 
-    bool isTouched(float touchX,float touchY){
-        return touchX >= startX && touchY >= startY && touchX <= (startX + width) &&
+   virtual bool isTouched(float touchX,float touchY){
+       UILogE("view touched");
+
+        bool touched= touchX >= startX && touchY >= startY && touchX <= (startX + width) &&
                touchY <= (startY + height);
+        if(touched){
+            onTouchListener->defaultOnTouch(touchX,touchY,ACTION_DOWN);
+                    };
+        return touched;
     };
 };
 ////////Destructors
@@ -74,6 +85,8 @@ private:
     Bitmap *image= nullptr;
 protected:
     GLuint texId=0,texBufId=0,vertexBufId=0;///View class also needs vertexBufID(check moving there)
+    bool defaultOnTouch(float x,float y,TouchAction touchAction);
+
 
 public:
     static GLuint texCoodBufId,indexBufId;///remove static in if these vary for each image
@@ -81,10 +94,10 @@ public:
     ImageView();
     ImageView(float startX,float startY,float width,float height);
     ImageView(float startX,float startY,float width,float height,Bitmap *image);
-    void setBounds(float startX, float startY, float width, float height);
+    void setBounds(float startX, float startY, float width, float height) override ;
    // void setupBuffers();
     ImageView(Bitmap *image){}
-    void setBounds(ImageView *image);
+    void setBounds(ImageView *image)  ;
     void setTexture(Bitmap *image);
     GLuint getTextureId(){return this->texId;}
     void setTextureId(GLuint texId);
@@ -92,6 +105,7 @@ public:
     virtual void draw() override;
 
 public:
+
 
 };
 class ImageViewStack : public View{
@@ -108,7 +122,7 @@ private:
 public:
     ImageViewStack();
     ImageViewStack(uint numViews,int32_t imageWidth,int32_t imageHeight);
-    void setBounds(float startX, float startY, float width, float height);
+    void setBounds(float startX, float startY, float width, float height) override ;
     void setNoViews(uint numViews,int32_t imageWidth,int32_t imageHeight);//make private accordtly with default Constructor.
     void setNoViewsVisible(uint drawCount){this->numViewsToDraw=drawCount;}
     virtual void draw() override ;
@@ -121,19 +135,25 @@ private:
     ImageView baseImageView,pointerImageView;
 public:
     SliderSet();
-    void setBounds(float startX, float startY, float width, float height);
+    void setBounds(float startX, float startY, float width, float height) override ;
     void setTexture(Bitmap *image);
     virtual void draw() override ;
 };
 class ViewGroup : public View{
 private:
     uint noViews=0;
-    uint defaultSize=10;
+    uint defaultSize=10;//default no ints;
     View **views=nullptr;
+protected:
 public:
     ViewGroup();
     void addView(View  *view);
     virtual void draw() override ;
+    virtual bool isTouched(float touchX,float touchY);
 
 
 };
+
+
+
+#endif //PHOTOFX_UI_H

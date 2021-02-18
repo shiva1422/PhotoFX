@@ -3,10 +3,12 @@
 //
 
 #include <android_native_app_glue.h>
-
+#include "Main.h"
+#include "UI.h"
 float touchX,touchY;
 int32_t pointerIndex,pointerId,pointerCount;
-int32_t onInput(android_app* papp, AInputEvent* event) {
+int32_t onInput(android_app* app, AInputEvent* event) {
+    GlobalData *globalData=(GlobalData *)(app->userData);///check if can get without any conversion
     if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION)
     {
         pointerIndex =(AMotionEvent_getAction(event) & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK)>> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
@@ -14,10 +16,19 @@ int32_t onInput(android_app* papp, AInputEvent* event) {
         // TouchLog("the pointer index for all is %d and the pointer id is %d",pointerIndex,pointerId);
         touchX = AMotionEvent_getX(event, pointerIndex);
         touchY = AMotionEvent_getY(event, pointerIndex);
+        View *ContentView=globalData->contentView;///only for testing
+        if(ContentView)
+        {
+            ContentView->isTouched(touchX,touchY);
+        }
         switch (AMotionEvent_getAction(event) & AMOTION_EVENT_ACTION_MASK) {
             case AMOTION_EVENT_ACTION_DOWN:
             {
-
+                View *ContentView=globalData->contentView;
+               if(ContentView)
+               {
+                   ContentView->isTouched(touchX,touchY);
+               }
             }
                 break;
             case AMOTION_EVENT_ACTION_POINTER_DOWN: {

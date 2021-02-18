@@ -99,6 +99,7 @@ photoFx.inputImage=&InputImage;
 viewGroup.addView(&optionsStack);
 viewGroup.addView(&subOptionsStack);
 //viewGroup.addView(&MainImageView);
+viewGroup.setBounds(0,0,displayParams.screenWidth,displayParams.screenHeight);
 viewGroup.addView(&sliderSet);
 viewGroup.addView(&outputImage);
 globalData.contentView=&viewGroup;
@@ -106,7 +107,10 @@ globalData.contentView=&viewGroup;
 
 
 
-
+/*class myListener: public OnTouchListener{
+public:
+    virtual bool onTouch(float x,float y,TouchAction touchAction,View *view) override {}
+};*/
 
 
     while(true)
