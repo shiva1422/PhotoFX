@@ -1,0 +1,23 @@
+Human eye more sensitive to brighness than color processing images in rgb is result is unreal and unpleasing to eye so RGB TO HSI.
+
+intensity -equal amounts of light.
+RGB 6 Saturation. White light is caused by equal amounts of each of R, G and B. If we take the
+minimum one of these and subtract that amount from each of R, G and B, then we eliminate the grayscale
+(intensity) and what is left has only two color components instead of three (the minimum one is now zero).
+Thus this new color has no white light pollution and so it is fully saturated and represents a single wavelength
+(see Figure 8.2) or a combination of only two primary colors. It is the saturation. Because I has a maximum
+value of 1 here, we can take saturation =1-min(rgb);
+
+//To convert a pixel (H, S, I) in the opposite direction to (R, G, B), we
+  consider the cases where the point P isin one of the following regions of the chromaticity triangle: H < 120°
+  (red-green), 120° < H < 240° (green-blue), or else 240° < H < 360° (blue-red). The following describe the
+
+
+Opengl built in functions;
+isinf and innan
+
+IDEAS:normazlized color effect
+1.subtracting minimun value of same value from rgb(adding light ,polliutin to the color);
+2.when increaing hue only two color values increase and the third one should not.cause hue is (only two colors after subtracting grAY VALUE FROM RGB)
+3.saturaction is change by muliplying >and <1 and hue is changed using by inc and dec;
+4.processing similar to grayscale can be done on intensity.
