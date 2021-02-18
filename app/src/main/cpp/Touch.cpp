@@ -9,6 +9,9 @@ float touchX,touchY;
 int32_t pointerIndex,pointerId,pointerCount;
 int32_t onInput(android_app* app, AInputEvent* event) {
     GlobalData *globalData=(GlobalData *)(app->userData);///check if can get without any conversion
+    View *ContentView=globalData->contentView;
+
+
     if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION)
     {
         pointerIndex =(AMotionEvent_getAction(event) & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK)>> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
@@ -16,57 +19,59 @@ int32_t onInput(android_app* app, AInputEvent* event) {
         // TouchLog("the pointer index for all is %d and the pointer id is %d",pointerIndex,pointerId);
         touchX = AMotionEvent_getX(event, pointerIndex);
         touchY = AMotionEvent_getY(event, pointerIndex);
-        View *ContentView=globalData->contentView;///only for testing
-        if(ContentView)
-        {
-            ContentView->isTouched(touchX,touchY);
-        }
         switch (AMotionEvent_getAction(event) & AMOTION_EVENT_ACTION_MASK) {
             case AMOTION_EVENT_ACTION_DOWN:
             {
-                View *ContentView=globalData->contentView;
-               if(ContentView)
+               if(ContentView)//not req;
                {
-                   ContentView->isTouched(touchX,touchY);
+                   ContentView->isTouched(touchX,touchY,pointerId,ACTION_DOWN);
                }
             }
                 break;
-            case AMOTION_EVENT_ACTION_POINTER_DOWN: {
-
-
-
-
-            }
-                break;
-            case AMOTION_EVENT_ACTION_MOVE:
-            {
-                pointerCount=AMotionEvent_getPointerCount(event);
-                //TouchLog("molving");
-                for(int i=0;i<pointerCount;i++)//calling action down for all pointers call only if historyValue and current value differ for particular index
+            case AMOTION_EVENT_ACTION_POINTER_DOWN:
                 {
+                    if(ContentView)//not req;
+                    {
+                        ContentView->isTouched(touchX,touchY,pointerId,ACTION_POINTER_DOWN);
+                    }
+                }
+                break;
+             case AMOTION_EVENT_ACTION_MOVE:
+                {
+                    pointerCount=AMotionEvent_getPointerCount(event);
+
+                    for(int i=0;i<pointerCount;i++)//calling action down for all pointers call only if historyValue and current value differ for particular index
+                   {
                     touchX = AMotionEvent_getX(event, i);
                     touchY = AMotionEvent_getY(event, i);
                     pointerId = AMotionEvent_getPointerId(event, i);
-                    //  drumKit.isTouched(touchX,touchY,pointerId);
 
-
+                   }
+                    if(ContentView)//not req;
+                    {
+                        ContentView->isTouched(touchX,touchY,pointerId,ACTION_MOVE);
+                    }
                 }
-            }
                 break;
-            case AMOTION_EVENT_ACTION_POINTER_UP: {
-                //  IO("ACTION UP POINTER");
-                //IO("the pointer index for pointerUp i %d",pointerId);
+            case AMOTION_EVENT_ACTION_POINTER_UP:
+                {
 
-
-            }
+                 if(ContentView)//not req;
+                 {
+                    ContentView->isTouched(touchX,touchY,pointerId,ACTION_POINTER_UP);
+                 }
+                }
                 break;
-            case AMOTION_EVENT_ACTION_UP: {
-                //  IO("ACTION UP");
-                //   IO("the pointer index for actionUp i %d",pointerId);
+            case AMOTION_EVENT_ACTION_UP:
+                {
+
+                 if(ContentView)//not req;
+                 {
 
 
-
-            }
+                     ContentView->isTouched(touchX,touchY,pointerId,ACTION_UP);
+                 }
+                }
                 break;
 
 

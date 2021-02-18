@@ -20,7 +20,7 @@ void PhotoFX::apply()
     glClear(GL_COLOR_BUFFER_BIT);
 
     glUniform1i(glGetUniformLocation(shaderProgram,"frameBuf"),1);
-    glUniform1f(1,param);
+    glUniform1f(1,globalData->sliderValueTest);
 
     GLushort indices[6];
     indices[0]=0, indices[1]=1, indices[2]=2, indices[3]=2, indices[4]=3, indices[5]=0;

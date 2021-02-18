@@ -12,6 +12,6 @@ private:
     float sliderValues[4]={0.0f,0.0f,0.0f,0.0f};
 };
 class Layer{
-    //Layer has similar functionality of ImageView stack with its own editing feature;
+    //Layer has similar functionality of ImageGroup with its own editing fearures; add its own draw functions to draw layers
 };
 #endif //PHOTOFX_EDITING_H

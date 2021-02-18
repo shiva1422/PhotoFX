@@ -21,3 +21,37 @@ IDEAS:normazlized color effect
 2.when increaing hue only two color values increase and the third one should not.cause hue is (only two colors after subtracting grAY VALUE FROM RGB)
 3.saturaction is change by muliplying >and <1 and hue is changed using by inc and dec;
 4.processing similar to grayscale can be done on intensity.
+5.tranlate,scale,rotate sheer pg(110)(inverse transforms better.)
+6.Difference image
+
+
+Values:
+range of eye focal length 14 to 17 mm.
+book 1 page 61 image height captured by eyed r
+visible spectrum - 0.43um(voilet) to 0.79um(red)
+dynamic range - highest/lowest intensity values.
+contrast = highest - lowest intensity;
+
+ImageProcessing theroy:
+.cones sensitive to color rod give overall picture of field of view and sensitve low levels of illumination(dim light vison).
+.in cameras focal length is same but distance beteen image plane and lens is adusted for focusing at various distances whereas in eyes
+the distance is fix and  proper focus is acheived varying shape of lens.
+.E=hv;light (wave and particle)
+.intensity<-> graylevel;
+.other than frquency quality of chromatic light is described by radiance,illuminace,brighnes.
+.spacial resolution can be line pairs per unit distance,dots per unit distance.
+  scaling: nearest neighbour,bilinear,bicubic,splines,wavelets etc
+  Adjaceny of pixels;
+  Distance Measures:
+  Fuzzy sets:
+ Geometric spacial Transforms=spacial transforms(trs sheer(affline tranform) and intensity interpolation.
+
+Research:
+dimlight vision;
+brightness adapation (human)
+Optical illusions
+simultaneous contrast.
+false contouring
+
+Todo:
+copy of Em spectrum

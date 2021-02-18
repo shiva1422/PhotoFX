@@ -14,6 +14,7 @@ typedef struct GlobalData
     View *contentView=NULL;//can be View &contentView;
     GLuint UIProgram;
     GLuint frameBufId=0;
+    float sliderValueTest=0.0f;
 }GlobalData;
 
 #endif //PHOTOFX_MAIN_H

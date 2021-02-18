@@ -73,7 +73,7 @@ ViewGroup viewGroup;
     ImageViewStack subOptionsStack(6,ImageView::defaultImage.width,ImageView::defaultImage.height);
     optionsStack.setBounds(0,displayParams.screenHeight*93/100,displayParams.screenWidth,displayParams.screenHeight*7.5/100);
     subOptionsStack.setBounds(0,displayParams.screenHeight*85/100,displayParams.screenWidth,optionsStack.getHeight());
-    subOptionsStack.setNoViewsVisible(1);
+    subOptionsStack.setNoViewsVisible(3);
     ImageView TestImage(100,100,50,50);
     SliderSet sliderSet;
     sliderSet.setBounds(0,displayParams.screenHeight*75/100,displayParams.screenWidth,displayParams.screenHeight*2/100);
@@ -109,9 +109,20 @@ globalData.contentView=&viewGroup;
 
 /*class myListener: public OnTouchListener{
 public:
-    virtual bool onTouch(float x,float y,TouchAction touchAction,View *view) override {}
-};*/
+    virtual bool defaultOnTouch(float touchX,float touchY,TouchAction touchAction)
+    {
+        Loge("eventHandling","the touch is from my My Listener in Main %f and %f",touchX,touchY);
+        onTouch(touchX,touchY,touchAction);
+        (*touchFunc)(touchX,touchY,ACTION_DOWN);
+        return true;
+    }
+    virtual bool onTouch(float touchX,float touchY,int pointerId,TouchAction touchAction)
+    {
 
+        return false;
+    }
+};
+outputImage.setOnTouchListener(new myListener());*/
 
     while(true)
     {
@@ -119,6 +130,8 @@ public:
         {
             if (source != NULL)
             {
+                static float sliderValue=0.0f;
+                globalData.sliderValueTest=sliderSet.getVaule()*360.0f;
                 FrameBuffer::setToDefault();
                 source->process(app, source);
                 glUseProgram(globalData.UIProgram);
@@ -127,7 +140,11 @@ public:
                 glClear(GL_COLOR_BUFFER_BIT);
                 globalData.contentView->draw();
                 glUniform1i(glGetUniformLocation(globalData.UIProgram,"frameBuf"),(int)0);
-                photoFx.apply();
+                if(sliderValue!=globalData.sliderValueTest)
+                {
+                    photoFx.apply();
+                    sliderValue=globalData.sliderValueTest;
+                }
                 /////FrameBufferRendering
                 //////
 

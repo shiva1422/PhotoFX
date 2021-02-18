@@ -65,17 +65,12 @@ public:
     void clearRect();
 
     //Touch:
-
-   virtual bool isTouched(float touchX,float touchY){
-       UILogE("view touched");
-
-        bool touched= touchX >= startX && touchY >= startY && touchX <= (startX + width) &&
-               touchY <= (startY + height);
-        if(touched){
-            onTouchListener->defaultOnTouch(touchX,touchY,ACTION_DOWN);
-                    };
-        return touched;
-    };
+   virtual bool isTouched(float touchX,float touchY,int pointerId,TouchAction touchAction);
+   virtual void setOnTouchListener(OnTouchListener *touchListener)
+   {
+       this->onTouchListener=touchListener;///freeing the old one and current parameter check
+   }
+   //virtual void setTouchFunction(bool (*touchFunction)(float touchX,float touchY,TouchAction));
 };
 ////////Destructors
 class ImageView : public View{
@@ -85,7 +80,6 @@ private:
     Bitmap *image= nullptr;
 protected:
     GLuint texId=0,texBufId=0,vertexBufId=0;///View class also needs vertexBufID(check moving there)
-    bool defaultOnTouch(float x,float y,TouchAction touchAction);
 
 
 public:
@@ -104,11 +98,10 @@ public:
     static Texture createTexture(Bitmap *image);
     virtual void draw() override;
 
-public:
 
 
 };
-class ImageViewStack : public View{
+class ImageViewStack : public View{//only one view is active (highlighetd at a time)
 //ALL IMAGES SHOULD BE SAME SIZE BEFORE UPLOADING TO THE TEXTUREARRAY.
 private:
     GLuint texId=0,vertexBufId=0;
@@ -120,11 +113,13 @@ private:
 
 
 public:
+    uint activeView=0;
     ImageViewStack();
     ImageViewStack(uint numViews,int32_t imageWidth,int32_t imageHeight);
     void setBounds(float startX, float startY, float width, float height) override ;
     void setNoViews(uint numViews,int32_t imageWidth,int32_t imageHeight);//make private accordtly with default Constructor.
     void setNoViewsVisible(uint drawCount){this->numViewsToDraw=drawCount;}
+    uint getViewNoAtLoc(float x,float y);
     virtual void draw() override ;
 };
 
@@ -133,10 +128,14 @@ private:
     Bitmap *baseImage= nullptr,*pointerImage= nullptr;
     GLuint vertexBufId=0,baseTexId=0,pointerTexId=0;
     ImageView baseImageView,pointerImageView;
+    float value=0.0f;//-1.0 to 1.0
+
 public:
     SliderSet();
     void setBounds(float startX, float startY, float width, float height) override ;
     void setTexture(Bitmap *image);
+    float getVaule(){return value;}
+    void setPointerLoc(float x,float y);
     virtual void draw() override ;
 };
 class ViewGroup : public View{
@@ -149,7 +148,7 @@ public:
     ViewGroup();
     void addView(View  *view);
     virtual void draw() override ;
-    virtual bool isTouched(float touchX,float touchY);
+    virtual bool isTouched(float touchX,float touchY,int pointerId,TouchAction touchAction);
 
 
 };

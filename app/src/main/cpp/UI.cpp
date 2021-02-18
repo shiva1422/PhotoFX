@@ -5,26 +5,13 @@
 #include "UI.h"
 DisplayParams View::displayParams;
 Bitmap ImageView::defaultImage;
-GLint DRAWTYPELOC=0,PARAM1LOC=1,PARAM2LOC=2,SAMPLERARRAYLOC=7;
+GLint DRAWTYPELOC=0,PARAM1LOC=1,PARAM2LOC=2,PARAM3LOC=4,SAMPLERARRAYLOC=7;
 GLint IMAGEVIEWDRAWTYPE=0,IMAGEVIEWSTACKDRAWTYPE=1,SLIDERSETDRAWTYPE=2;
 GLint POSITIONATTRIBLOC=0,TEXTCOODATTRIBLOC=2;
 //float textureCoords[8]={0.0f,1.0f,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f};
 //GLushort drawElementIndices[6]={0,1,2,2,3,0};
 GLuint ImageView::texCoodBufId=0,ImageView::indexBufId=0;
-bool ViewGroup::isTouched(float touchX, float touchY)
-{
-  //  (View::*onTouch)(x,y,ACTION_DOWN);
-  if(touchX >= startX && touchY >= startY && touchX <= (startX + width) &&touchY <= (startY + height))
-  {
-     // (this->*onTouch)(touchX,touchY,ACTION_DOWN);
-      UILogE("ViewGroup touched");
-      onTouchListener->defaultOnTouch(touchX,touchY,ACTION_DOWN);
-      return true;
 
-  }
-  return false;
-
-}
 void ViewGroup::draw()
 {
     for(int i=0;i<noViews;i++)
@@ -103,6 +90,12 @@ void SliderSet::setTexture(Bitmap *image)
     if(Graphics::printGlError("ImageView::ImageView(Bounds,Bitmap*)")==GL_NO_ERROR)
         isTextureSet=true;*/
 }
+void SliderSet::setPointerLoc(float x, float y)
+{
+    pointerImageView.setBounds(x,pointerImageView.getStartY(),pointerImageView.getWidth(),pointerImageView.getHeight());//only x changes for horizontal orientation y for verticals
+    value=(x-startX)/width;
+    UILogE("the slider value is %f",value);
+}
 void SliderSet::setBounds(float startX, float startY, float width, float height)
 {
     View::setBounds(startX,startY,width,height);
@@ -115,6 +108,7 @@ SliderSet::SliderSet()
 
     baseImageView.setTexture(&ImageView::defaultImage);
     pointerImageView.setTexture(&ImageView::defaultImage);
+    onTouchListener=new SliderTouchListener();//clear previous
 
 
 
@@ -128,6 +122,7 @@ void ImageViewStack::draw()
     float imageWidth=singleImageWidth*2.0/displayParams.screenWidth;////height for vertical
     glUniform1f(PARAM1LOC,gapX);
     glUniform1f(PARAM2LOC,imageWidth);
+    glUniform1i(PARAM3LOC,(int)activeView);
     glEnableVertexAttribArray(POSITIONATTRIBLOC);
     glEnableVertexAttribArray(TEXTCOODATTRIBLOC);
     //draw texture rect
@@ -144,6 +139,21 @@ void ImageViewStack::draw()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
     glBindTexture(GL_TEXTURE_2D,0);
    // Graphics::printGlError("ImageViewStack::draw");
+
+}
+uint ImageViewStack::getViewNoAtLoc(float x, float y)
+{//use x for horizontal orientation ,y for vertical orientation
+    float length=x-startX;
+    if(x<0.0f)
+    {
+        return UINT_MAX;
+    }
+    else
+    {
+        float no=(length/(singleImageWidth+viewGap));
+      //  Loge("ImageViewStack:GetViewNOLoc","%f",no);
+        return (uint)no;
+    }
 
 }
 void ImageViewStack::setNoViews(uint numViews, int32_t imageWidth, int32_t imageHeight)
@@ -212,12 +222,8 @@ ImageViewStack::ImageViewStack()
     glBindBuffer(GL_ARRAY_BUFFER,vertexBufId);
     glBufferData(GL_ARRAY_BUFFER,sizeof(float)*8,(void *)0,GL_STATIC_DRAW);///dimensions should be set before this or else reset dimesnion with same dims
     glBindBuffer(GL_ARRAY_BUFFER,0);
+    onTouchListener=new ImageViewStackTouchListener();///clear previous touch listeners and current
 
-}
-bool ImageView::defaultOnTouch(float x, float y, TouchAction touchAction)
-{
-    UILogE("touched ImageView");
-    return true;
 }
 void ImageView::draw()
 {
@@ -484,3 +490,40 @@ void InitializeUI()
     glBindBuffer(GL_ARRAY_BUFFER,0);
 }
  */
+
+
+////Touch Methods for all Views below only
+bool ViewGroup::isTouched(float touchX, float touchY,int pointerId,TouchAction touchAction)
+{
+    //  (View::*onTouch)(x,y,ACTION_DOWN);
+    if(touchX >= startX && touchY >= startY && touchX <= (startX + width) &&touchY <= (startY + height))
+    {
+        // (this->*onTouch)(touchX,touchY,ACTION_DOWN);
+     //   UILogE("ViewGroup touched");
+        for(int i=0;i<noViews;i++)
+        {
+            if(views[i]->isTouched(touchX,touchY,pointerId,touchAction))
+            {
+                break;
+               // onTouchListener->defaultOnTouch(touchX,touchY,ACTION_DOWN);
+            }
+        }
+       // onTouchListener->defaultOnTouch(touchX,touchY,ACTION_DOWN);
+        return true;
+
+    }
+    return false;
+
+}
+bool View::isTouched(float touchX,float touchY,int pointerId,TouchAction touchAction){
+
+ //   UILogE("view touched");
+
+    bool touched= touchX >= startX && touchY >= startY && touchX <= (startX + width) &&
+                  touchY <= (startY + height);
+    if(touched||(pointerId==onTouchListener->getPreviousPointerId())){
+      //  onTouchListener->defaultOnTouch(touchX,touchY,ACTION_DOWN);
+      onTouchListener->onTouch (touchX,touchY,pointerId,touchAction,this);
+    };
+    return touched;
+};
