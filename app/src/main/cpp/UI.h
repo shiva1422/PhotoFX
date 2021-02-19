@@ -110,16 +110,19 @@ private:
     int numViewsToDraw=0.0;
     float viewGap=10.0f;//in pixels
     float singleImageWidth=0.0f;
+    uint activeViewNo=0;
+
 
 
 public:
-    uint activeView=0;
     ImageViewStack();
     ImageViewStack(uint numViews,int32_t imageWidth,int32_t imageHeight);
     void setBounds(float startX, float startY, float width, float height) override ;
     void setNoViews(uint numViews,int32_t imageWidth,int32_t imageHeight);//make private accordtly with default Constructor.
     void setNoViewsVisible(uint drawCount){this->numViewsToDraw=drawCount;}
     uint getViewNoAtLoc(float x,float y);
+    void setActiveViewNo(uint viewNo){this->activeViewNo=viewNo;}
+    uint getActiveViewNo(){return activeViewNo;}
     virtual void draw() override ;
 };
 

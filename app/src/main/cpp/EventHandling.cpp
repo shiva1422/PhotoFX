@@ -5,6 +5,8 @@
 #include "Commons.h"
 #include "EventHandling.h"
 #include "UI.h"
+#include "Main.h"
+android_app * OnTouchListener::app=nullptr;
 bool touchFunct(float touchX, float touchY, TouchAction touchAction)
 {
     Loge("EVentH","in touch function external");
@@ -82,9 +84,11 @@ bool ImageViewStackTouchListener::onTouch(float touchX, float touchY, int pointe
         {
             if(pointerId==previousPointerId)
             {
-                if(imageViewStack->getViewNoAtLoc(touchX,touchY)==touchDownView)
+                if(imageViewStack->getViewNoAtLoc(touchX,touchY)==touchDownView&&imageViewStack->getActiveViewNo()!=touchDownView)
                 {
-                    imageViewStack->activeView=touchDownView;
+                    imageViewStack->setActiveViewNo(touchDownView);
+                    GlobalData *globalData=(GlobalData *)(app->userData);
+                    globalData->menuItemChanged();
                    // Loge("eve","the acitveView is %d",imageViewStack->activeView);
                 }
                 previousPointerId=INT32_MAX;
@@ -116,3 +120,4 @@ bool OnTouchListener::onTouch(float touchX, float touchY, int pointerId, TouchAc
 
     return true;
 }
+void OnTouchListener::setApp(android_app *app) {OnTouchListener::app=app;}

@@ -28,6 +28,7 @@ void android_main(android_app *app)
     app->userData=(void *)&globalData;
     appContext.app=app;
     PhotoFX::app=app;
+    OnTouchListener::setApp(app);
     int32_t eventId, events, fdesc;
     android_poll_source *source;
 
@@ -104,7 +105,11 @@ viewGroup.addView(&sliderSet);
 viewGroup.addView(&outputImage);
 globalData.contentView=&viewGroup;
 
-
+EditingContext editingContext;
+editingContext.setOptions(&optionsStack,&subOptionsStack);
+globalData.setEditingContext(&editingContext);
+globalData.setMenu(&subOptionsStack,SUBOPTIONS_MENU);
+globalData.setMenu(&optionsStack,OPTIONS_MENU);
 
 
 /*class myListener: public OnTouchListener{
@@ -147,6 +152,12 @@ outputImage.setOnTouchListener(new myListener());*/
                 }
                 /////FrameBufferRendering
                 //////
+             /*   if(globalData.isMenuItemChanged)//instead checking every frame use a callback
+                {
+                    Loge("menuItemStatus","menu item changed");
+                    editingContext.menuItemChanged();
+                    globalData.isMenuItemChanged=false;
+                }*/
 
                 if(eglSwapBuffers(appContext.eglDisplay, appContext.eglSurface) == EGL_FALSE)
                 {

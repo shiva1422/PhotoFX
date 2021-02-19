@@ -17,7 +17,8 @@ void main()
     finalColor= texture(image,finalTexCoods);
    // finalColor.r=param1;
     vec3 hsi=rgbToHsi(vec3(finalColor.xyz));
-    hsi.r=hsi.r+param1;
+    hsi.g=hsi.g*param1*5.0/360.0;
+    //if(hsi.b>255.0){hsi.b=255.0;}
    vec3 rgb=hsiToRgb(hsi);
  //    finalColor.rgb=rgb-finalColor.rgb;
  //   if(finalColor.b==0.0)

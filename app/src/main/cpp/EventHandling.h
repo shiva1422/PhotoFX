@@ -4,16 +4,18 @@
 
 #ifndef PHOTOFX_EVENTHANDLING_H
 #define PHOTOFX_EVENTHANDLING_H
-#include "commons.h"
+#include "Commons.h"
 bool touchFunct(float touchX,float touchY,TouchAction touchAction);
 class View;
 class OnTouchListener{//can be inner class of view;
 
 
 protected:
+   static android_app *app;
     int32_t previousPointerId=INT32_MAX;//max here means not a valid pointer;
     typedef bool (*OnTouch)(float x,float y,TouchAction touchAction);//func nam Ontouch;
     OnTouch touchFunc=&touchFunct;//=&OnTouchListener::defaultOnTouch;
+
 
 public:
     //virtual bool defaultOnTouch(float touchX,float touchY,TouchAction touchAction)=0;
@@ -22,6 +24,7 @@ public:
         touchFunc=&touchFunct;
       //  touchFunc=&onTouch;
     }*/
+    static void setApp(android_app *app);
     int32_t getPreviousPointerId(){return previousPointerId;}
     virtual bool onTouch(float touchX,float touchY,int pointerId,TouchAction touchAction)=0;//multiple onTOuch can be used(overloading)
     virtual bool onTouch(float touchX,float touchY,int pointerId,TouchAction touchAction,View *view);

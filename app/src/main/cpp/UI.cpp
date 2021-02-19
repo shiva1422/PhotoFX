@@ -122,7 +122,7 @@ void ImageViewStack::draw()
     float imageWidth=singleImageWidth*2.0/displayParams.screenWidth;////height for vertical
     glUniform1f(PARAM1LOC,gapX);
     glUniform1f(PARAM2LOC,imageWidth);
-    glUniform1i(PARAM3LOC,(int)activeView);
+    glUniform1i(PARAM3LOC,(int)activeViewNo);
     glEnableVertexAttribArray(POSITIONATTRIBLOC);
     glEnableVertexAttribArray(TEXTCOODATTRIBLOC);
     //draw texture rect
