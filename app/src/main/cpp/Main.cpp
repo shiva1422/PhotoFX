@@ -84,10 +84,13 @@ ViewGroup viewGroup;
     // MainImageView.setBoundsDeviceIndependent(0,displayParams.screenHeight*20/100,InputImage.width,InputImage.height);
 
     FrameBuffer outImgFrameBuf(&InputImage);
+   // a=outImgFrameBuf;
     globalData.frameBufId=outImgFrameBuf.getId();
-ImageView outputImage;
+EditableImage outputImage(&MainImageView);
+outputImage.secondBuffer=outImgFrameBuf;
 outputImage.setBounds(&MainImageView);
 outputImage.setTextureId(outImgFrameBuf.getTexId());
+globalData.editor->editableImage=&outputImage;
 
 
 //
@@ -105,7 +108,7 @@ viewGroup.addView(&sliderSet);
 viewGroup.addView(&outputImage);
 globalData.contentView=&viewGroup;
 
-EditingContext editingContext;
+Editor editingContext;
 editingContext.setOptions(&optionsStack,&subOptionsStack);
 globalData.setEditingContext(&editingContext);
 globalData.setMenu(&subOptionsStack,SUBOPTIONS_MENU);
@@ -148,6 +151,7 @@ outputImage.setOnTouchListener(new myListener());*/
                 if(sliderValue!=globalData.sliderValueTest)
                 {
                     photoFx.apply();
+                    //editingContext.process();
                     sliderValue=globalData.sliderValueTest;
                 }
                 /////FrameBufferRendering
@@ -155,7 +159,7 @@ outputImage.setOnTouchListener(new myListener());*/
              /*   if(globalData.isMenuItemChanged)//instead checking every frame use a callback
                 {
                     Loge("menuItemStatus","menu item changed");
-                    editingContext.menuItemChanged();
+                    editor.menuItemChanged();
                     globalData.isMenuItemChanged=false;
                 }*/
 

@@ -14,9 +14,9 @@ class ImageViewStack;
 class GlobalData//defs in GlobalData.cpp
 {
 private:
-    EditingContext *editingContext=nullptr;
     ImageViewStack *optionMenu = nullptr,*subOptionsMenu=nullptr;
 public:
+    Editor *editor=nullptr;///make private just for test;
     AppContext *appContext;
     DisplayParams *displayParams;
     View *contentView=NULL;//can be View &contentView;//move to appcontext;
@@ -24,7 +24,7 @@ public:
     GLuint frameBufId=0;
     float sliderValueTest=0.0f;
     void menuItemChanged();
-    void setEditingContext(EditingContext *editingContext){this->editingContext=editingContext;}
+    void setEditingContext(Editor *editor){ this->editor=editor;}
     void setMenu(ImageViewStack *imageViewStack,EMenuType);
 
 };

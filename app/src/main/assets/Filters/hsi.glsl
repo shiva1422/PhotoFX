@@ -5,6 +5,7 @@ vec3 rgbToHsi(vec3 rgb);
 vec3 hsiToRgb(vec3 hsi);
 layout(location=1) uniform float param1;
 layout(location=2) uniform float param2;
+//layout(location=3) uniform float param3;//location name different from uishader so make filter shaders independent of ui locatoin
 layout (location =21) uniform sampler2D image;
 in vec2 uvOut;
 out vec4 Fragcolor;

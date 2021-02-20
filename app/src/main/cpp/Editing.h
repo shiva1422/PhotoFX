@@ -4,27 +4,44 @@
 
 #ifndef PHOTOFX_EDITING_H
 #define PHOTOFX_EDITING_H
+
+#include <string>
 #include "stdlib.h"
 #include "Graphics.h"
+#include "EditableImage.h"
+
 enum EditOptions{HSI=0};
 enum EditSubOption{H=0,S,I};
 class ImageViewStack;
-class EditingContext{
+///create editingContext for each image if needed;
+class Editor{
 private:
     uint optionActive=0,subOptionActive=0,noOfSliders=0.0;
     GLuint activeShaderId=0;
     float sliderValues[4]={0.0f,0.0f,0.0f,0.0f};
 public:
-    EditingContext()
+    EditableImage *editableImage=nullptr;///first//make private just for tes
+public:
+    Editor()
     {
 
     }
     void setOptions(ImageViewStack *optionsMenu,ImageViewStack *subOptionsMenu);
-    void setActiveOption(uint ActiveOption){this->optionActive=ActiveOption;}
-    void setActiveSubOption(uint ActiveSubOption){this->subOptionActive=ActiveSubOption;}
+    void setActiveOption(uint ActiveOption);//when option changes change the shader accordingly also reset sliders.
+    void setActiveSubOption(uint ActiveSubOption);
+    void process();
 
 };
 class Layer{
     //Layer has similar functionality of ImageGroup with its own editing fearures; add its own draw functions to draw layers
+};
+
+class ShaderManager{//remove class and move to EditingCOntext;
+private:
+   static std::string shadersFolder;
+
+public:
+   static GLuint createShaderProgram(uint option);
+
 };
 #endif //PHOTOFX_EDITING_H

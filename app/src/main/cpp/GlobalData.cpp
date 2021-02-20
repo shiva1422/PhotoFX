@@ -8,11 +8,11 @@
 void GlobalData::menuItemChanged()
 {
     /////instead of setting all options set only that changed using the parameter as the viewthat changed;
-    if(editingContext)
+    if(editor)
     {
         Loge("GlobalData","menuitem changed");
-        editingContext->setActiveOption(optionMenu->getActiveViewNo());
-        editingContext->setActiveSubOption(subOptionsMenu->getActiveViewNo());
+        editor->setActiveOption(optionMenu->getActiveViewNo());
+        editor->setActiveSubOption(subOptionsMenu->getActiveViewNo());
     }
     else
         {

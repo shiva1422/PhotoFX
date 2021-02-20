@@ -33,10 +33,11 @@ class AppContext{
 public:
     int32_t width,height;
     bool glInitStatus=false,windowInitStatus=false,appFirstOpen=true;
-    android_app* app;
+    static android_app* app;//should be set before anything ;
     EGLDisplay eglDisplay;
     EGLSurface eglSurface;
     EGLContext eglContext;
     static DisplayParams displayParams;
+    static android_app *getApp(){return app;}
 };
 #endif //PHOTOFX_COMMONS_H

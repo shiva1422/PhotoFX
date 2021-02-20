@@ -17,11 +17,11 @@ set(CMAKE_SHARED_LINKER_FLAGS  "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_
 #include_directories(${FIREBASE_CPP_SDK_DIR}/include ${FIREBASE_CPP_SDK_DIR}/libs/android/${CMAKE_ANDROID_ARCH_ABI}/C++)
 #set(firebase_libs firebase_analytics firebase_admob firebase_app)
 #
-add_library(main SHARED Main.cpp GlobalData.cpp)
+add_library(main SHARED Main.cpp GlobalData.cpp Commons.cpp)
 add_library(graphics STATIC Graphics.cpp UI.cpp)
+add_library(offscreenrenders STATIC OffScreenRender.cpp OffScreenRender.h EditableImage.cpp)
 add_library(events STATIC Touch.cpp Callbacks.cpp)
 add_library(javacalls STATIC JavaCalls.cpp JavaCalls.h)
-add_library(offscreenrenders STATIC OffScreenRender.cpp OffScreenRender.h)
 add_library(imageprocessing STATIC ImageProcessing.cpp)
 add_library(editing STATIC Editing.cpp)
 add_library(eventhandling STATIC EventHandling.cpp)
