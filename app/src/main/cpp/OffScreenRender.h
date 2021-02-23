@@ -17,6 +17,7 @@ public:
     FrameBuffer(Bitmap *image);//image used only for size
     GLuint getId(){return id;}//combine to make return all ids using one function.
     GLuint getTexId(){return texId;}
+    void setDims(int width,int height);
     void configureColorBuffer();//configure should be done after these two funcs
     void configureDepthBuffer();
     void configure();

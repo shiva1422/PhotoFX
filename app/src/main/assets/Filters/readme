@@ -1,5 +1,9 @@
-//Tommorrow GlobalDat Editable Editor work toghet to give ouput;
 
+APPStructure:
+GLobalData has Editor and input view references and editor has layers and the layers have editable images;
+
+
+//ImageProcessing files are no longer need functionality moved to others
 
 all shaders here are fragment except vertex that is common for all filter (fragement) shader programs
 
@@ -13,3 +17,4 @@ get location when shader porgramChanges;
 /////needs Improve;
 keep GLobalData specific to app but AppContext same across all apps.
 compiling shaders indicate which shader failed compiling
+Graphics.h shaders should not take app as input not just these any wher need app* replace by AppContext::getApp()

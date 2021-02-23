@@ -132,8 +132,12 @@ private:
     GLuint vertexBufId=0,baseTexId=0,pointerTexId=0;
     ImageView baseImageView,pointerImageView;
     float value=0.0f;//-1.0 to 1.0
+    static uint sliderCounter;
+
+
 
 public:
+    uint sliderNo=sliderCounter++;////////increment in constructor
     SliderSet();
     void setBounds(float startX, float startY, float width, float height) override ;
     void setTexture(Bitmap *image);

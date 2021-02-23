@@ -12,8 +12,7 @@ FrameBuffer::FrameBuffer()
 }
 FrameBuffer::FrameBuffer(int width, int height):FrameBuffer()
 {
-    this->width=width;
-    this->height=height;
+    setDims(width,height);
     configureColorBuffer();
     configureDepthBuffer();////optional remove if not needed
     configure();
@@ -21,6 +20,11 @@ FrameBuffer::FrameBuffer(int width, int height):FrameBuffer()
 FrameBuffer::FrameBuffer(Bitmap *image):FrameBuffer( image->width,image->height)
 {
 
+}
+void FrameBuffer::setDims(int width, int height)
+{
+    this->width=width;
+    this->height=height;
 }
 void FrameBuffer::configureColorBuffer()
 {
@@ -53,7 +57,7 @@ void FrameBuffer::configure()
 
     //draw to framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER,id);
-   // glViewport(0,0,width,height);///change immediate after fbo rendering done to default screen
+
     // Always check framebuffe status is complete
     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
     {
@@ -68,8 +72,12 @@ void FrameBuffer::configure()
 void FrameBuffer::makeActive()
 {
     glBindFramebuffer(GL_FRAMEBUFFER,id);
+    glViewport(0,0,width,height);///change immediate after fbo rendering done to default screen
+  //  Loge("FrameBuffer::makeActive","width %d and height %d",width,height);
 }
 void FrameBuffer::setToDefault()
 {
     glBindFramebuffer(GL_FRAMEBUFFER,0);
+    glViewport(0,0,Graphics::displayParams.screenWidth,Graphics::displayParams.screenHeight);
+
 }

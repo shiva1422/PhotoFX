@@ -16,6 +16,7 @@ bool SliderTouchListener::onTouch(float touchX, float touchY, int pointerId, Tou
 bool SliderTouchListener::onTouch(float touchX, float touchY, int pointerId, TouchAction touchAction, View *view)
 {
     SliderSet *slider=(SliderSet *)view;
+    static float previousSliderValue=0.0;
     switch (touchAction)
     {
         case ACTION_DOWN:
@@ -53,6 +54,13 @@ bool SliderTouchListener::onTouch(float touchX, float touchY, int pointerId, Tou
          default:
         {}
 
+    }
+    float scaledSliderValue=(slider->getVaule()*360.0);
+    if(previousSliderValue!=scaledSliderValue)
+    {
+        GlobalData *globalData = (GlobalData *) (app->userData);
+        globalData->editor->onInputValuesChanged(slider->sliderNo, scaledSliderValue);
+        previousSliderValue=scaledSliderValue;
     }
     return true;
 }

@@ -16,7 +16,7 @@ class GlobalData//defs in GlobalData.cpp
 private:
     ImageViewStack *optionMenu = nullptr,*subOptionsMenu=nullptr;
 public:
-    Editor *editor=nullptr;///make private just for test;
+    Editor *editor=nullptr;
     AppContext *appContext;
     DisplayParams *displayParams;
     View *contentView=NULL;//can be View &contentView;//move to appcontext;

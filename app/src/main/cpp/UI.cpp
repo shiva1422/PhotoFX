@@ -3,11 +3,10 @@
 //
 
 #include "UI.h"
+#include "UIShaderConstants.h"
 DisplayParams View::displayParams;
 Bitmap ImageView::defaultImage;
-GLint DRAWTYPELOC=0,PARAM1LOC=1,PARAM2LOC=2,PARAM3LOC=4,SAMPLERARRAYLOC=7;
-GLint IMAGEVIEWDRAWTYPE=0,IMAGEVIEWSTACKDRAWTYPE=1,SLIDERSETDRAWTYPE=2;
-GLint POSITIONATTRIBLOC=0,TEXTCOODATTRIBLOC=2;
+uint SliderSet::sliderCounter=0;
 //float textureCoords[8]={0.0f,1.0f,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f};
 //GLushort drawElementIndices[6]={0,1,2,2,3,0};
 GLuint ImageView::texCoodBufId=0,ImageView::indexBufId=0;

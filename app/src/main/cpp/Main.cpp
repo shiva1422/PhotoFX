@@ -66,10 +66,8 @@ ViewGroup viewGroup;
     getPhoto(app,&InputImage,0);
     View frameBounds(0,displayParams.screenHeight*15/100,displayParams.screenWidth,displayParams.screenHeight*60/100);
     frameBounds.setBackgroundColor(0.0,0.0,0.0,1.0);
-    ImageView MainImageView(0,displayParams.screenHeight*20/100,InputImage.width,InputImage.height,&InputImage);
-    MainImageView.setBoundsDeviceIndependent(MainImageView.getStartX(),MainImageView.getStartY(),InputImage.width,InputImage.height);
-    MainImageView.fitToCentre(frameBounds);
-    globalData.contentView=&MainImageView;
+
+    //globalData.contentView=&MainImageView;
     ImageViewStack optionsStack(6,ImageView::defaultImage.width,ImageView::defaultImage.height);
     ImageViewStack subOptionsStack(6,ImageView::defaultImage.width,ImageView::defaultImage.height);
     optionsStack.setBounds(0,displayParams.screenHeight*93/100,displayParams.screenWidth,displayParams.screenHeight*7.5/100);
@@ -83,21 +81,22 @@ ViewGroup viewGroup;
 
     // MainImageView.setBoundsDeviceIndependent(0,displayParams.screenHeight*20/100,InputImage.width,InputImage.height);
 
-    FrameBuffer outImgFrameBuf(&InputImage);
-   // a=outImgFrameBuf;
-    globalData.frameBufId=outImgFrameBuf.getId();
-EditableImage outputImage(&MainImageView);
-outputImage.secondBuffer=outImgFrameBuf;
-outputImage.setBounds(&MainImageView);
-outputImage.setTextureId(outImgFrameBuf.getTexId());
-globalData.editor->editableImage=&outputImage;
+
+////outputImage.outputBuffer=outImgFrameBuf;
+//outputImage.setBounds(&MainImageView);
+//outputImage.setTextureId(outImgFrameBuf.getTexId());
+////globalData.editor->editableImage=&outputImage;
+EditableImage MainImageView(0,displayParams.screenHeight*20/100,InputImage.width,InputImage.height,&InputImage);
+MainImageView.setBoundsDeviceIndependent(MainImageView.getStartX(),MainImageView.getStartY(),InputImage.width,InputImage.height);
+MainImageView.fitToCentre(frameBounds);
+globalData.frameBufId=MainImageView.outputBuffer.getId();
 
 
 //
 ImageView test(100,100,500,500,&InputImage);
 PhotoFX photoFx;
 
-photoFx.inputTexId=test.getTextureId();
+photoFx.inputTexId=MainImageView.getInputTexId();
 photoFx.inputImage=&InputImage;
 
 viewGroup.addView(&optionsStack);
@@ -105,7 +104,7 @@ viewGroup.addView(&subOptionsStack);
 //viewGroup.addView(&MainImageView);
 viewGroup.setBounds(0,0,displayParams.screenWidth,displayParams.screenHeight);
 viewGroup.addView(&sliderSet);
-viewGroup.addView(&outputImage);
+viewGroup.addView(&MainImageView);
 globalData.contentView=&viewGroup;
 
 Editor editingContext;
@@ -113,6 +112,7 @@ editingContext.setOptions(&optionsStack,&subOptionsStack);
 globalData.setEditingContext(&editingContext);
 globalData.setMenu(&subOptionsStack,SUBOPTIONS_MENU);
 globalData.setMenu(&optionsStack,OPTIONS_MENU);
+editingContext.editableImage=&MainImageView;
 
 
 /*class myListener: public OnTouchListener{
@@ -138,31 +138,16 @@ outputImage.setOnTouchListener(new myListener());*/
         {
             if (source != NULL)
             {
-                static float sliderValue=0.0f;
-                globalData.sliderValueTest=sliderSet.getVaule()*360.0f;
-                FrameBuffer::setToDefault();
+
+
                 source->process(app, source);
+                editingContext.process();
                 glUseProgram(globalData.UIProgram);
                 glUniform1i(glGetUniformLocation(globalData.UIProgram,"param3"),1);//active stackView;
                 glClearColor(0.0,0.0,0.0,1.0);
                 glClear(GL_COLOR_BUFFER_BIT);
                 globalData.contentView->draw();
                 glUniform1i(glGetUniformLocation(globalData.UIProgram,"frameBuf"),(int)0);
-                if(sliderValue!=globalData.sliderValueTest)
-                {
-                    photoFx.apply();
-                    //editingContext.process();
-                    sliderValue=globalData.sliderValueTest;
-                }
-                /////FrameBufferRendering
-                //////
-             /*   if(globalData.isMenuItemChanged)//instead checking every frame use a callback
-                {
-                    Loge("menuItemStatus","menu item changed");
-                    editor.menuItemChanged();
-                    globalData.isMenuItemChanged=false;
-                }*/
-
                 if(eglSwapBuffers(appContext.eglDisplay, appContext.eglSurface) == EGL_FALSE)
                 {
                     Loge("Main:draw","swap buffers failure");
