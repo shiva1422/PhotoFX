@@ -49,7 +49,6 @@ bool SliderTouchListener::onTouch(float touchX, float touchY, int pointerId, Tou
             {
                 previousPointerId=INT32_MAX;
             }
-
         }break;
          default:
         {}

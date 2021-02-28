@@ -9,12 +9,14 @@
 #include "Editing.h"
 #include "android/log.h"
 enum EMenuType{OPTIONS_MENU,SUBOPTIONS_MENU};
+enum EInputType{R_INPUT};
 class View;
 class ImageViewStack;
 class GlobalData//defs in GlobalData.cpp
 {
 private:
     ImageViewStack *optionMenu = nullptr,*subOptionsMenu=nullptr;
+    SliderSet *slider=nullptr;
 public:
     Editor *editor=nullptr;
     AppContext *appContext;
@@ -26,6 +28,7 @@ public:
     void menuItemChanged();
     void setEditingContext(Editor *editor){ this->editor=editor;}
     void setMenu(ImageViewStack *imageViewStack,EMenuType);
+    void addInputComponent(SliderSet *sliderSet,EInputType);
 
 };
 

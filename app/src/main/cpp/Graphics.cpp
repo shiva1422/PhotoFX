@@ -112,8 +112,12 @@ bool Shader::getSource(android_app *app,const char *fileName)
         else
             return false;
     }
+
     else
+        {
+        Loge("Shader::getSournce","shader source could not be loaded");
         return false;
+    }
 }
 status Graphics::onAppReopen(AppContext *appContext)
 {

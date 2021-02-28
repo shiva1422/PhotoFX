@@ -28,7 +28,7 @@ void Editor::onInputValuesChanged(uint sliderNo, float newInputValue)
         }
 
     }
-    Loge("OnInputChange","sds");
+    //Loge("OnInputChange","sds");
    // process();
    isUpdatedNeeded=true;
 }
@@ -42,8 +42,7 @@ void Editor::process()
         editableImage->outputBuffer.makeActive();
         glClearColor(0.0, 0.0, 0.0, 1.0);///check if needed (or move to frameBuffer);
         glClear(GL_COLOR_BUFFER_BIT);
-        glUniform1i(glGetUniformLocation(activeShaderId, "frameBuf"),
-                    1);//for any frame buf for to invert inverted images;
+        glUniform1i(glGetUniformLocation(activeShaderId, "frameBuf"),1);//for any frame buf for to invert inverted images;
         glUniform1f(1, inputValue);
         GLushort indices[6];
         indices[0] = 0, indices[1] = 1, indices[2] = 2, indices[3] = 2, indices[4] = 3, indices[5] = 0;
@@ -100,6 +99,7 @@ GLuint ShaderManager::createShaderProgram(uint option)
 std::string vertexSource=shadersFolder +"/" + "vertex.glsl";
 std::string fragmentSource=shadersFolder + "/";
 //////initially shader is invalid
+Loge("ShaderManager::createShaderPro","%d option",option);
     switch (option)
     {
         case 0:
@@ -109,13 +109,17 @@ std::string fragmentSource=shadersFolder + "/";
         break;
         case 1:
         {
-            fragmentSource=shadersFolder + "test";
+            fragmentSource=shadersFolder + "test.glsl";
         }
         break;
         default:
-        {Loge("ShaderMangage:createShaderProgram","Invalid Option for creating Shader");}
+        {
+            Loge("ShaderMangage:createShaderProgram","Invalid Option for creating Shader");
+        return 0;///need not return zero instead keep active shader program
+        }
 
     }
+    /////////////need not compile vertexShader EveryTime as it is same for all :
   //  Loge("the shaderloca ","%s ,%s",vertexSource.c_str(),fragmentSource.c_str());
     return Shader::createShaderProgram(AppContext::getApp(),vertexSource.c_str(),fragmentSource.c_str());
 }

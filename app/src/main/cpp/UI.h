@@ -131,7 +131,7 @@ private:
     Bitmap *baseImage= nullptr,*pointerImage= nullptr;
     GLuint vertexBufId=0,baseTexId=0,pointerTexId=0;
     ImageView baseImageView,pointerImageView;
-    float value=0.0f;//-1.0 to 1.0
+    float value=0.0f;//0.0 to 1.0
     static uint sliderCounter;
 
 
@@ -143,6 +143,7 @@ public:
     void setTexture(Bitmap *image);
     float getVaule(){return value;}
     void setPointerLoc(float x,float y);
+    void reset();
     virtual void draw() override ;
 };
 class ViewGroup : public View{

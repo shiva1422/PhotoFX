@@ -10,19 +10,21 @@ value of 1 here, we can take saturation =1-min(rgb);
 
 //To convert a pixel (H, S, I) in the opposite direction to (R, G, B), we
   consider the cases where the point P isin one of the following regions of the chromaticity triangle: H < 120°
-  (red-green), 120° < H < 240° (green-blue), or else 240° < H < 360° (blue-red). The following describe the
+  (red-green), 120° < H < 240° (green-blue), or else 240° < H < 360° (blue-red).
 
 
 Opengl built in functions;
 isinf and innan
 
-IDEAS:normazlized color effect
+IDEAS:normazlized color effect(hue or saturation get anim fx)
 1.subtracting minimun value of same value from rgb(adding light ,polliutin to the color);
 2.when increaing hue only two color values increase and the third one should not.cause hue is (only two colors after subtracting grAY VALUE FROM RGB)
 3.saturaction is change by muliplying >and <1 and hue is changed using by inc and dec;
 4.processing similar to grayscale can be done on intensity.
 5.tranlate,scale,rotate sheer pg(110)(inverse transforms better.)
 6.Difference image
+7.Shades ,Tones and Tints;
+8..MONOCROME SET auu hues to same and check changing sat //Groma gray+monochrome
 
 
 Values:
@@ -44,7 +46,27 @@ the distance is fix and  proper focus is acheived varying shape of lens.
   Adjaceny of pixels;
   Distance Measures:
   Fuzzy sets:
- Geometric spacial Transforms=spacial transforms(trs sheer(affline tranform) and intensity interpolation.
+  Arithmatice operation between pixel pairs,averagin imagaes for having noise,subrating for dofferemces,diviede/muliply for shading correction.
+ Geometric spacial Transforms(110 pg)=spacial transforms(trs sheer(affline tranform) and intensity interpolation.
+
+ CH-3:spacial Processing: intensity transformation(single pixels) and spacial filtering(neighbour hood like sharpening).
+ spacial filtering has neighbourhood with predefined operation(determines the filetering process) called spacial filter(spacial mask,kernel,template or window),the
+ smallest neighbourhood is 1x1 in which case is intensity(graylevel or mapping) transformation.
+
+ Contrast Streching:getting higher contrast by darkening intesities below k and brightening above k.(pg 129) through thresholding function
+
+ Image Enhancement:is process of manipulating image so that it is better for a specific application.
+        Intensity Transformation functs:linear(identity,negative),logarthmic(log ,inverse log),power-law(nth power and root).
+          image negative:L-1-r;(l is 256,r is input pix value)(dark regions enhacnce)
+
+          logarhmic:clog(1+r);c-const,r>=0,narrow range of intensity to wider range of intensity values ,expand dark pixel in image while  compressing
+          higher level values opposite is true for inverse log.(maybe shadows and highlights) exponential and lgorthmic are inverese funcion mirror about y=x;
+          (spreadin adn compressiong of intensity values) log function compress dynamic range of image with large variation of pixel values while for non large
+          variation power law may be considered.(lower intensities increase much while higher remains almost same_
+
+          Powelaw  transformations:(gamma correction ,contrast manipulation)
+          s=crpowerg where c and g are positive constants
+
 
 Research:
 dimlight vision;

@@ -107,12 +107,13 @@ viewGroup.addView(&sliderSet);
 viewGroup.addView(&MainImageView);
 globalData.contentView=&viewGroup;
 
-Editor editingContext;
-editingContext.setOptions(&optionsStack,&subOptionsStack);
-globalData.setEditingContext(&editingContext);
+Editor editor;
+editor.setOptions(&optionsStack, &subOptionsStack);
+globalData.setEditingContext(&editor);
 globalData.setMenu(&subOptionsStack,SUBOPTIONS_MENU);
 globalData.setMenu(&optionsStack,OPTIONS_MENU);
-editingContext.editableImage=&MainImageView;
+globalData.addInputComponent(&sliderSet,R_INPUT);
+editor.editableImage=&MainImageView;
 
 
 /*class myListener: public OnTouchListener{
@@ -141,7 +142,7 @@ outputImage.setOnTouchListener(new myListener());*/
 
 
                 source->process(app, source);
-                editingContext.process();
+                editor.process();
                 glUseProgram(globalData.UIProgram);
                 glUniform1i(glGetUniformLocation(globalData.UIProgram,"param3"),1);//active stackView;
                 glClearColor(0.0,0.0,0.0,1.0);

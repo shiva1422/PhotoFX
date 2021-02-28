@@ -40,7 +40,7 @@ public class EditorActivity extends NativeActivity {
         switch (id)
         {
             case 0:
-               bitmapId=R.drawable.cars;
+               bitmapId=R.drawable.boom;
                 break;
             case 1:
                // bitmapId=R.drawable.ssnare;

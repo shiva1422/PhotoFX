@@ -22,14 +22,19 @@ class Shader{
 private:
     char *source=NULL;
 public:
-    GLuint id;
+    GLuint id=0;
     bool getSource(android_app *app,const char *fileName);
     GLuint compile(GLenum shaderType);
     GLuint loadAndCompileShader(android_app *app,const char *fileName,GLenum shaderType)
     {
-        getSource(app,fileName);
-        id=compile(shaderType);//// id =0 error;
+        bool gotSource=getSource(app,fileName);
+        if(gotSource)
+        {
+            id = compile(shaderType);//// id =0 error;
+
+        }
         return id;
+
     }
     void deleteSource()
     {

@@ -89,10 +89,17 @@ void SliderSet::setTexture(Bitmap *image)
     if(Graphics::printGlError("ImageView::ImageView(Bounds,Bitmap*)")==GL_NO_ERROR)
         isTextureSet=true;*/
 }
+void SliderSet::reset()
+{
+    pointerImageView.setBounds(startX+(width/2),startY,50,height);
+    value=0.0f;
+    UILogE("the slider is reset");
+
+}
 void SliderSet::setPointerLoc(float x, float y)
 {
     pointerImageView.setBounds(x,pointerImageView.getStartY(),pointerImageView.getWidth(),pointerImageView.getHeight());//only x changes for horizontal orientation y for verticals
-    value=(x-startX)/width;
+    value=(x-startX)/width;//0.0 to 1.0
     UILogE("the slider value is %f",value);
 }
 void SliderSet::setBounds(float startX, float startY, float width, float height)
