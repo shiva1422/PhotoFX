@@ -15,6 +15,9 @@ get location when shader porgramChanges;
 
 
 /////needs Improve;
+In manifest opengL Version check also in java used versin 2.0 while in c 3.0
+after dong gldeleteProgram,glDeleteShader,glDeleteTextures
+glClrearColor non need everyFrame;
 keep GLobalData specific to app but AppContext same across all apps.
 compiling shaders indicate which shader failed compiling
 Graphics.h shaders should not take app as input not just these any wher need app* replace by AppContext::getApp()

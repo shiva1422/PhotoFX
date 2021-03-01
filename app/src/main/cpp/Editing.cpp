@@ -5,7 +5,7 @@
 #include <string>
 #include "Editing.h"
 #include "Main.h"
-
+const int PARAM1LOC=1,PARAM2LOC=2,FILTERTYPELOC=0;
 std::string ShaderManager::shadersFolder="Filters";
 void Editor::onInputValuesChanged(uint sliderNo, float newInputValue)
 {
@@ -43,7 +43,7 @@ void Editor::process()
         glClearColor(0.0, 0.0, 0.0, 1.0);///check if needed (or move to frameBuffer);
         glClear(GL_COLOR_BUFFER_BIT);
         glUniform1i(glGetUniformLocation(activeShaderId, "frameBuf"),1);//for any frame buf for to invert inverted images;
-        glUniform1f(1, inputValue);
+        setShaderInputs();
         GLushort indices[6];
         indices[0] = 0, indices[1] = 1, indices[2] = 2, indices[3] = 2, indices[4] = 3, indices[5] = 0;
         float verts[] = {-1, -1, 1, -1, 1, 1, -1, 1};
@@ -80,6 +80,7 @@ void Editor::process()
 void Editor::setActiveSubOption(uint ActiveSubOption)
 {
     this->subOptionActive=ActiveSubOption;
+    setActiveFilter();
 }
 void Editor::setActiveOption(uint ActiveOption)
 {
@@ -93,6 +94,28 @@ void Editor::setActiveOption(uint ActiveOption)
 void Editor::setOptions(ImageViewStack *optionsMenu, ImageViewStack *subOptionsMenu)
 {
 
+}
+void Editor::setShaderInputs()
+{//no error checking handled
+    glUniform1i(FILTERTYPELOC,(int)EactiveFilter);
+    switch(EactiveFilter) {
+        case LIGHT://should match filterType in shaders
+        {
+            glUniform1f(PARAM1LOC, inputValue);
+        }break;
+        case SATURATION:
+        {
+            glUniform1f(PARAM1LOC, inputValue);
+        }break;
+        case HUE:
+        {
+            glUniform1f(PARAM1LOC, inputValue);
+        }break;
+        default:
+        {
+
+        }
+    }
 }
 GLuint ShaderManager::createShaderProgram(uint option)
 {//////delete previous unused program;also try removing this class and and in editing context create a method for converting option to shader paths and create shader program using Graphics;
@@ -122,4 +145,30 @@ Loge("ShaderManager::createShaderPro","%d option",option);
     /////////////need not compile vertexShader EveryTime as it is same for all :
   //  Loge("the shaderloca ","%s ,%s",vertexSource.c_str(),fragmentSource.c_str());
     return Shader::createShaderProgram(AppContext::getApp(),vertexSource.c_str(),fragmentSource.c_str());
+}
+void Editor::setActiveFilter()
+{
+    switch(optionActive)
+    {
+        case 0:
+        {
+            switch (subOptionActive)
+            {
+                case 0:
+                {
+                    EactiveFilter=LIGHT;//also set the shader here.
+                }break;
+                case 1:
+                {
+                    EactiveFilter=SATURATION;
+                }break;
+                case 2:
+                {
+                    EactiveFilter=HUE;
+                }break;
+
+            }
+        }
+        break;
+    }
 }

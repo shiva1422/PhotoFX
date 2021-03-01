@@ -23,6 +23,6 @@ add_library(offscreenrenders STATIC OffScreenRender.cpp OffScreenRender.h Editab
 add_library(events STATIC Touch.cpp Callbacks.cpp)
 add_library(javacalls STATIC JavaCalls.cpp JavaCalls.h)
 add_library(imageprocessing STATIC ImageProcessing.cpp)
-add_library(editing STATIC Editing.cpp)
+add_library(editing STATIC Editing.cpp FilterProperties.cpp)
 add_library(eventhandling STATIC EventHandling.cpp)
 target_link_libraries(main events glue javacalls graphics imageprocessing eventhandling editing offscreenrenders jnigraphics GLESv3 EGL android ${log-lib})

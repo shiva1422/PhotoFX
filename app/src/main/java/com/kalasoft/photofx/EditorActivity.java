@@ -3,15 +3,31 @@ package com.kalasoft.photofx;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.NativeActivity;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.ColorDrawable;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.PopupWindow;
+import android.widget.TextView;
+
+import org.xmlpull.v1.XmlPullParser;
 
 public class EditorActivity extends NativeActivity {
+    private PopupWindow popupWindow;
+    static int i=0;
+    float width ,height;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +46,8 @@ public class EditorActivity extends NativeActivity {
         displayParams[5]=displayMetrics.scaledDensity;
         displayParams[6]=displayMetrics.xdpi;
         displayParams[7]=displayMetrics.ydpi;
+        width=displayMetrics.widthPixels;//////////////////just for testing remove these;
+        height=displayMetrics.heightPixels;
         return displayParams;
 
     }
@@ -40,7 +58,7 @@ public class EditorActivity extends NativeActivity {
         switch (id)
         {
             case 0:
-               bitmapId=R.drawable.boom;
+               bitmapId=R.drawable.image;
                 break;
             case 1:
                // bitmapId=R.drawable.ssnare;
@@ -59,8 +77,6 @@ public class EditorActivity extends NativeActivity {
             // InputStream stream = getContentResolver().openInputStream(imageUri);
             BitmapFactory.Options options=new BitmapFactory.Options();
             options.inScaled=false;//scaling doesnt depend on screenDensity
-            //  BitmapFactory.decodeResource(getResources(),bitmapId,options);
-            // Log.e("bitmapDims","height:"+options.outHeight+"width:"+options.outWidth);
             bitmap= BitmapFactory.decodeResource(getResources(),bitmapId,options);
         }catch (Exception e)
         {e.printStackTrace();}
@@ -119,5 +135,57 @@ public class EditorActivity extends NativeActivity {
             audioManager.adjustVolume(AudioManager.ADJUST_LOWER,AudioManager.FLAG_SHOW_UI);
         }
 
+    }
+    public void openFileExplorer()
+    {
+        Log.e("FIleExplore","DFDF");
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try
+                {
+                     ChooserView b=new ChooserView(getApplicationContext());
+                   //  Label
+
+                   // b.setHeight(500);
+                    //b.setWidth(500);
+                    //b.setText("POPEDUP");
+                   // getWindow().takeSurface( null );
+                 //   Log.e("FIleExplore","DFDF");
+                  //  getWindow().setContentView( b);
+                    //setContentView(b);
+                    //ViewGroup container= (ViewGroup) layoutInflater.inflate(b.getId(),  null);
+                     popupWindow=new PopupWindow(b,(int)width*3/4,(int)height*3/4,true);
+                     popupWindow.setFocusable(false);//set true after full screen
+                    //popupWindow.setBackgroundDrawable(new ColorDrawable());
+                    popupWindow.showAtLocation(getWindow().getDecorView(), Gravity.TOP,0,0);
+                    popupWindow.update(-1200,-1200,-1,-1,true);
+                    try {
+
+
+                        b.setSystemUiVisibility(View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
+                    }catch (Exception e){e.printStackTrace();}
+                    popupWindow.setFocusable(true);//set true after full screen
+                    popupWindow.update(-500,-300,-1,-1,true);
+
+                    popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+                        @Override
+                        public void onDismiss() {
+                            hideSystemUI();
+                            Log.e("FileChooser","closed");
+                        }
+                    });
+                  b.setOnTouchListener(new View.OnTouchListener() {
+                      @Override
+                      public boolean onTouch(View v, MotionEvent event) {
+                          Log.e("filechooserTouched","touched");
+                          return false;
+                      }
+                  });
+
+                }catch (Exception e){e.printStackTrace();}
+
+            }
+        });
     }
 }

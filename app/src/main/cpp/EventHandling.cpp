@@ -6,10 +6,49 @@
 #include "EventHandling.h"
 #include "UI.h"
 #include "Main.h"
+#include "JavaCalls.h"
+
 android_app * OnTouchListener::app=nullptr;
+
+
 bool touchFunct(float touchX, float touchY, TouchAction touchAction)
 {
     Loge("EVentH","in touch function external");
+    return true;
+}
+bool FilesTouchListener::onTouch(float touchX, float touchY, int pointerId, TouchAction touchAction) {return true;}
+bool FilesTouchListener::onTouch(float touchX, float touchY, int pointerId, TouchAction touchAction, View *view)
+{
+
+    switch (touchAction)
+    {
+        case ACTION_DOWN:
+        {
+           // view->setBounds(0,0,Graphics::displayParams.screenWidth,view->getHeight());
+           openFileExplorer();///////get error handle
+           Loge("FILESLISTENER","RETURNEd");
+
+        }break;
+        case ACTION_POINTER_DOWN:
+        {}break;
+        case ACTION_MOVE:
+        {
+
+
+        }break;
+        case ACTION_POINTER_UP:
+        {
+        }
+            break;
+        case ACTION_UP:
+        {
+
+        }break;
+        default:
+        {}
+
+    }
+
     return true;
 }
 bool SliderTouchListener::onTouch(float touchX, float touchY, int pointerId, TouchAction touchAction) {return true;}

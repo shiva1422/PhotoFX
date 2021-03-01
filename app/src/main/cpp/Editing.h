@@ -9,7 +9,8 @@
 #include "stdlib.h"
 #include "Graphics.h"
 #include "EditableImage.h"
-
+#include "FilterProperties.h"
+enum EActiveFilter{LIGHT=0,SATURATION,HUE};//should mathc in setActiveFilter and Shaders
 enum EditOptions{HSI=0};
 enum EditSubOption{H=0,S,I};
 class ImageViewStack;
@@ -20,6 +21,7 @@ private:
     GLuint activeShaderId=0;
     float sliderValues[4]={0.0f,0.0f,0.0f,0.0f};
     float inputValue=0.0f;
+    EActiveFilter EactiveFilter;
 public:
     EditableImage *editableImage=nullptr;///first//make private just for tes
     bool isUpdatedNeeded=false;
@@ -32,6 +34,8 @@ public:
     void setActiveOption(uint ActiveOption);//when option changes change the shader accordingly also reset sliders.
     void setActiveSubOption(uint ActiveSubOption);
     void onInputValuesChanged(uint sliderNo,float newInputValue);///sliderNo and counter are not yet complete in sliderSet
+    void setShaderInputs();
+    void setActiveFilter();
     void process();
 
 };

@@ -77,6 +77,8 @@ ViewGroup viewGroup;
     SliderSet sliderSet;
     sliderSet.setBounds(0,displayParams.screenHeight*75/100,displayParams.screenWidth,displayParams.screenHeight*2/100);
     ImageView fbImage(0,0,displayParams.screenWidth,displayParams.screenHeight);
+    ImageView fileExplorer(0,0,100,100);
+    fileExplorer.setOnTouchListener(new FilesTouchListener());
 
 
     // MainImageView.setBoundsDeviceIndependent(0,displayParams.screenHeight*20/100,InputImage.width,InputImage.height);
@@ -105,6 +107,7 @@ viewGroup.addView(&subOptionsStack);
 viewGroup.setBounds(0,0,displayParams.screenWidth,displayParams.screenHeight);
 viewGroup.addView(&sliderSet);
 viewGroup.addView(&MainImageView);
+viewGroup.addView(&fileExplorer);
 globalData.contentView=&viewGroup;
 
 Editor editor;
@@ -135,12 +138,13 @@ outputImage.setOnTouchListener(new myListener());*/
 
     while(true)
     {
+        //UILogE("OUTERLOOP");
         while ((eventId = ALooper_pollAll(0, &fdesc, &events, (void **) &source)) >= 0)
         {
-            if (source != NULL)
+            UILogE("INNERLOOP");
+            if (source)
             {
-
-
+                UILogE("EVENT THERE PROCESSING");
                 source->process(app, source);
                 editor.process();
                 glUseProgram(globalData.UIProgram);

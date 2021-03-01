@@ -3,12 +3,14 @@ precision highp int;
 precision highp float;
 vec3 rgbToHsi(vec3 rgb);
 vec3 hsiToRgb(vec3 hsi);
+layout(location=0) uniform int filterType;
 layout(location=1) uniform float param1;
 layout(location=2) uniform float param2;
+
 //layout(location=3) uniform float param3;//location name different from uishader so make filter shaders independent of ui locatoin
 layout (location =21) uniform sampler2D image;
-in vec2 uvOut;
-out vec4 Fragcolor;
+in vec2 uvOut;//can have layout location same as out uvOut in vertexShader and the name  can be differen(still matches)
+out vec4 Fragcolor;////this can have loayout location as buffer index that this writes to
 const float PI=3.14159265358979311599796346854;
 const float RADIAN=PI/180.0;
 void main()
@@ -16,18 +18,27 @@ void main()
     vec4 finalColor;
     vec2 finalTexCoods=vec2(uvOut.x,1.0-uvOut.y);
     finalColor= texture(image,finalTexCoods);
-   // finalColor.r=param1;
     vec3 hsi=rgbToHsi(vec3(finalColor.xyz));
-   // hsi.g=hsi.g*param1*5.0/360.0;
-    float hue=hsi.r;
-    hsi.r=param1;
-   // hsi.g=param1/360.0;
+    switch(filterType)
+    {
+        case 0://light//should match in editor.cpp setActiveFilter;
+        {
+            hsi.b=hsi.b+param1*255.0/360.0-128.0;
+        }break;
+        case 1://saturation
+        {
+            hsi.g*=param1*10.0/360.0;
+        }break;
+        case 2://hue
+        {
+            hsi.r+=param1;
+        }
 
-    //if(hsi.b>255.0){hsi.b=255.0;}
-   vec3 rgb=hsiToRgb(hsi);
- //    finalColor.rgb=rgb-finalColor.rgb;
- //   if(finalColor.b==0.0)
-   // finalColor.b=1.0;
+    }
+   // hsi.g=hsi.g*param1*5.0/360.0;
+   // float hue=hsi.r;
+   // hsi.r=param1;
+    vec3 rgb=hsiToRgb(hsi);
     Fragcolor=vec4(rgb,finalColor.a);
 
 
@@ -35,6 +46,7 @@ void main()
 
 vec3 rgbToHsi(vec3 rgb)//use seperate r,g,b than a vector;no extram memory and conversion needed
 {
+    //intesity 0-255,saturation 0-1.0,hue=0-360
     float r=rgb.r*255.0,g=rgb.g*255.0,b=rgb.b*255.0,hue,saturation,minRGB,intensity;
     intensity=(r+g+b)/3.0;
     if(r<=g&&r<=b)////////////min of RGB
