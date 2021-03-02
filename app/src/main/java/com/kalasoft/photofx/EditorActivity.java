@@ -28,7 +28,8 @@ public class EditorActivity extends NativeActivity {
     private PopupWindow popupWindow;
     static int i=0;
     float width ,height;
-
+    private int  uiShaderProgId;
+   // static {System.loadLibrary("main");}
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -144,7 +145,10 @@ public class EditorActivity extends NativeActivity {
             public void run() {
                 try
                 {
-                     ChooserView b=new ChooserView(getApplicationContext());
+                     ChooserView b=new ChooserView(getApplicationContext(),uiShaderProgId);
+
+
+
                    //  Label
 
                    // b.setHeight(500);
@@ -178,7 +182,9 @@ public class EditorActivity extends NativeActivity {
                   b.setOnTouchListener(new View.OnTouchListener() {
                       @Override
                       public boolean onTouch(View v, MotionEvent event) {
-                          Log.e("filechooserTouched","touched");
+                          Log.e("filechooserTouched","touched "+ " java progr id is" + uiShaderProgId);
+                      //    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                        //  imm.showSoftInput(getWindow().getDecorView(), 0);
                           return false;
                       }
                   });
@@ -187,5 +193,11 @@ public class EditorActivity extends NativeActivity {
 
             }
         });
+    }
+
+    public void setUiShaderProgramId(int progId)
+    {
+        uiShaderProgId=progId;
+        return ;
     }
 }

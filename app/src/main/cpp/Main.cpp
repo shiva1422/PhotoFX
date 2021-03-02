@@ -13,6 +13,7 @@
 #include "Editing.h"
 #include "UI.h"
 
+
 void android_main(android_app *app)
 {
     app->onAppCmd = onCmd;
@@ -56,6 +57,7 @@ void android_main(android_app *app)
 
     globalData.UIProgram=Shader::createShaderProgram(app,"UIProgram/vertexShader.glsl","UIProgram/fragmentShader.glsl");
     glUseProgram(globalData.UIProgram);
+    AppContext::UIProgram=globalData.UIProgram;
     InitializeUI();
     //Bitmap defaultKalaImage;//move most of the setup things to seperate function;
   //  getPhoto(app,&defaultKalaI,3);
@@ -171,3 +173,5 @@ outputImage.setOnTouchListener(new myListener());*/
     }
 
 }
+
+#include "JniMethods.cpp"

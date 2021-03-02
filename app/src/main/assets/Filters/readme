@@ -15,6 +15,11 @@ get location when shader porgramChanges;
 
 
 /////needs Improve;
+
+WHen programChanges set frameBuf in Shader to 0 for ui and 1 for renderBuffer,getLocations
+JNIcalls.cpp all function have same code in half so make it a function and reduce code
+JNI mehtod implementation must be targetLibrary cpp in targetLinkLibs;for example include jniMethods.cpp in main.cpp;
+check calling jniMehd directly from c code;
 In manifest opengL Version check also in java used versin 2.0 while in c 3.0
 after dong gldeleteProgram,glDeleteShader,glDeleteTextures
 glClrearColor non need everyFrame;

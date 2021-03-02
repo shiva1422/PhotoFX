@@ -2,14 +2,14 @@
 precision highp float;
 precision highp int;
 vec4 setWhiteKeyColor(int TopOrDown,int Index);
-layout(location = 0) in vec2 verts;
+layout(location = 0) in vec2 verts;///instead of location cache when first time gluse program
 layout(location = 1)  in vec4 color;
 layout(location = 2)  in vec2 texCoords;////uvs
 layout(location = 3)  in float texZValue;
 layout(location=0) uniform int drawType;
 layout(location=1) uniform float param1;
 layout(location=2) uniform float param2;
-layout(location=3) uniform int frameBuf;
+layout(location=3) uniform int frameBuf;///////to set
 layout(location=4) uniform int param3;
 
 out vec2 textCoodsOut;
@@ -41,6 +41,11 @@ void main()
 
         }
         break;
+        default:
+        {
+            finalVerts.x=verts.x;
+            finalVerts.y=verts.y;
+        }
     }
 
 
@@ -56,6 +61,7 @@ void main()
    // }
 
     texZ=texZValue;
+  //  gl_PointSize=10.0;
     gl_Position=vec4(finalVerts.x, finalVerts.y, 1.0, 1.0);
 
 }

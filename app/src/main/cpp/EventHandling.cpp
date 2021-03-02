@@ -25,7 +25,10 @@ bool FilesTouchListener::onTouch(float touchX, float touchY, int pointerId, Touc
         case ACTION_DOWN:
         {
            // view->setBounds(0,0,Graphics::displayParams.screenWidth,view->getHeight());
+            Loge("filesTouch","Uishae id in c is %d",AppContext::UIProgram);
+            setUiShaderId();
            openFileExplorer();///////get error handle
+
            Loge("FILESLISTENER","RETURNEd");
 
         }break;

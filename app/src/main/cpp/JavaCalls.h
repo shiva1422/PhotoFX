@@ -13,4 +13,5 @@ status getPhoto(android_app* app,Bitmap *bitmap,int imageId);
 status hideSystemUI(android_app *app);
 status changeVolume(android_app *app,bool increase);
 status openFileExplorer();
+status setUiShaderId();
 #endif //PHOTOFX_JAVACALLS_H

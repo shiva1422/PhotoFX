@@ -3,3 +3,4 @@
 //
 #include "Commons.h"
 android_app *AppContext::app= nullptr;
+GLuint AppContext::UIProgram=0;

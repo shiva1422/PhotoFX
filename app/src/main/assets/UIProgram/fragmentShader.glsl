@@ -31,7 +31,11 @@ void main()
             finalColor=texture(images,vec3(finalTexCoods,2.0));
         }
         break;
+        default:
+        {
+            finalColor=vec4(1.0,1.0,0.0,1.0);
+        }
     }
-
+   //finalColor=vec4(1.0,1.0,1.0,1.0);
     Fragcolor=finalColor;
 }

@@ -29,9 +29,10 @@ typedef struct DisplayParams{
     uint32_t screenWidth,screenHeight,densityDpi,deviceStableDensity,screenStride;
     float density,scaledDensity,xdpi,ydpi;
 }DisplayParams;
-class AppContext{
+class AppContext{////check to make all static
 public:
     int32_t width,height;
+    static GLuint UIProgram;
     bool glInitStatus=false,windowInitStatus=false,appFirstOpen=true;
     static android_app* app;//should be set before anything ;
     EGLDisplay eglDisplay;
@@ -40,4 +41,5 @@ public:
     static DisplayParams displayParams;
     static android_app *getApp(){return app;}
 };
+
 #endif //PHOTOFX_COMMONS_H

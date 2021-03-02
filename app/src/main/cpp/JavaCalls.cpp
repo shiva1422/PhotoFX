@@ -5,6 +5,33 @@
 #include "JavaCalls.h"
 #include "Commons.h"
 #include "android/bitmap.h"
+status setUiShaderId()
+{
+    android_app *app=AppContext::getApp();
+    JavaVM* vm=app->activity->vm;
+    JNIEnv *env ;
+    vm->AttachCurrentThread(&env,NULL);
+    if(env==NULL)
+    {
+        JniLog("coulf not attach/obtain current thread/get java environment");
+        return STATUS_KO;
+    }
+    jclass cls = (env)->GetObjectClass(app->activity->clazz);
+    if(cls==NULL)
+    {
+        JniLog("coulf not get java object class");
+        return STATUS_KO;
+    }
+    jmethodID mid = env->GetMethodID(cls, "setUiShaderProgramId", "(I)V");
+    if (mid == 0) {
+        JniLog("error obtaining the method id");
+        return STATUS_KO;
+    }
+    env->CallVoidMethod(app->activity->clazz,mid,AppContext::UIProgram);
+    vm->DetachCurrentThread();
+    return STATUS_OK;
+}
+
 status openFileExplorer()
 {
     android_app *app=AppContext::getApp();
