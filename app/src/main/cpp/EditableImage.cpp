@@ -4,10 +4,10 @@
 
 #include "EditableImage.h"
 EditableImage::EditableImage(float startX, float startY, float Width, float height, Bitmap *image):ImageView(startX,startY,width,height,image)
-{
+{/////set buffer to 0 or noise is draw or draw input to ouput firsttime.
     outputBuffer.setDims(image->width, image->height);
     outputBuffer.configureColorBuffer();
-    outputBuffer.configureDepthBuffer();////optional remove if not needed
+    //outputBuffer.configureDepthBuffer();////optional remove if not needed
     outputBuffer.configure();
     ouputTexId=outputBuffer.getTexId();
     inputTexId=texId;//two lines so that by default super draw method draw ouput;based on need we can change them to draw ouptu input or both.

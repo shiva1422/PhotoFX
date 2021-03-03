@@ -9,7 +9,7 @@ layout(location = 3)  in float texZValue;
 layout(location=0) uniform int drawType;
 layout(location=1) uniform float param1;
 layout(location=2) uniform float param2;
-layout(location=3) uniform int frameBuf;///////to set
+layout(location=3) uniform int frameBuf;///////check if needed else remove
 layout(location=4) uniform int param3;
 
 out vec2 textCoodsOut;

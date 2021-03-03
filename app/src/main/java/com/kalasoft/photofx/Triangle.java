@@ -60,36 +60,12 @@ public class Triangle {
     public void draw() {
         // Add program to OpenGL environment
         GLES31.glUseProgram(mProgram);
-       // GLES31.glUniform1i(0,3);
-     //   GLES31.glUniform1i(3,0);
-
         checkGLError("trainage");
-
-
-        // get handle to vertex shader's vPosition member
        mPositionHandle = GLES31.glGetAttribLocation(mProgram, "vPosition");
-
-        // Enable a handle to the triangle vertices
         GLES31.glEnableVertexAttribArray(mPositionHandle);
-
-        // Prepare the triangle coordinate data
         GLES31.glVertexAttribPointer(mPositionHandle, COORDS_PER_VERTEX,GLES31.GL_FLOAT, false, 0, vertexBuffer);
-        // get handle to fragment shader's vColor member
-       // mColorHandle = GLES31.glGetUniformLocation(mProgram, "color");
-
-
-        // Set color for drawing the triangle
-       // GLES31.glUniform4fv(1, 1, color, 0);
-
-
-
-
-
-        // Draw the triangle
         GLES31.glDrawArrays(GLES31.GL_TRIANGLES, 0, 3);
 
-        // Disable vertex array
-       // GLES31.glDisableVertexAttribArray(mPositionHandle);
     }
     public void checkGLError(String tag) {
         int error;
