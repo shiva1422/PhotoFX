@@ -15,7 +15,7 @@ get location when shader porgramChanges;
 
 
 /////needs Improve;
-
+//TExture need not(moslty in the buf) be in buffer can directly read from image (check)//buffer cuses extra mem check or not may (or free image memory)
 WHen programChanges set frameBuf in Shader to 0 for ui and 1 for renderBuffer,getLocations
 JNIcalls.cpp all function have same code in half so make it a function and reduce code
 JNI mehtod implementation must be targetLibrary cpp in targetLinkLibs;for example include jniMethods.cpp in main.cpp;

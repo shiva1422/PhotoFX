@@ -47,30 +47,22 @@ public class Square {
             0.0f, 1.0f };
     public Square() {
         // initialize vertex byte buffer for shape coordinates
-        ByteBuffer bb = ByteBuffer.allocateDirect(
-                // (# of coordinate values * 4 bytes per float)
-                squareCoords.length * 4);
+        ByteBuffer bb = ByteBuffer.allocateDirect(squareCoords.length * 4);
         bb.order(ByteOrder.nativeOrder());
         vertexBuffer = bb.asFloatBuffer();
         vertexBuffer.put(squareCoords);
         vertexBuffer.position(0);
 
         // initialize byte buffer for the draw list
-        ByteBuffer dlb = ByteBuffer.allocateDirect(
-                // (# of coordinate values * 2 bytes per short)
-                drawOrder.length * 2);
+        ByteBuffer dlb = ByteBuffer.allocateDirect(drawOrder.length * 2);
         dlb.order(ByteOrder.nativeOrder());
         drawListBuffer = dlb.asShortBuffer();
         drawListBuffer.put(drawOrder);
         drawListBuffer.position(0);
         GLES31.glGenTextures(1,textures,0);////////delete textureslater;
         GLES31.glBindTexture(GLES31.GL_TEXTURE_2D,textures[0]);
-        GLES31.glTexParameterf(GLES31.GL_TEXTURE_2D,
-                GLES31.GL_TEXTURE_MAG_FILTER,
-                GLES31.GL_LINEAR);
-        GLES31.glTexParameterf(GLES31.GL_TEXTURE_2D,
-                GLES31.GL_TEXTURE_MIN_FILTER,
-                GLES31.GL_LINEAR);
+        GLES31.glTexParameterf(GLES31.GL_TEXTURE_2D, GLES31.GL_TEXTURE_MAG_FILTER, GLES31.GL_LINEAR);
+        GLES31.glTexParameterf(GLES31.GL_TEXTURE_2D, GLES31.GL_TEXTURE_MIN_FILTER, GLES31.GL_LINEAR);
        // image= BitmapFactory.decodeResource(context.getResources(),R.drawable.boom);
 
 
@@ -78,8 +70,7 @@ public class Square {
     }
     public  void genTExt()
     {
-        if(image==null)
-            Log.e("Image","null");
+        if(image==null) Log.e("Image","null");
         GLUtils.texImage2D(GLES31.GL_TEXTURE_2D, 0, image, 0);
         textureBuffer = ByteBuffer.allocateDirect(textureCoordinates.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
         textureBuffer.put(textureCoordinates);

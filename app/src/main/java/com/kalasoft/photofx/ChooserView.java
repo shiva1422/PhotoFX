@@ -26,6 +26,7 @@ private ChooserRenderer renderer;
         setEGLContextClientVersion(3);///version check (to 3.0 ma
          super.setEGLConfigChooser(8 , 8, 8, 8, 16, 0);/////depth needed?
          renderer=new ChooserRenderer( context);
+
          renderer.programId=uiProgramId;
          setRenderer(renderer);
          setOnTouchListener(chooserTouchListener);
@@ -44,7 +45,7 @@ private ChooserRenderer renderer;
         public boolean onTouch(View v, MotionEvent event) {
             if(event.getX()<50&&event.getX()<50)///////take renderer height and width
             {
-                popupWindow.dismiss();
+               popupWindow.dismiss();
 
             }
 

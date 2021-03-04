@@ -143,7 +143,7 @@ public class EditorActivity extends NativeActivity implements ActivityCompat.OnR
     }
 
     public void openFileExplorer() {
-        Log.e("FIleExplore", "DFDF");
+       // Log.e("FIleExplore", "DFDF");
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
