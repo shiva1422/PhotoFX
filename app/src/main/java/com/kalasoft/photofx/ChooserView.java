@@ -48,6 +48,10 @@ private ChooserRenderer renderer;
                popupWindow.dismiss();
 
             }
+            else
+            {
+                renderer.onTouch(v,event);
+            }
 
             return false;
         }

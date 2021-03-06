@@ -97,7 +97,7 @@ public class Image
         GLES31.glBindTexture(GLES30.GL_TEXTURE_2D,texIds[0]);
         int displayParamsLoc=GLES31.glGetAttribLocation(mProgram,"displayParams");
         GLES31.glUniform2f(displayParamsLoc,ChooserRenderer.width,ChooserRenderer.height);
-        GLES31.glDrawElementsInstanced(GLES30.GL_TRIANGLES,6,GLES31.GL_UNSIGNED_SHORT,drawListBuffer,15);
+        GLES31.glDrawElements(GLES30.GL_TRIANGLES,6,GLES31.GL_UNSIGNED_SHORT,drawListBuffer);
 
 
     }
