@@ -15,12 +15,13 @@ import java.nio.ShortBuffer;
 public class Image
 {
     //properties for retrieving image;
-    long imageId;
+    long cursorPos=0;
     String imageTitle;
     Bitmap bitmap;
     //AppSpecific
     static Context context;
     //drawing
+    float startX,startY,width,height;
     int[] texIds=new int[1];
     static int mProgram;//shaderProg
     static final int COORDS_PER_VERTEX = 2;
@@ -53,9 +54,13 @@ public class Image
         GLES31.glTexParameterf(GLES31.GL_TEXTURE_2D, GLES31.GL_TEXTURE_MIN_FILTER, GLES31.GL_LINEAR);
 
     }
-    void setBounds(int startX,int startY,int width,int height)
+    void setBounds(float startX,float startY,float width,float height)
     {
         ///X's
+        this.startX=startX;
+        this.startY=startY;
+        this.width=width;
+        this.height=height;
         float[] vertices=new float[8];
         vertices[0] =(float) (-1.0 + (startX * 2.0) /ChooserRenderer.width);//*2 so that-1 to 1 else we get 0 to 1 after conversion  leftX
         vertices[2] = (float)(-1.0 + ((startX + width) * 2.0) / ChooserRenderer.width);//rightX
@@ -78,6 +83,8 @@ public class Image
         GLUtils.texImage2D(GLES31.GL_TEXTURE_2D, 0, bitmap, 0);
 
     }
+    public int getTexId()
+    {return texIds[0];}
     public void resetTexImage(){
         GLES31.glBindTexture(GLES31.GL_TEXTURE_2D,texIds[0]);
         if(bitmap==null) {Log.e("Image:setTexImage","null Image");}
@@ -101,9 +108,4 @@ public class Image
 
 
     }
-
-
-
-
-
 }

@@ -43,7 +43,7 @@ void Editor::process()
         glClearColor(0.0, 0.0, 0.0, 1.0);///check if needed (or move to frameBuffer);
         glClear(GL_COLOR_BUFFER_BIT);
         glUniform1i(glGetUniformLocation(activeShaderId, "frameBuf"),1);//for any frame buf for to invert inverted images;
-        setShaderInputs();
+        setShaderInputs();//////set shader inputs;
         GLushort indices[6];
         indices[0] = 0, indices[1] = 1, indices[2] = 2, indices[3] = 2, indices[4] = 3, indices[5] = 0;
         float verts[] = {-1, -1, 1, -1, 1, 1, -1, 1};
@@ -142,7 +142,7 @@ Loge("ShaderManager::createShaderPro","%d option",option);
         }
 
     }
-    /////////////need not compile vertexShader EveryTime as it is same for all :
+    /////////////need not compile vertexShader EveryTime as it is same for all(if not deleted) :
   //  Loge("the shaderloca ","%s ,%s",vertexSource.c_str(),fragmentSource.c_str());
     return Shader::createShaderProgram(AppContext::getApp(),vertexSource.c_str(),fragmentSource.c_str());
 }

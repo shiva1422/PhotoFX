@@ -3,7 +3,6 @@ package com.kalasoft.photofx;
 import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.opengl.GLES20;
 import android.opengl.GLES30;
@@ -19,12 +18,13 @@ import android.view.View;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-public class ChooserRenderer implements GLSurfaceView.Renderer {
+public class ChooserRenderer implements GLSurfaceView.Renderer {/////////Opengl updates should be done on the thread only for example onTouch caled from ChooserView so can do image uploads therer
     static int width, height;
     public int programId=0;
    // Image testImage;
     Image[] images;
-    private int totalImagesToDraw;//to display
+
+    private int totalImagesToDraw,startImageNo=0;//to display
     static float red=0.0f;
     static int test=0;
     static {
@@ -34,8 +34,9 @@ public class ChooserRenderer implements GLSurfaceView.Renderer {
 
     ///MEdiaCursor;
     //Media Cursor
-    private boolean imageUpdateNeeded=true;
+    private boolean imageUpdateNeeded=true,rowupNeed=false,rowDownNeed=false;
     private Cursor mediaCursor;
+    private int cursorPosFirstImg=0,cursorPosLastImage=0;
     //projection=table columns/////some are api dependant check;
     private String[] projection=new String[]{ MediaStore.Images.Media._ID,
             MediaStore.Images.Media.DATA,
@@ -49,8 +50,15 @@ public class ChooserRenderer implements GLSurfaceView.Renderer {
     private String sortOrder =MediaStore.Images.Media.DATE_ADDED + " DESC";
 
     ///Drawing
-    private int maxImageHeight,maxImageWidth;
-    private int totalActiveView=0,numRows=0,numColoumns=7;
+    private float maxImageHeight,maxImageWidth;
+    private int totalActiveView=0,numRows=0,numColoumns=3;
+    private float gap=5.0f;//gap in pixels
+
+
+    //Touch
+    private int pointerId;
+   private float initialTouchX=0.0f,initialTouchY=0.0f,previousTouchX=0.0f,previousTouchY=0.0f,totalMoveDisY=0.0f;
+
 
 ChooserRenderer(Context context) {
     this.context = context;
@@ -68,27 +76,50 @@ int testNo=0;
         GLES31.glUseProgram(programId);
         red+=0.05f;if(red>1){red=0;}
        // Log.e("PROGRAMID","" +programId);
-        GLES31.glClearColor(0.4f, 0.0f, 0.0f, 1.0f);
+        GLES31.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         GLES31.glClear(GLES20.GL_COLOR_BUFFER_BIT);
         Graphics.checkGLError("ChooserRenderre");
+        int displayParamsLoc=GLES31.glGetUniformLocation(programId,"displayParams");
         int imageNumLoc=GLES31.glGetUniformLocation(programId,"imageNum");
         int matrixSizeLoc=GLES31.glGetUniformLocation(programId,"numCols");
+        int gapLoc=GLES31.glGetUniformLocation(programId,"gap");
+        GLES31.glUniform1f(gapLoc,gap);
         GLES31.glUniform1i(matrixSizeLoc,numColoumns);
+        GLES31.glUniform2f(displayParamsLoc,width,height);
         if(imageUpdateNeeded)
         {
             calcuateImageTextureAndBound();
             imageUpdateNeeded=false;
+           // rowUp();
         }
-        for(int i = 0; i< totalImagesToDraw; i++)
+        if(rowupNeed)
         {
-            //if(imageUpdateNeeded)
-            images[i].draw();
-            Graphics.checkGLError("onDraw");
+            retrieveOnRowUp();
+            rowupNeed=false;
+        }
+        if(rowDownNeed)
+        {
+            if(images[startImageNo].cursorPos!=0)
+            retrieveOnRowDown();
+            rowDownNeed=false;
+        }
+
+        for(int i =0; i< totalImagesToDraw; i++)
+        {
             GLES31.glUniform1i(5,i);
+            int imageIndex=i+startImageNo;
+            if(imageIndex<totalImagesToDraw)
+            images[imageIndex].draw();
+            else
+                images[imageIndex-totalImagesToDraw].draw();
+
+            Graphics.checkGLError("onDraw");
             //testImage.draw();
         }
-        //testImage.draw();
+
         // Log.e("ImageNO",mediaCursor.getPosition() + "of total : " + mediaCursor.getCount());
+        Graphics.checkGLError("onDraw");
+
 
     }
 
@@ -109,8 +140,8 @@ int testNo=0;
         this.width=width;
         this.height=height;
         GLES31.glViewport(0, 0, width, height);
-        numRows=(height)/(width/numColoumns);//square image same height and width make is screenDensity Indendent;
-        maxImageWidth=width/numColoumns;//d
+        numRows=(height)/(width/numColoumns);//square image same height and width make is screenDensity Indendent;// division may give one row less sometimes
+        maxImageWidth=(width-(numColoumns-1)*gap)/numColoumns;//d
         maxImageHeight=maxImageWidth;
         totalImagesToDraw =numColoumns*(numRows+2);
         Log.e("TotalIamgedrawCOunt ","" + totalImagesToDraw);
@@ -143,12 +174,14 @@ int testNo=0;
         }
         catch (Exception e){e.printStackTrace();}
     }
-    public void setImagesToDraw(Image image)
+    public void loadImageFromCursor(Image image)
     {
         if(image.bitmap!=null)
         image.bitmap.recycle();
         if(mediaCursor.getPosition()<mediaCursor.getCount()-1)
+        {
             mediaCursor.moveToNext();
+        }
         if(mediaCursor!=null) {//try?
             int idColumn = mediaCursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
             int nameColumn = mediaCursor.getColumnIndexOrThrow(MediaStore.Images.Media.TITLE);
@@ -165,7 +198,7 @@ int testNo=0;
             try {
 ////Load screenDensity independent
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    image.bitmap = context.getContentResolver().loadThumbnail(contentUri, new Size(maxImageWidth, maxImageHeight), null);//change method to obtain thumbnail
+                    image.bitmap = context.getContentResolver().loadThumbnail(contentUri, new Size((int)maxImageWidth, (int)maxImageHeight), null);//change method to obtain thumbnail
                     //testImage.bitmap=crop(testImage[i].bitmap);
                     //acturally image should fit to center of maxImageHeight and width
 
@@ -189,25 +222,173 @@ int testNo=0;
             }
 
             image.resetTexImage();
+            image.cursorPos=mediaCursor.getPosition();
+           // Log.e("setImages","Texture reset in setIamgesFromCursor");
 
 
         }
-        Log.e("curosor position",mediaCursor.getPosition() + "");
 
+     //   Log.e("curosor position",mediaCursor.getPosition() + "set images from cursor");
     }
     public void calcuateImageTextureAndBound()
     {
         for(int i = 0; i< totalImagesToDraw; i++)
         {
-            setImagesToDraw(images[i]);
+            loadImageFromCursor(images[i]);
+            cursorPosLastImage=mediaCursor.getPosition();
         }
     }
-    public void onTouch(View v, MotionEvent event)
+    public void onTouch(View v, MotionEvent event)//Need ReturnType;
     {
+        int pointerIndex=(event.getAction()&MotionEvent.ACTION_POINTER_INDEX_MASK)>>MotionEvent.ACTION_POINTER_INDEX_SHIFT;
         ///return needed;
-        Log.e("ontouchRenderer","touched");
-        if(event.getAction()==MotionEvent.ACTION_DOWN)
-        imageUpdateNeeded=true;
+        int tempPointerId=event.getPointerId(pointerIndex);
+        float touchX=event.getX(),touchY=event.getY();
+        switch (event.getAction())
+        {
+            case MotionEvent.ACTION_DOWN:
+            {
+                Log.e("ontouchRenderer","initial touch touched");
+                pointerId=event.getPointerId(pointerIndex);
+                initialTouchX=touchX;
+                initialTouchY=touchY;
+                previousTouchX=touchX;
+                previousTouchY=touchY;
+
+            }break;
+            case MotionEvent.ACTION_POINTER_DOWN:
+            {
+
+            }break;
+            case MotionEvent.ACTION_MOVE:
+            {
+                int pointerCount=event.getPointerCount();
+                for(int i=0;i<pointerCount;i++)
+                {
+                    tempPointerId=event.getPointerId(i);
+                    if(tempPointerId==pointerId)
+                    {
+                      //  Log.e("ontouchRenderer","Renderer TOuch Moved");
+                        touchX=event.getX();
+                        touchY=event.getY();
+                     //   float moveDisX=previousTouchX-touchX;//only moved along y
+                        float moveDisY=previousTouchY-touchY;
+                        totalMoveDisY+=moveDisY;
+                        //instead of below condition make it set to 0 positoin on touchup
+                        if(!(moveDisY<0&&images[startImageNo].cursorPos==0&&images[startImageNo].startY>=-0.1*images[startImageNo].height))
+                        for(int k=0;k<totalImagesToDraw;k++)
+                        {
+                            images[k].setBounds(images[k].startX,images[k].startY-moveDisY,images[k].width,images[k].height);
+                            ///currently all images have same bounds only need for one acturally(draw using one draw call);
+                        }
+                        // if(totalMoveDisY>(images[0].height))
+                        if(images[0].startY<-(images[0].height*1.5))//11/2 image down
+                        {
+
+                            rowUp();
+                            //imageUpdateNeeded=true;
+                            totalMoveDisY=0.0f;
+                        }
+                        else if(images[0].startY>0)
+                        {
+                            rowDown();
+                            //imageUpdateNeeded=true;
+                            totalMoveDisY=0.0f;
+                        }
+                       // imageUpdateNeeded=true;
+
+                        previousTouchX=touchX;
+                        previousTouchY=touchY;
+                    }
+
+
+
+                }
+
+
+            }
+            break;
+            case MotionEvent.ACTION_POINTER_UP:
+            {
+                if(tempPointerId==pointerId)
+                {pointerId=-1;
+                    Log.e("ontouchRenderer","pointerUP");
+                }//setting pointer to invalid
+            }break;
+            case MotionEvent.ACTION_UP:
+            {
+                if(tempPointerId==pointerId)
+                {
+                    pointerId=-1;
+                    Log.e("ontouchRenderer","ActionUP");
+                }//setting pointer to invalid
+            }
+            break;
+        }
+
+       // imageUpdateNeeded=true;
+
+    }
+    public void rowUp()
+    {//check error if images are completed
+        //imageUpdateNeeded=true;
+        rowupNeed=true;/////cannot modify images directly here as it is called from ChooserView not the opengl thread.
+
+        //the topmost row will be now drawn on bottom but new images are set in them
+
+        Log.e("ROW","UP" +totalMoveDisY);
+        for(int i=0;i<totalImagesToDraw;i++)
+        {
+            float tempStartY=images[i].startY+maxImageHeight;
+            images[i].setBounds(images[i].startX,tempStartY,images[i].width,images[i].height);
+        }
+
+    }
+    public void rowDown()
+    {
+        Log.e("Row","down");
+        rowDownNeed=true;
+        for(int i=0;i<totalImagesToDraw;i++)
+        {
+            float tempStartY=images[i].startY-maxImageHeight;
+            images[i].setBounds(images[i].startX,tempStartY,images[i].width,images[i].height);
+        }
+
+    }
+    public void retrieveOnRowUp()
+    {
+        int lastRowStartIndex=startImageNo-numColoumns;
+        if(lastRowStartIndex<0)
+        {
+            lastRowStartIndex=totalImagesToDraw+lastRowStartIndex;
+        }
+        Log.e("the lastROw start index", "" + lastRowStartIndex);
+        mediaCursor.moveToPosition((int)images[lastRowStartIndex].cursorPos+numColoumns-1);
+        for(int i=0;i<numColoumns;i++)
+        {
+           loadImageFromCursor(images[i+startImageNo]);/////do this on other thread
+        }
+        startImageNo+=numColoumns;
+        if(startImageNo>totalImagesToDraw-1)
+        {
+            startImageNo=startImageNo-totalImagesToDraw;
+        }
+    }
+    public void retrieveOnRowDown()
+    {
+        mediaCursor.moveToPosition((int)images[startImageNo].cursorPos-numColoumns-1);
+        int lastRowStartIndex=startImageNo-numColoumns;
+        if(lastRowStartIndex<0)
+        {
+            lastRowStartIndex=totalImagesToDraw+lastRowStartIndex;
+        }
+        Log.e("the lastROw start index", "" + lastRowStartIndex);
+        for(int i=0;i<numColoumns;i++)
+        {
+
+            loadImageFromCursor(images[lastRowStartIndex+i]);/////do this on other thread
+        }
+        startImageNo=lastRowStartIndex;
     }
 
 

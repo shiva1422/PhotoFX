@@ -7,7 +7,7 @@ GLobalData has Editor and input view references and editor has layers and the la
 
 all shaders here are fragment except vertex that is common for all filter (fragement) shader programs
 
-//all layout(locations) keep same as in uishader
+//all layout(locations) keep same as in uishader(no need)
 
  /////////ERRORS now and possible
 //when shader program changes some getting blanck and glUniform1i give invalid opertaion if keeep getting these getUnifromLocation and set glUniform1i or
@@ -15,6 +15,7 @@ get location when shader porgramChanges;
 
 
 /////needs Improve;
+//instead of render to texture try ssbos
 //TExture need not(moslty in the buf) be in buffer can directly read from image (check)//buffer cuses extra mem check or not may (or free image memory)
 WHen programChanges set frameBuf in Shader to 0 for ui and 1 for renderBuffer,getLocations
 JNIcalls.cpp all function have same code in half so make it a function and reduce code
@@ -26,3 +27,12 @@ glClrearColor non need everyFrame;
 keep GLobalData specific to app but AppContext same across all apps.
 compiling shaders indicate which shader failed compiling
 Graphics.h shaders should not take app as input not just these any wher need app* replace by AppContext::getApp()
+
+
+
+
+
+api/sdk :
+java has some deprecated meths check;
+use imageReader.h for api >30;
+

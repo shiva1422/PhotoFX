@@ -32,6 +32,7 @@ private ChooserRenderer renderer;
          setOnTouchListener(chooserTouchListener);
                 // Render the view only when there is a change in the drawing data
         //setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+            setPreserveEGLContextOnPause(true);
         }
         public ChooserView(Context context,int id)
         {
@@ -53,7 +54,7 @@ private ChooserRenderer renderer;
                 renderer.onTouch(v,event);
             }
 
-            return false;
+            return true;//return based on renderer touch;
         }
     };
 }
