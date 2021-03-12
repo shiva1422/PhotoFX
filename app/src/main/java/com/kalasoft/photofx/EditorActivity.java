@@ -64,7 +64,7 @@ public class EditorActivity extends NativeActivity implements ActivityCompat.OnR
         Log.e("getBitmap", "the id is " + id);
         switch (id) {
             case 0:
-                bitmapId = R.drawable.bottle;
+                bitmapId = R.drawable.boom ;
                 break;
             case 1:
                 // bitmapId=R.drawable.ssnare;
@@ -146,7 +146,8 @@ public class EditorActivity extends NativeActivity implements ActivityCompat.OnR
        // Log.e("FIleExplore", "DFDF");
         runOnUiThread(new Runnable() {
             @Override
-            public void run() {
+            public void run()
+            {
                 try {
                     requestStoragePermission();
                     ChooserView b = new ChooserView(getApplicationContext(), uiShaderProgId);
@@ -191,14 +192,15 @@ public class EditorActivity extends NativeActivity implements ActivityCompat.OnR
         });
     }
 
-    public void setUiShaderProgramId(int progId) {
+    public void setUiShaderProgramId(int progId)
+    {
         uiShaderProgId = progId;
         return;
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
+    {
         // BEGIN_INCLUDE(onRequestPermissionsResult)
         if (requestCode == PERMISSION_REQUEST_STORAGE) {
             // Request for camera permission.
@@ -218,8 +220,7 @@ public class EditorActivity extends NativeActivity implements ActivityCompat.OnR
     public void requestStoragePermission()
     {
         // Check if the  permission has been granted
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                == PackageManager.PERMISSION_GRANTED)
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
         {
             // Permission is already available, start work else rquest
         }
@@ -229,11 +230,12 @@ public class EditorActivity extends NativeActivity implements ActivityCompat.OnR
                 // Permission has not been granted and must be requested.
                 if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE))
                 {
-                    // Provide an additional rationale to the user if the permission was not granted
-                    // and the user would benefit from additional context for the use of the permission.
+                      // Provide an additional rationale to the user if the permission was not granted
+                     // and the user would benefit from additional context for the use of the permission.
                     // Display a SnackBar with cda button to request the missing permission.
-                  /*  Snackbar.make(mLayout, R.string.camera_access_required,
-                            Snackbar.LENGTH_INDEFINITE).setAction(R.string.ok, new View.OnClickListener() {
+                   /*  Snackbar.make(mLayout, R.string.camera_access_required,
+                       Snackbar.LENGTH_INDEFINITE).setAction(R.string.ok, new View.OnClickListener()
+                       {
                         @Override
                         public void onClick(View view) {
                             // Request the permission
@@ -243,12 +245,13 @@ public class EditorActivity extends NativeActivity implements ActivityCompat.OnR
                         }
                     }).show();*/
 
-                } else {
-                  //  Snackbar.make(mLayout, R.string.camera_unavailable, Snackbar.LENGTH_SHORT).show();
-                    // Request the permission. The result will be received in onRequestPermissionResult().
-                    ActivityCompat.requestPermissions(this,
-                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_STORAGE);
                 }
+                else
+                    {
+                     // Snackbar.make(mLayout, R.string.camera_unavailable, Snackbar.LENGTH_SHORT).show();
+                    // Request the permission. The result will be received in onRequestPermissionResult().
+                    ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_STORAGE);
+                    }
             }
     }
 }

@@ -74,10 +74,14 @@ ViewGroup viewGroup;
     ImageViewStack subOptionsStack(6,ImageView::defaultImage.width,ImageView::defaultImage.height);
     optionsStack.setBounds(0,displayParams.screenHeight*93/100,displayParams.screenWidth,displayParams.screenHeight*7.5/100);
     subOptionsStack.setBounds(0,displayParams.screenHeight*85/100,displayParams.screenWidth,optionsStack.getHeight());
-    subOptionsStack.setNoViewsVisible(3);
+    subOptionsStack.setNoViewsVisible(5);
     ImageView TestImage(100,100,50,50);
-    SliderSet sliderSet;
-    sliderSet.setBounds(0,displayParams.screenHeight*75/100,displayParams.screenWidth,displayParams.screenHeight*2/100);
+    SliderSet sliderSet[4];
+    for(int i=0;i<4;i++)
+    {
+        sliderSet[i].setBounds(0,5+(i+1)*displayParams.screenHeight*2/100+displayParams.screenHeight*70/100,displayParams.screenWidth,displayParams.screenHeight*2/100);
+
+    }
     ImageView fbImage(0,0,displayParams.screenWidth,displayParams.screenHeight);
     ImageView fileExplorer(0,0,100,100);
     fileExplorer.setOnTouchListener(new FilesTouchListener());
@@ -107,7 +111,8 @@ viewGroup.addView(&optionsStack);
 viewGroup.addView(&subOptionsStack);
 //viewGroup.addView(&MainImageView);
 viewGroup.setBounds(0,0,displayParams.screenWidth,displayParams.screenHeight);
-viewGroup.addView(&sliderSet);
+for(int i=0;i<4;i++)
+viewGroup.addView(&sliderSet[i]);
 viewGroup.addView(&MainImageView);
 viewGroup.addView(&fileExplorer);
 globalData.contentView=&viewGroup;
@@ -117,7 +122,7 @@ editor.setOptions(&optionsStack, &subOptionsStack);
 globalData.setEditingContext(&editor);
 globalData.setMenu(&subOptionsStack,SUBOPTIONS_MENU);
 globalData.setMenu(&optionsStack,OPTIONS_MENU);
-globalData.addInputComponent(&sliderSet,R_INPUT);
+globalData.addInputComponent(&sliderSet[0],R_INPUT);
 editor.editableImage=&MainImageView;
 
 

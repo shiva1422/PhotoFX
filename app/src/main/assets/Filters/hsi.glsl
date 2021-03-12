@@ -3,9 +3,11 @@ precision highp int;
 precision highp float;
 vec3 rgbToHsi(vec3 rgb);
 vec3 hsiToRgb(vec3 hsi);
+float logTranform(float intensity,float c);//check can be done on other as well ;
+float powerTransform(float intensity, float c);
+float contrastStretch(float intensity,float r1,float s1,float r2,float s2);
 layout(location=0) uniform int filterType;
-layout(location=1) uniform float param1;
-layout(location=2) uniform float param2;
+layout(location=5) uniform float params[4];
 
 //layout(location=3) uniform float param3;//location name different from uishader so make filter shaders independent of ui locatoin
 layout (location =21) uniform sampler2D image;
@@ -23,16 +25,32 @@ void main()
     {
         case 0://light//should match in editor.cpp setActiveFilter;
         {
-            hsi.b=hsi.b+param1*255.0/360.0-128.0;
+            hsi.b=hsi.b+params[0]*255.0/360.0-128.0;
         }break;
         case 1://saturation
         {
-            hsi.g*=param1*10.0/360.0;
+            hsi.g*=params[0]*10.0/360.0;
         }break;
         case 2://hue
         {
-            hsi.r+=param1;
-        }
+            hsi.r+=params[0];
+        }break;
+        case 3://log transform(contrast)
+        {
+            //if(hsi.b>1.0)//positive
+         //  hsi.r=0.0;
+           // hsi.g=0.0;
+             hsi.b=logTranform(hsi.b,params[0]);//log///doint log and then power at same time changin inputs
+             hsi.b=powerTransform(hsi.b,params[0]);
+        }break;
+        case 4://contrast streching
+        {
+
+           // hsi.b=hsi.b+params[0]*255.0/360.0-128.0;
+           hsi.b=contrastStretch(hsi.b,params[0],params[1],params[2],params[3]);
+        }break;
+        default:
+        {}
 
     }
    // hsi.g=hsi.g*param1*5.0/360.0;
@@ -140,4 +158,60 @@ vec3 hsiToRgb(vec3 hsi)
     g=g/255.0;
     b=b/255.0;
     return vec3(r,g,b);
+}
+float logTranform(float intensity,float c)/////function not neded can be done above directly
+{
+    //out =c * log(1 + input) + constant; c=1 to L/log(1+L),L is max intense  value(255),constant optional dependening on situation
+    //increase dynamic range of low intesity pixels while higher pixel move towarg gray; ?
+    //reduce contrast of brighre pixels;
+
+    c=1.0+c*60.0/360.0;    //therefore c=0-106 check;
+    float finalIntensity=c * log(1.0+intensity);//precision of values check for undefined negative values
+    ///ROundoff correctly to 255.0 as it should be in integer
+    if(finalIntensity>255.0)
+    finalIntensity=255.0;//intensity
+    return finalIntensity ;
+    //check is should be incremental (next input be present output?);
+}
+float powerTransform(float intensity, float c)
+{
+    //ouput= x* pow(input,gamma);
+    //c>1 power c<1 log;
+    //c or gamma 0.3 t oaround 5.0 acceptable or may be different but the beyond that will have unacceptable contrast
+    if(c<=180.0)
+    {
+        c=c/180.0;//0/0 to 1.0
+    }
+    else
+    {
+        c=c*4.0/180.0;//1.0 to 2.0(replace to for more values
+    }
+    intensity/=255.0;
+    float finalIntensity=pow(intensity,c);////multiplication not used check that.pow(x,y)-The result is undefined if x<0 or if x=0 and y≤0.
+    if(finalIntensity>1.0)
+    finalIntensity=1.0;
+    return finalIntensity*255.0;
+}
+float contrastStretch(float intensity,float r1,float s1,float r2,float s2)
+{
+    //params=r1,s1,r2,s2;
+    ////r1,s1 always less than equal to r2, s2
+    // if(r1=r2)and s1=0 and s2=L-1 then its a thresolding function with giving binary image.
+    //check (r1,s1=(rmin,0) and r2,s2=(rmax,L-1) or instead of rmax rmin uses average intensity
+
+
+float finalIntensity;
+    if(intensity<=r1)
+    {
+        finalIntensity=s1*intensity/r1;
+    }
+    else if(intensity>r1&&intensity<=r2)
+    {
+        finalIntensity=s1 +(intensity-r1)*(s2-s1)/(r2-r1);
+    }
+    else
+    {
+        finalIntensity=s2+(intensity-r2)*(1.0-s2)/(1.0-s1);
+    }
+    return finalIntensity;
 }

@@ -132,11 +132,13 @@ private:
     GLuint vertexBufId=0,baseTexId=0,pointerTexId=0;
     ImageView baseImageView,pointerImageView;
     float value=0.0f;//0.0 to 1.0
-    static uint sliderCounter;
+
+    bool isVisible=true;
 
 
 
 public:
+    static uint sliderCounter;
     uint sliderNo=sliderCounter++;////////increment in constructor
     SliderSet();
     void setBounds(float startX, float startY, float width, float height) override ;

@@ -5,23 +5,33 @@
 #include <string>
 #include "Editing.h"
 #include "Main.h"
-const int PARAM1LOC=1,PARAM2LOC=2,FILTERTYPELOC=0;
+const int PARAMSLOC=5,FILTERTYPELOC=0;
 std::string ShaderManager::shadersFolder="Filters";
 void Editor::onInputValuesChanged(uint sliderNo, float newInputValue)
 {
     ////////make sliderNo (equal) or attahed to a certain shader input param nad newInputValue to that params value;
+    Loge("Editor:onInputChanged ","SliderNo is %d and value is %f",sliderNo,newInputValue);
     switch (sliderNo)
     {
         case 0://param1;
         {
-            inputValue=newInputValue;
+            params[0]=newInputValue;
         }
         break;
         case 1://param2
         {
-
+            params[1]=newInputValue;
         }
         break;
+        case 2:
+        {
+            params[2]=newInputValue;
+        }
+        break;
+        case 3:
+        {
+            params[3]=newInputValue;
+        }break;
         default:
         {
 
@@ -101,15 +111,26 @@ void Editor::setShaderInputs()
     switch(EactiveFilter) {
         case LIGHT://should match filterType in shaders
         {
-            glUniform1f(PARAM1LOC, inputValue);
+            glUniform1f(PARAMSLOC, params[0]);
         }break;
         case SATURATION:
         {
-            glUniform1f(PARAM1LOC, inputValue);
+            glUniform1f(PARAMSLOC, params[0]);
         }break;
         case HUE:
         {
-            glUniform1f(PARAM1LOC, inputValue);
+            glUniform1f(PARAMSLOC, params[0]);
+        }break;
+        case GAMMA://log
+        {
+            glUniform1f(PARAMSLOC, params[0]);
+        }break;
+        case CONTRAST://contrast streching
+        {
+            for(int i=0;i<4;i++)
+            {
+                glUniform1f(PARAMSLOC+i,params[i]);
+            }
         }break;
         default:
         {
@@ -148,6 +169,7 @@ Loge("ShaderManager::createShaderPro","%d option",option);
 }
 void Editor::setActiveFilter()
 {
+    ///need to compile new shader if not same as previous;
     switch(optionActive)
     {
         case 0:
@@ -157,14 +179,29 @@ void Editor::setActiveFilter()
                 case 0:
                 {
                     EactiveFilter=LIGHT;//also set the shader here.
+                    eActiveShader=HSI_SHADER;
                 }break;
                 case 1:
                 {
                     EactiveFilter=SATURATION;
+                    eActiveShader=HSI_SHADER;
+
                 }break;
                 case 2:
                 {
                     EactiveFilter=HUE;
+                    eActiveShader=HSI_SHADER;
+                }break;
+                case 3:
+                {
+                    EactiveFilter=GAMMA;
+                    eActiveShader=HSI_SHADER;
+                }
+                break;
+                case 4:
+                {
+                    EactiveFilter=CONTRAST;
+                    eActiveShader=HSI_SHADER;
                 }break;
 
             }

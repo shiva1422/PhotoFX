@@ -10,9 +10,10 @@
 #include "Graphics.h"
 #include "EditableImage.h"
 #include "FilterProperties.h"
-enum EActiveFilter{LIGHT=0,SATURATION,HUE};//should mathc in setActiveFilter and Shaders
-enum EditOptions{HSI=0};
-enum EditSubOption{H=0,S,I};
+enum EActiveShader{HSI_SHADER=0};///FOR SHADER LOCATIONNS DIFFERENT FX MIGHT HAVE SAME SHADER(tracking glsl files)
+enum EActiveFilter{LIGHT=0,SATURATION,HUE,GAMMA,CONTRAST,EQUALIZE_HISTOGRAM};//should mathc in setActiveFilter and Shaders //BELOW ALSO SAME;
+enum EditSubOption{H=0,S,I};//maybe not need as EActiveFilter is same as EactiveSuboption
+enum EditOptions{ENHANCE=0,CHROMA,AUTO,GRAY,BLUR,TRANSFORM,THREED};
 class ImageViewStack;
 ///create editingContext for each image if needed;
 class Editor{
@@ -20,8 +21,9 @@ private:
     uint optionActive=0,subOptionActive=0,noOfSliders=0.0;
     GLuint activeShaderId=0;
     float sliderValues[4]={0.0f,0.0f,0.0f,0.0f};
-    float inputValue=0.0f;
+    float params[4]={0.0f,0.0f,0.0f,0.0f};
     EActiveFilter EactiveFilter;
+    EActiveShader eActiveShader=HSI_SHADER;//deault;
 public:
     EditableImage *editableImage=nullptr;///first//make private just for tes
     bool isUpdatedNeeded=false;

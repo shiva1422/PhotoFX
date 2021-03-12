@@ -14,8 +14,10 @@ void GlobalData::menuItemChanged()
         editor->setActiveOption(optionMenu->getActiveViewNo());
         editor->setActiveSubOption(subOptionsMenu->getActiveViewNo());
         /////reset all req inputViews(Sliders);
-        if(slider)
-        slider->reset();
+        for(int i=0;i<SliderSet::sliderCounter;i++)
+        {
+            slider[i].reset();//check !null;
+        }
     }
     else
         {

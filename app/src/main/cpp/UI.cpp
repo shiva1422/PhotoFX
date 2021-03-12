@@ -126,7 +126,7 @@ void ImageViewStack::draw()
     glUniform1i(DRAWTYPELOC,IMAGEVIEWSTACKDRAWTYPE);
     float gapX=(viewGap*2.0)/displayParams.screenWidth;//////different for horizontal and vertical displayparams.screenHeight
     float imageWidth=singleImageWidth*2.0/displayParams.screenWidth;////height for vertical
-    glUniform1f(PARAM1LOC,gapX);
+    glUniform1f(PARAMSLOC, gapX);
     glUniform1f(PARAM2LOC,imageWidth);
     glUniform1i(PARAM3LOC,(int)activeViewNo);
     glEnableVertexAttribArray(POSITIONATTRIBLOC);
