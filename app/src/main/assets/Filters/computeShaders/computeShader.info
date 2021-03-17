@@ -1,0 +1,84 @@
+#version 310 es
+//Inside Shaders
+    // NUM_X * NUM_Y * NUM_Z threads per work group. product should be <= glGetMaxInvocation
+    layout(local_size_x = NUM_X, local_size_y = NUM_Y, local_size_z = NUM_Z) in;
+
+    opengl implementations must support atleast 128 threads(x*y*z to check glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS)) in workgroup
+    in uvec3 gl_NumWorkGroups;        // Check how many work groups there are. Provided for convenience.
+    in uvec3 gl_WorkGroupID;          // Check which work group the thread belongs to.
+    in uvec3 gl_LocalInvocationID;    // Within the work group, get a unique identifier for the thread.
+    in uvec3 gl_GlobalInvocationID;   // Globally unique value across the entire compute dispatch. Short-hand for gl_WorkGroupID * gl_WorkGroupSize + gl_LocalInvocationID;
+    in uint  gl_LocalInvocationIndex; // 1D version of gl_LocalInvocationID. Provided for convenience.
+
+
+///Compiling
+    GLuint program = glCreateProgram();
+    GLuint shader = glCreateShader(GL_COMPUTE_SHADER);
+    glShaderSource(shader, ...);
+    glCompileShader(shader);
+    glAttachShader(program, shader);
+    glLinkProgram(program);
+
+///Using
+    glUseProgram(program); // Compute shader program.
+    glDispatchCompute(work_groups_x, work_groups_y, work_groups_z);
+
+////Binding an SSBO///any opengl buffer can be bound to ssbo no matter however they are created
+    Just like uniform buffer objects, SSBOs are bound in an indexed way as a shader can have multiple SSBOs in use.
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, index, buffer_object);
+    // In shader - layout(binding = index) buffer SSBO {..};
+
+   std430 improves packing, and ensures that scalar arrays can be tightly packed. std430 is only available for SSBOs.
+    layout(std430) buffer; // Sets the default layout for SSBOs.
+    layout(binding = 0) buffer SSBO { float data[]; // This array can now be tightly packed.(if array size now know at compilte time can be left blank
+                                         };//aarray lentth of bound buffer can be qurerie using aray.length() shader runtime;
+
+
+
+
+//Hello compute ex
+        #version 310 es
+        layout(local_size_x = 128) in;
+        layout(std430) buffer;
+        layout(binding = 0) writeonly buffer Output {
+            vec4 elements[];
+        } output_data;
+        layout(binding = 1) readonly buffer Input0 {
+            vec4 elements[];
+        } input_data0;
+        layout(binding = 2) readonly buffer Input1 {
+            vec4 elements[];
+        } input_data1;
+        void main()
+        {
+            uint ident = gl_GlobalInvocationID.x;
+            output_data.elements[ident] = input_data0.elements[ident] * input_data1.elements[ident];
+        }
+
+
+////
+    Thread in same working group can share data using shared memory.
+
+
+//working with textures
+    iimages - can be read and write to ,dont support filtering like samplers
+    Layering is also supported. This means that a cube map, 2D texture array or 3D texture can be bound and the shader has full access to any cube face, array index or 3D texture slice. It is also possible to disable layering and only bind a single layer as a plain 2D image.
+    Binding a shader image is similar to binding a texture.
+        glBindImageTexture(unit, texture, level, layered, layer, access, format);
+        // For example
+        glBindImageTexture(0,             /* unit, note that we're not offsetting GL_TEXTURE0 */
+                           texture,       /* a 2D texture for example */
+                           0,             /* miplevel */
+                           GL_FALSE,      /* we cannot use layered */
+                           0,             /* this is ignored */
+                           GL_WRITE_ONLY, /* we're only writing to it */
+                           GL_R32F        /* interpret format as 32-bit float */);
+        In the shader code
+            layout(r32f /* Format, must match parameter in glBindImageTexture() */, binding = 0) writeonly uniform highp image2D uImage;
+            in main()
+            imageStore(uImage, ivec2(28, 39), vec4(1.0)); // Random access texture writes!load or store
+   ***
+   A very important restriction for using shader images is that the underlying texture must have been allocated using "immutable" storage, i.e. via glTexStorage*()-like functions, and not glTexImage2D().
+
+
+
