@@ -4,6 +4,8 @@
 #include "Main.h"
 #include "UI.h"
 #include "Commons.h"
+GLuint GlobalData::activeProgram=0;
+GLuint GlobalData::UIProgram=0;
 ////header Main.h for this .cpp change later;
 void GlobalData::menuItemChanged()
 {

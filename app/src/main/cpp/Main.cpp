@@ -55,8 +55,8 @@ void android_main(android_app *app)
 
     //OPENGL AND WINDOW SHOULD BE INITIALIZED BY NOW;
 
-    globalData.UIProgram=Shader::createShaderProgram(app,"UIProgram/vertexShader.glsl","UIProgram/fragmentShader.glsl");
-    glUseProgram(globalData.UIProgram);
+    GlobalData::UIProgram=Shader::createShaderProgram(app,"UIProgram/vertexShader.glsl","UIProgram/fragmentShader.glsl");
+    GlobalData::useGlProgram(GlobalData::UIProgram);
     AppContext::UIProgram=globalData.UIProgram;
     InitializeUI();
     //Bitmap defaultKalaImage;//move most of the setup things to seperate function;
@@ -154,7 +154,8 @@ outputImage.setOnTouchListener(new myListener());*/
                 UILogE("EVENT THERE PROCESSING");
                 source->process(app, source);
                 editor.process();
-                glUseProgram(globalData.UIProgram);
+                MainImageView.compute();
+                GlobalData::useGlProgram(GlobalData::UIProgram);
                 glUniform1i(glGetUniformLocation(globalData.UIProgram,"param3"),1);//active stackView;
                 glClearColor(0.0,0.0,0.0,1.0);
                 glClear(GL_COLOR_BUFFER_BIT);

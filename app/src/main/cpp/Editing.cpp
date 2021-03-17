@@ -48,7 +48,7 @@ void Editor::process()
     if(isUpdatedNeeded) {
         srand(time(nullptr));
         static float param = 1.0;
-        glUseProgram(activeShaderId);
+        GlobalData::useGlProgram(activeShaderId);
         editableImage->outputBuffer.makeActive();
         glClearColor(0.0, 0.0, 0.0, 1.0);///check if needed (or move to frameBuffer);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -75,7 +75,7 @@ void Editor::process()
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         // Graphics::printGlError("1fxShader");
         GlobalData *globalData = (GlobalData *) ((AppContext::getApp())->userData);
-        glUseProgram(globalData->UIProgram);
+        GlobalData::useGlProgram(globalData->UIProgram);
         FrameBuffer::setToDefault();
         //glUniform1i(3,0);
         // Graphics::printGlError("2fxShader");

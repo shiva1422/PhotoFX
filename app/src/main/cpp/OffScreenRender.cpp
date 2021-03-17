@@ -31,7 +31,8 @@ void FrameBuffer::configureColorBuffer()
 
     glGenTextures(1,&texId);
     glBindTexture(GL_TEXTURE_2D,texId);
-    glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA8,width,height,0,GL_RGBA,GL_UNSIGNED_BYTE,0);//just make GL_RGB for color only.
+  //  glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA8,width,height,0,GL_RGBA,GL_UNSIGNED_BYTE,0);//just make GL_RGB for color only.
+    glTexStorage2D(GL_TEXTURE_2D,1,GL_RGBA8,width,height);///changed from above to this cuz error in bindimaageTexture;
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);//more filteres
     glBindTexture(GL_TEXTURE_2D,0);

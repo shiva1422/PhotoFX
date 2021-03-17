@@ -18,18 +18,22 @@ class GlobalData//defs in GlobalData.cpp
 private:
     ImageViewStack *optionMenu = nullptr,*subOptionsMenu=nullptr;
     SliderSet *slider=nullptr;
+  static  GLuint activeProgram;
 public:
     Editor *editor=nullptr;
     AppContext *appContext;
     DisplayParams *displayParams;
     View *contentView=NULL;//can be View &contentView;//move to appcontext;
-    GLuint UIProgram;
+    static GLuint UIProgram;
     GLuint frameBufId=0;
     float sliderValueTest=0.0f;
     void menuItemChanged();
     void setEditingContext(Editor *editor){ this->editor=editor;}
     void setMenu(ImageViewStack *imageViewStack,EMenuType);
     void addInputComponent(SliderSet *sliderSet,EInputType);
+   static void useGlProgram(GLuint programId){glUseProgram(programId);activeProgram=programId;};
+    static GLuint  getProgramId(){return activeProgram;}
+    static void setDefaultGlProgram(){glUseProgram(UIProgram);activeProgram=UIProgram;}
 
 };
 

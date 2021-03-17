@@ -12,21 +12,24 @@
 
 class EditableImage : public ImageView{ //the layer class consists of EditableImages
 private:
-    GLuint ouputTexId=0,inputTexId=0;//imageView texId is set to whatever we want to draw inputTexId is for storing default texId
+    GLuint outputTexId=0,inputTexId=0;//imageView texId is set to whatever we want to draw inputTexId is for storing default texId
     uint imageToDraw=0;//1-to draw input ,0 to draw ouput ,2for both;
 
 
 public:
+    /////////User Ssbos instead of fbos(arm doc compute shaders)ShaderImages
     FrameBuffer outputBuffer;//stores output of image above after editing;//default const create id so just set dims and configure;
     EditableImage();
   //  EditableImage(ImageView *inputImage){}
     EditableImage(float startX,float startY,float Width,float height,Bitmap *image);
     GLuint getActiveTexId(){return texId;}//could be input or outputtexid
     GLuint getInputTexId(){return inputTexId;}
-    GLuint getOutputTexId(){return ouputTexId;}
+    GLuint getOutputTexId(){return outputTexId;}
     //virtual void draw() override
     void drawInput() ;
     void drawOuput() ;
+    void compute();
+    void drawIntensityHistrogram();
 
 };
 

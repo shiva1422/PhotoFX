@@ -17,6 +17,48 @@ GLuint Shader::createShaderProgram(android_app *app,const char *vertexShader, co
     return linkShaders(VertexShader.id,FragmentShader.id);
 
 }
+GLuint Shader::createComputeProgram(android_app *app, const char *computeShaderFile)
+{
+    Shader computeShader;
+    GLuint program=glCreateProgram();
+    computeShader.loadAndCompileShader(app,computeShaderFile,GL_COMPUTE_SHADER);
+    if(computeShader.id&&program)
+    {
+
+            glAttachShader(program,computeShader.id);
+            glLinkProgram(program);
+            GLint linkStatus=GL_FALSE;
+            glGetProgramiv(program,GL_LINK_STATUS,&linkStatus);
+            if(linkStatus!=GL_TRUE)
+            {
+                GLint buflen=0;
+                glGetProgramiv(program,GL_INFO_LOG_LENGTH,&buflen);
+                if(buflen)
+                {
+                    char* buf=(char *)malloc(buflen);
+                    if(buf)
+                    {
+                        glGetProgramInfoLog(program,buflen,NULL,buf);
+                        GraphicsLog("could not link the  Compute program reason : %s",buf);
+                        free(buf);
+                    }
+                }
+                glDeleteProgram(program);
+                program=0;
+            }
+            else
+            {
+                GraphicsLog("ComputeShader Linked Succesfully");
+                return program;
+
+            }
+        }
+    else
+    {
+        GraphicsLog("Couldnot create compute progam");
+    }
+    return program;
+}
 GLuint  Shader::linkShaders(GLuint vertexShaderId, GLuint fragmentShaderId)
 {
     if(!vertexShaderId|!fragmentShaderId)

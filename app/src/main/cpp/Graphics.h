@@ -46,6 +46,7 @@ public:
     }
     static GLuint createShaderProgram(android_app *app,const char *vertexShader,const char *fragmentShader);
     static GLuint linkShaders(GLuint vertexShaderId,GLuint fragmentShaderId); ////// if return 0 => error;
+    static GLuint createComputeProgram(android_app *app,const char *computeShaderFile);
 };
 class Graphics{
 public:

@@ -8,7 +8,6 @@ float powerTransform(float intensity, float c);
 float contrastStretch(float intensity,float r1,float s1,float r2,float s2);
 layout(location=0) uniform int filterType;
 layout(location=5) uniform float params[4];
-
 //layout(location=3) uniform float param3;//location name different from uishader so make filter shaders independent of ui locatoin
 layout (location =21) uniform sampler2D image;
 in vec2 uvOut;//can have layout location same as out uvOut in vertexShader and the name  can be differen(still matches)

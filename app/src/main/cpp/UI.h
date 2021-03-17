@@ -77,8 +77,8 @@ class ImageView : public View{
 private:
 
     bool isTextureSet=false;
-    Bitmap *image= nullptr;
 protected:
+    Bitmap *image= nullptr;
     GLuint texId=0,texBufId=0,vertexBufId=0;///View class also needs vertexBufID(check moving there)
 
 
