@@ -1,25 +1,29 @@
 #version 310 es
-precision highp int;
-precision highp float;
+// NUM_X * NUM_Y * NUM_Z threads per work group.
+//layout(local_size_x = NUM_X, local_size_y = NUM_Y, local_size_z = NUM_Z) in;
 vec3 rgbToHsi(vec3 rgb);
 vec3 hsiToRgb(vec3 hsi);
 float logTranform(float intensity,float c);//check can be done on other as well ;
 float powerTransform(float intensity, float c);
 float contrastStretch(float intensity,float r1,float s1,float r2,float s2);
-layout(location=0) uniform int filterType;
-layout(location=5) uniform float params[4];
-//layout(location=3) uniform float param3;//location name different from uishader so make filter shaders independent of ui locatoin
-layout (location =21) uniform sampler2D image;
-in vec2 uvOut;//can have layout location same as out uvOut in vertexShader and the name  can be differen(still matches)
-out vec4 Fragcolor;////this can have loayout location as buffer index that this writes to
+layout(std430) buffer;
+layout (rgba8ui,binding=0) uniform readonly highp uimage2D image;
+layout (rgba8ui,binding=1) uniform writeonly highp uimage2D imageout;
+layout(local_size_x = 1,local_size_y=1,local_size_z=1) in;
 const float PI=3.14159265358979311599796346854;
 const float RADIAN=PI/180.0;
+layout(location=0) uniform int filterType;
+layout(location=5) uniform float params[4];
 void main()
 {
-    vec4 finalColor;
-    vec2 finalTexCoods=vec2(uvOut.x,1.0-uvOut.y);
-    finalColor= texture(image,finalTexCoods);
-    vec3 hsi=rgbToHsi(vec3(finalColor.xyz));
+    int finalPixel;
+    ivec2 pos=ivec2(gl_GlobalInvocationID.xy);
+    uint lid=gl_LocalInvocationIndex;
+    uvec4 outp= imageLoad(image,pos);//////.rgba cool fx
+    // pixel = removeGreen(pixel);
+    // finalPixel=RgbaToInt(pixel);
+    vec3 rgb=vec3(outp.xyz);
+    vec3 hsi=rgbToHsi(rgb);
     switch(filterType)
     {
         case 0://light//should match in editor.cpp setActiveFilter;
@@ -37,34 +41,29 @@ void main()
         case 3://log transform(contrast)
         {
             //if(hsi.b>1.0)//positive
-         //  hsi.r=0.0;
-           // hsi.g=0.0;
-             hsi.b=logTranform(hsi.b,params[0]);//log///doint log and then power at same time changin inputs
-             hsi.b=powerTransform(hsi.b,params[0]);
+            //  hsi.r=0.0;
+            // hsi.g=0.0;
+            hsi.b=logTranform(hsi.b,params[0]);//log///doint log and then power at same time changin inputs
+            hsi.b=powerTransform(hsi.b,params[0]);
         }break;
         case 4://contrast streching
         {
 
-           // hsi.b=hsi.b+params[0]*255.0/360.0-128.0;
-           hsi.b=contrastStretch(hsi.b,params[0],params[1],params[2],params[3]);
+            // hsi.b=hsi.b+params[0]*255.0/360.0-128.0;
+            hsi.b=contrastStretch(hsi.b,params[0],params[1],params[2],params[3]);
         }break;
         default:
-        {}
+        {hsi.b=hsi.b;}
 
     }
-   // hsi.g=hsi.g*param1*5.0/360.0;
-   // float hue=hsi.r;
-   // hsi.r=param1;
-    vec3 rgb=hsiToRgb(hsi);
-    Fragcolor=vec4(rgb,finalColor.a);
-
-
+    rgb=hsiToRgb(hsi);
+    uvec4 outpu=uvec4(rgb,outp.a);
+    imageStore(imageout,pos,uvec4(outpu));
 }
-
 vec3 rgbToHsi(vec3 rgb)//use seperate r,g,b than a vector;no extram memory and conversion needed
 {
     //intesity 0-255,saturation 0-1.0,hue=0-360
-    float r=rgb.r*255.0,g=rgb.g*255.0,b=rgb.b*255.0,hue,saturation,minRGB,intensity;
+    float r=rgb.r,g=rgb.g,b=rgb.b,hue,saturation,minRGB,intensity;
     intensity=(r+g+b)/3.0;
     if(r<=g&&r<=b)////////////min of RGB
     {
@@ -88,13 +87,13 @@ vec3 rgbToHsi(vec3 rgb)//use seperate r,g,b than a vector;no extram memory and c
         hue=((r-g)+(r-b))/(2.0*hue);
         hue=acos(hue);
         hue=hue*180.0/PI;//hue in degrees
-      //  if(rootover<0.0)
-       // hue=0.0;
+        //  if(rootover<0.0)
+        // hue=0.0;
 
     }
     if(isnan(hue)||isinf(hue))
     {
-       // hue=0.0;
+        // hue=0.0;
     }
     if(b>g)
     {
@@ -105,7 +104,7 @@ vec3 rgbToHsi(vec3 rgb)//use seperate r,g,b than a vector;no extram memory and c
 }
 vec3 hsiToRgb(vec3 hsi)
 {
-    float hue=hsi.r,saturation=hsi.g,intensity=hsi.b,r,g,b;
+    float hue=hsi.r,saturation=hsi.g,intensity=hsi.b,r,g,b;///differe in fragment shader *255.0
     if(hue>360.0)
     hue-=360.0;
     if(hue>=120.0&&hue<240.0)//////////new RGB values after hue conversion
@@ -137,27 +136,28 @@ vec3 hsiToRgb(vec3 hsi)
     {
         //this else only for checking error remove after everythhing is set
         //means the hue is nan or infinity check why this happen try prevent or make color as gray equal to intensity;
-       r=intensity;
+        r=intensity;
         g=r;
         b=r;
     }
-  /*  if(r>255.0)
-    r=255.0;
-    else if (r<0.0)
-    r=0.0;
-    if(g>255.0)
-    g=255.0;
-    else if(g<0.0)
-    g=0.0;
-    if(b>255.0)
-    b=255.0;
-    else if(b<0.0)
-    b=0.0;*/
-    r=r/255.0;
-    g=g/255.0;
-    b=b/255.0;
+    /*  if(r>255.0)
+      r=255.0;
+      else if (r<0.0)
+      r=0.0;
+      if(g>255.0)
+      g=255.0;
+      else if(g<0.0)
+      g=0.0;
+      if(b>255.0)
+      b=255.0;
+      else if(b<0.0)
+      b=0.0;*/
+   // r=r/255.0;//////////required in fragmentShader;
+  //  g=g/255.0;
+   // b=b/255.0;
     return vec3(r,g,b);
 }
+
 float logTranform(float intensity,float c)/////function not neded can be done above directly
 {
     //out =c * log(1 + input) + constant; c=1 to L/log(1+L),L is max intense  value(255),constant optional dependening on situation
@@ -199,7 +199,7 @@ float contrastStretch(float intensity,float r1,float s1,float r2,float s2)
     //check (r1,s1=(rmin,0) and r2,s2=(rmax,L-1) or instead of rmax rmin uses average intensity
 
 
-float finalIntensity;
+    float finalIntensity;
     if(intensity<=r1)
     {
         finalIntensity=s1*intensity/r1;

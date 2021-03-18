@@ -56,5 +56,5 @@ void PhotoFX::apply()
 }
 PhotoFX::PhotoFX()
 {
-    shaderProgram=Shader::createShaderProgram(app,"Filters/vertex.glsl","Filters/hsi.glsl");
+    shaderProgram=Shader::createShaderProgram(app,"Filters/vertex.glsl","Filters/enhance.glsl");
 }

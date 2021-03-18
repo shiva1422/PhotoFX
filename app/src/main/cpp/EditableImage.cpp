@@ -57,34 +57,3 @@ void EditableImage::drawIntensityHistrogram()
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER,bindingPoint,ssboId);
     //glUniformBlockBinding()
 }
-void EditableImage::compute()
-{
-    //TO decide how work shoulld be decide use workGroupsize and counts
-    int workGroupCount[3],workGroupSize[3],maxInvocationSize;//count for dispatch,size for shader(threads);
-    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT,0,&workGroupCount[0]);
-    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT,1,&workGroupCount[1]);
-    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT,2,&workGroupCount[2]);
-    Loge("GLobalWorkGroupsize  for dispatch", "theComputeGroupCount is %d and %d and %d", workGroupCount[0], workGroupCount[1], workGroupCount[2]);
-    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE,0,&workGroupSize[0]);
-    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE,1,&workGroupSize[1]);
-    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE,2,&workGroupSize[2]);
-    Loge("maxLocalWorkGroup size in shaders", "theComputeGroupsize is %d and %d and %d", workGroupSize[0], workGroupSize[1], workGroupSize[2]);
-    glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS,&maxInvocationSize);
-    Loge("MaxThreads supported per workgroup(product of thre localworkgroup sizes","the max invocationsiz is %d",maxInvocationSize);
-    static bool isProgramCreated=false;
-    static GLuint computeProgram;
-    if(!isProgramCreated)
-    {
-        computeProgram=Shader::createComputeProgram(AppContext::getApp(),"Filters/computeShaders/testCompute.glsl");
-        if(computeProgram)
-        isProgramCreated=true;
-    }
-    GlobalData::useGlProgram(computeProgram);
-    glBindImageTexture(0, outputTexId, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8UI);///////texture should be set before this
-    glBindImageTexture(1, outputTexId, 0, GL_FALSE, 0, GL_WRITE_ONLY,GL_RGBA8UI);
-    glDispatchCompute(this->image->width, this->image->height,1);
-    //   printGlError("computing");
-     glMemoryBarrier(GL_ALL_BARRIER_BITS);
-    GlobalData::setDefaultGlProgram();
-    Graphics::printGlError("EditableImage::Compute");
-}

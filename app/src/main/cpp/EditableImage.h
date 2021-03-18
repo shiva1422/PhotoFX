@@ -28,7 +28,8 @@ public:
     //virtual void draw() override
     void drawInput() ;
     void drawOuput() ;
-    void compute();
+    int getImageWidth(){ return image->width;}
+    int getImageHeight(){return image->height;}
     void drawIntensityHistrogram();
 
 };

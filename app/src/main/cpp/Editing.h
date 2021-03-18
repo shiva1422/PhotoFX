@@ -24,6 +24,9 @@ private:
     float params[4]={0.0f,0.0f,0.0f,0.0f};
     EActiveFilter EactiveFilter;
     EActiveShader eActiveShader=HSI_SHADER;//deault;
+    bool useGLCompute=false;
+    void computeProcess();
+    void vfShaderProcess();//vertex and Fragment shaders;
 public:
     EditableImage *editableImage=nullptr;///first//make private just for tes
     bool isUpdatedNeeded=false;
@@ -39,6 +42,16 @@ public:
     void setShaderInputs();
     void setActiveFilter();
     void process();
+    void toggleUseGlCompute()
+    {
+        useGLCompute=!useGLCompute;
+        if(useGLCompute)
+        {
+            Loge("Editor","usingGlCompute");
+        } else
+            Loge("Editor","Not usingGlCompute");
+
+    }
 
 };
 class Layer{

@@ -12,6 +12,7 @@
 #include "ImageProcessing.h"
 #include "Editing.h"
 #include "UI.h"
+#include "Text.h"
 
 
 void android_main(android_app *app)
@@ -21,7 +22,8 @@ void android_main(android_app *app)
     AppContext appContext;
     DisplayParams displayParams;
     GlobalData globalData;
-    getDisplayParams(app,&displayParams);
+    getDisplayParams(app,&AppContext::displayParams);
+    displayParams=AppContext::displayParams;
     View::setDisplayParams(displayParams);
     globalData.displayParams=&displayParams;///set App Global data
     Graphics::displayParams=displayParams;
@@ -30,6 +32,11 @@ void android_main(android_app *app)
     appContext.app=app;
     PhotoFX::app=app;
     OnTouchListener::setApp(app);
+
+    TextEngine textEngine;
+    textEngine.init();
+   // textEngine.setTextSize(25,25);
+
     int32_t eventId, events, fdesc;
     android_poll_source *source;
 
@@ -67,7 +74,8 @@ ViewGroup viewGroup;
     Bitmap InputImage;
     getPhoto(app,&InputImage,0);
     View frameBounds(0,displayParams.screenHeight*15/100,displayParams.screenWidth,displayParams.screenHeight*60/100);
-    frameBounds.setBackgroundColor(0.0,0.0,0.0,1.0);
+    frameBounds.setBackgroundColor(0.1,0.1,0.1,0.1);
+
 
     //globalData.contentView=&MainImageView;
     ImageViewStack optionsStack(6,ImageView::defaultImage.width,ImageView::defaultImage.height);
@@ -79,11 +87,16 @@ ViewGroup viewGroup;
     SliderSet sliderSet[4];
     for(int i=0;i<4;i++)
     {
-        sliderSet[i].setBounds(0,5+(i+1)*displayParams.screenHeight*2/100+displayParams.screenHeight*70/100,displayParams.screenWidth,displayParams.screenHeight*2/100);
+        sliderSet[i].setBounds(0,frameBounds.endY()+(i+1)*displayParams.screenHeight*2/100,displayParams.screenWidth,displayParams.screenHeight*2/100);
 
     }
+
     ImageView fbImage(0,0,displayParams.screenWidth,displayParams.screenHeight);
-    ImageView fileExplorer(0,0,100,100);
+    Bitmap showFilesImage;
+    textEngine.getImageFromString("  openImage",&showFilesImage);
+    ImageView fileExplorer(0,0,showFilesImage.width,showFilesImage.height);
+    fileExplorer.setBoundsDeviceIndependent(0,0,showFilesImage.width,showFilesImage.height);
+    fileExplorer.setTexture(&showFilesImage);
     fileExplorer.setOnTouchListener(new FilesTouchListener());
 
 
@@ -154,11 +167,11 @@ outputImage.setOnTouchListener(new myListener());*/
                 UILogE("EVENT THERE PROCESSING");
                 source->process(app, source);
                 editor.process();
-                MainImageView.compute();
                 GlobalData::useGlProgram(GlobalData::UIProgram);
                 glUniform1i(glGetUniformLocation(globalData.UIProgram,"param3"),1);//active stackView;
                 glClearColor(0.0,0.0,0.0,1.0);
                 glClear(GL_COLOR_BUFFER_BIT);
+                frameBounds.clearRect();
                 globalData.contentView->draw();
                 glUniform1i(glGetUniformLocation(globalData.UIProgram,"frameBuf"),(int)0);
                 if(eglSwapBuffers(appContext.eglDisplay, appContext.eglSurface) == EGL_FALSE)
