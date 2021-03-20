@@ -11,7 +11,12 @@ layout(location=1) uniform float param1;
 layout(location=2) uniform float param2;
 layout(location=3) uniform int frameBuf;///////check if needed else remove
 layout(location=4) uniform int param3;
-
+layout(location=5) uniform int param4;
+uniform sampler2D image;
+layout(std140,binding=2) uniform binsData
+{
+    int bins[256];
+};
 out vec2 textCoodsOut;
 out vec4 colorOut;
 out float texZ;
@@ -19,6 +24,7 @@ vec2 finalVerts;
 float instanceId;
 void main()
 {
+    gl_PointSize=10.0;////////remove
     instanceId=float(gl_InstanceID);
     switch(drawType)
     {
@@ -38,6 +44,14 @@ void main()
             {
                 finalVerts.y=finalVerts.y+0.01;
             }
+
+        }
+        break;
+        case 2://histogram;
+        {
+            finalVerts.x=verts.x+(instanceId*2.0/256.0);
+            finalVerts.y=1000.0*float(bins[gl_InstanceID]);
+           // finalVerts.y=float(gl_InstanceID)/256.0;
 
         }
         break;
@@ -61,7 +75,7 @@ void main()
    // }
 
     texZ=texZValue;
-  //  gl_PointSize=10.0;
+
     gl_Position=vec4(finalVerts.x, finalVerts.y, 1.0, 1.0);
 
 }

@@ -33,7 +33,7 @@ void main()
         break;
         default:
         {
-            finalColor=vec4(1.0,1.0,0.0,1.0);
+            finalColor=vec4(1.0,0.0,0.0,1.0);
         }
     }
    //finalColor=vec4(1.0,1.0,1.0,1.0);

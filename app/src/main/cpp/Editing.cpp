@@ -112,38 +112,25 @@ void Editor::computeProcess()
         computeProgram=Shader::createComputeProgram(AppContext::getApp(),"Filters/computeShaders/enhance.glsl");
         if(computeProgram)
             isProgramCreated=true;
-        int workGroupCount[3],workGroupSize[3],maxInvocationSize;//count for dispatch,size for shader(threads);
-        glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT,0,&workGroupCount[0]);
-        glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT,1,&workGroupCount[1]);
-        glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT,2,&workGroupCount[2]);
-        Loge("GLobalWorkGroupsize  for dispatch", "theComputeGroupCount is %d and %d and %d", workGroupCount[0], workGroupCount[1], workGroupCount[2]);
-        glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE,0,&workGroupSize[0]);
-        glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE,1,&workGroupSize[1]);
-        glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE,2,&workGroupSize[2]);
-        Loge("maxLocalWorkGroup size in shaders", "theComputeGroupsize is %d and %d and %d", workGroupSize[0], workGroupSize[1], workGroupSize[2]);
-        glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS,&maxInvocationSize);
-        Loge("MaxThreads supported per workgroup(product of thre localworkgroup sizes","the max invocationsiz is %d",maxInvocationSize);
-
     }
 
     GlobalData::useGlProgram(computeProgram);
     setShaderInputs();
     glUniform1i(0,(int)EactiveFilter);
-    editableImage->initHistogramBuffer();
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER,editableImage->histogramBuffer);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER,2,editableImage->histogramBuffer);
+  //  glBindBufferBase(GL_SHADER_STORAGE_BUFFER,2,editableImage->histogramBuffer);
     glBindImageTexture(0, editableImage->getInputTexId(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8UI);///////texture should be set before this
     glBindImageTexture(1,editableImage->getOutputTexId(), 0, GL_FALSE, 0, GL_WRITE_ONLY,GL_RGBA8UI);
-    Graphics::printGlError("ComputeProcess before");
+  //  Graphics::printGlError("ComputeProcess before");
     glDispatchCompute(editableImage->getImageWidth(),editableImage->getImageHeight(),1);
-    Graphics::printGlError("computeProcess after;");
+  //  Graphics::printGlError("computeProcess after;");
     //   printGlError("computing");
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER,2,0);//dont forget
     glBindBuffer(GL_SHADER_STORAGE_BUFFER,0);
-    editableImage->computeHistogram();
+    editableImage->showHistogramValues();
     GlobalData::setDefaultGlProgram();
+    ///////glBindImaageTexture to 0;
 }
 void Editor::setActiveSubOption(uint ActiveSubOption)
 {
@@ -195,10 +182,8 @@ void Editor::setShaderInputs()
         }break;
         case HISTOGRAM:
         {
-            editableImage->initHistogramBuffer();//not need every time;
             glBindBufferBase(GL_SHADER_STORAGE_BUFFER,2,editableImage->histogramBuffer);
-            editableImage->computeHistogram();
-
+            editableImage->resetHistogram();
         }break;
         default:
         {

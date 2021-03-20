@@ -12,7 +12,7 @@
 
 class EditableImage : public ImageView{ //the layer class consists of EditableImages
 private:
-    GLuint outputTexId=0,inputTexId=0;//imageView texId is set to whatever we want to draw inputTexId is for storing default texId
+    GLuint outputTexId=0,inputTexId=0,histogramTexId=0;//imageView texId is set to whatever we want to draw inputTexId is for storing default texId
     uint imageToDraw=0;//1-to draw input ,0 to draw ouput ,2for both;
 
 
@@ -32,8 +32,11 @@ public:
     int getImageWidth(){ return image->width;}
     int getImageHeight(){return image->height;}
     void initHistogramBuffer();//////convert most histfunctions to calculateHistogram:
+    void createHistogramTexture();
     void computeHistogram();
+    void resetHistogram();
     void drawHistogram();
+    void showHistogramValues();
 
 };
 
