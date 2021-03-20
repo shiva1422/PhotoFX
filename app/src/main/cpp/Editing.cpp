@@ -10,7 +10,7 @@ std::string ShaderManager::shadersFolder="Filters";
 void Editor::onInputValuesChanged(uint sliderNo, float newInputValue)
 {
     ////////make sliderNo (equal) or attahed to a certain shader input param nad newInputValue to that params value;
-    Loge("Editor:onInputChanged ","SliderNo is %d and value is %f",sliderNo,newInputValue);
+   // Loge("Editor:onInputChanged ","SliderNo is %d and value is %f",sliderNo,newInputValue);
     switch (sliderNo)
     {
         case 0://param1;
@@ -128,15 +128,22 @@ void Editor::computeProcess()
 
     GlobalData::useGlProgram(computeProgram);
     setShaderInputs();
-
-    glUniform1f(0,params[0]);
+    glUniform1i(0,(int)EactiveFilter);
+    editableImage->initHistogramBuffer();
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER,editableImage->histogramBuffer);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER,2,editableImage->histogramBuffer);
     glBindImageTexture(0, editableImage->getInputTexId(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8UI);///////texture should be set before this
     glBindImageTexture(1,editableImage->getOutputTexId(), 0, GL_FALSE, 0, GL_WRITE_ONLY,GL_RGBA8UI);
+    Graphics::printGlError("ComputeProcess before");
     glDispatchCompute(editableImage->getImageWidth(),editableImage->getImageHeight(),1);
+    Graphics::printGlError("computeProcess after;");
     //   printGlError("computing");
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
+    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER,2,0);//dont forget
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER,0);
+    editableImage->computeHistogram();
     GlobalData::setDefaultGlProgram();
-    Graphics::printGlError("EditableImage::Compute");
 }
 void Editor::setActiveSubOption(uint ActiveSubOption)
 {
@@ -180,10 +187,18 @@ void Editor::setShaderInputs()
         }break;
         case CONTRAST://contrast streching
         {
+
             for(int i=0;i<4;i++)
             {
-                glUniform1f(PARAMSLOC+i,params[i]);
+                glUniform1f(PARAMSLOC+i,params[i]);//can be seetWIthout loop 4f;
             }
+        }break;
+        case HISTOGRAM:
+        {
+            editableImage->initHistogramBuffer();//not need every time;
+            glBindBufferBase(GL_SHADER_STORAGE_BUFFER,2,editableImage->histogramBuffer);
+            editableImage->computeHistogram();
+
         }break;
         default:
         {
@@ -256,9 +271,15 @@ void Editor::setActiveFilter()
                     EactiveFilter=CONTRAST;
                     eActiveShader=HSI_SHADER;
                 }break;
+                case 5:
+                {
+                    EactiveFilter=HISTOGRAM;
+                    eActiveShader=HSI_SHADER;/////but computeShader;
+                }break;
 
             }
         }
         break;
     }
 }
+

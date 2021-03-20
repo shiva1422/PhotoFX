@@ -100,7 +100,7 @@ void SliderSet::setPointerLoc(float x, float y)
 {
     pointerImageView.setBounds(x,pointerImageView.getStartY(),pointerImageView.getWidth(),pointerImageView.getHeight());//only x changes for horizontal orientation y for verticals
     value=(x-startX)/width;//0.0 to 1.0
-    UILogE("the slider value is %f",value);
+  //  UILogE("the slider value is %f",value);
 }
 void SliderSet::setBounds(float startX, float startY, float width, float height)
 {

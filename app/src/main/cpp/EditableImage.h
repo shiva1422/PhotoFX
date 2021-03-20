@@ -18,6 +18,7 @@ private:
 
 public:
     /////////User Ssbos instead of fbos(arm doc compute shaders)ShaderImages
+    GLuint histogramBuffer=0;
     FrameBuffer outputBuffer;//stores output of image above after editing;//default const create id so just set dims and configure;
     EditableImage();
   //  EditableImage(ImageView *inputImage){}
@@ -30,7 +31,9 @@ public:
     void drawOuput() ;
     int getImageWidth(){ return image->width;}
     int getImageHeight(){return image->height;}
-    void drawIntensityHistrogram();
+    void initHistogramBuffer();//////convert most histfunctions to calculateHistogram:
+    void computeHistogram();
+    void drawHistogram();
 
 };
 

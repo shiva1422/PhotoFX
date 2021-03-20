@@ -82,7 +82,7 @@ ViewGroup viewGroup;
     ImageViewStack subOptionsStack(6,ImageView::defaultImage.width,ImageView::defaultImage.height);
     optionsStack.setBounds(0,displayParams.screenHeight*93/100,displayParams.screenWidth,displayParams.screenHeight*7.5/100);
     subOptionsStack.setBounds(0,displayParams.screenHeight*85/100,displayParams.screenWidth,optionsStack.getHeight());
-    subOptionsStack.setNoViewsVisible(5);
+    subOptionsStack.setNoViewsVisible(6);
     ImageView TestImage(100,100,50,50);
     SliderSet sliderSet[4];
     for(int i=0;i<4;i++)

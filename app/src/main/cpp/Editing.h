@@ -11,7 +11,7 @@
 #include "EditableImage.h"
 #include "FilterProperties.h"
 enum EActiveShader{HSI_SHADER=0};///FOR SHADER LOCATIONNS DIFFERENT FX MIGHT HAVE SAME SHADER(tracking glsl files)
-enum EActiveFilter{LIGHT=0,SATURATION,HUE,GAMMA,CONTRAST,EQUALIZE_HISTOGRAM};//should mathc in setActiveFilter and Shaders //BELOW ALSO SAME;
+enum EActiveFilter{LIGHT=0,SATURATION,HUE,GAMMA,CONTRAST,HISTOGRAM};//should mathc in setActiveFilter and Shaders //BELOW ALSO SAME;
 enum EditSubOption{H=0,S,I};//maybe not need as EActiveFilter is same as EactiveSuboption
 enum EditOptions{ENHANCE=0,CHROMA,AUTO,GRAY,BLUR,TRANSFORM,THREED};
 class ImageViewStack;

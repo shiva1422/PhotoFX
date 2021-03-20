@@ -15,45 +15,56 @@ EditableImage::EditableImage(float startX, float startY, float Width, float heig
     inputTexId=texId;//two lines so that by default super draw method draw ouput;based on need we can change them to draw ouptu input or both.
     texId=outputTexId;//since these texId all beolong to single object exchnaging them is no problem (also input output are same size;
 }
-void EditableImage::drawIntensityHistrogram()
+void EditableImage::initHistogramBuffer()
 {
-    //any buffer can be bound to ssbo;no matter how they were originally created
-    static bool isBufferInitialized=false,isUpdateNeeded=true;
-    GLuint ssboId=0;///SSBOS are similar to unifroms(UBO) with ability read write and unlimited size;check if shader and here sizes ok
+    static bool isBufferInitialized=false;
     if(!isBufferInitialized)
     {
-        glGenBuffers(1,&ssboId);
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER,ssboId);
-        glBufferData(GL_SHADER_STORAGE_BUFFER,256*sizeof(int),(void *)0,GL_DYNAMIC_COPY);//use uint if shader support
-        //if no error
-       if( Graphics::printGlError("drawIntensity bufferinitialization")!=GL_OUT_OF_MEMORY)
-        isBufferInitialized=true;
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER,0);
-    }
-    if(isUpdateNeeded)
-    {
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER,ssboId);
-        int *p=(int *)glMapBufferRange(GL_SHADER_STORAGE_BUFFER,0,256*sizeof(int),GL_MAP_WRITE_BIT|GL_MAP_READ_BIT);
-        if(p)
+        glGenBuffers(1,&histogramBuffer);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER,histogramBuffer);
+        glBufferData(GL_SHADER_STORAGE_BUFFER,256*sizeof(int32_t),(void * )0,GL_DYNAMIC_COPY);
+        int32_t *bindata=(int32_t *)glMapBufferRange(GL_SHADER_STORAGE_BUFFER,0,256*sizeof(int32_t),GL_MAP_WRITE_BIT|GL_MAP_READ_BIT);
+        if(bindata)
         {
-            memset(p,0,256*sizeof(int));
-            isUpdateNeeded=false;
-        }
-        else
-        {
-            Loge("drawIntensityHistogram","could not MapBuffer");
+            Loge("HistogramEqualization","success buffer;.;;;;;;;;;;;;;");
+            memset(bindata,0,256*sizeof(int32_t));
+            for(int i=0;i<255;i++)
+                Loge("histogram buffer value  ","the value at %d is %d",i,bindata[i]);
         }
         glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-        Graphics::printGlError("drawHistogram");
-
+        Graphics::printGlError("HistoGramEqualization");
+        isBufferInitialized=true;
     }
-
     //to read or write ssbo
     //step1
     GLuint blockIndex=0;
     blockIndex=glGetProgramResourceIndex(GlobalData::getProgramId(),GL_SHADER_STORAGE_BLOCK,"bins");///may not be in curren program;
     //step 2 coonec block to ssbo tell shader on which binding oint it can find ssbo (2);
     GLuint bindingPoint=2;//same as in shader;
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER,bindingPoint,ssboId);
+   // glBindBufferBase(GL_SHADER_STORAGE_BUFFER,bindingPoint,ssboId);
     //glUniformBlockBinding()
+}
+void EditableImage::computeHistogram()
+{
+    //just for printing;
+
+   // glBindBufferBase(GL_SHADER_STORAGE_BUFFER,2,histogramBuffer);
+   glBindBuffer(GL_SHADER_STORAGE_BUFFER,histogramBuffer);
+    int32_t *bindata=(int32_t *)glMapBufferRange(GL_SHADER_STORAGE_BUFFER,0,256*sizeof(int32_t),GL_MAP_WRITE_BIT|GL_MAP_READ_BIT);
+    if(bindata)
+    {
+       // memset(bindata,0,256*sizeof(int32_t));
+        for(int i=0;i<255;i++)
+            Loge("histogram buffer value  ","the value at %d is %d",i,bindata[i]);
+    } else
+    {
+        Loge("computeHis","could not map");
+    }
+    glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+
+}
+void EditableImage::drawHistogram()
+{
+    glBindBuffer(GL_ARRAY_BUFFER,histogramBuffer)
+    glEnableVertexAttribArray(0);
 }
