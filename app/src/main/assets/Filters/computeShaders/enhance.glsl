@@ -1,7 +1,7 @@
 #version 310 es
 // NUM_X * NUM_Y * NUM_Z threads per work group.
 //layout(local_size_x = NUM_X, local_size_y = NUM_Y, local_size_z = NUM_Z) in;
-//sdfsdf
+//sdfsdfdfdf
 vec3 rgbToHsi(vec3 rgb);
 vec3 hsiToRgb(vec3 hsi);
 float logTranform(float intensity,float c);//check can be done on other as well ;
