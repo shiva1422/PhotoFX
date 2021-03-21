@@ -1,19 +1,11 @@
 #version 310 es
-// NUM_X * NUM_Y * NUM_Z threads per work group.
-//layout(local_size_x = NUM_X, local_size_y = NUM_Y, local_size_z = NUM_Z) in;
-//sdfsdfdfdf
 vec3 rgbToHsi(vec3 rgb);
 vec3 hsiToRgb(vec3 hsi);
 float logTranform(float intensity,float c);//check can be done on other as well ;
 float powerTransform(float intensity, float c);
 float contrastStretch(float intensity,float r1,float s1,float r2,float s2);
-layout(std430) buffer;
 layout (rgba8ui,binding=0) uniform readonly highp uimage2D image;
 layout (rgba8ui,binding=1) uniform writeonly  highp uimage2D imageout;
-layout (std430, binding=2) buffer binsDat
-{
-    int bins[256];
-};
 layout(local_size_x = 1,local_size_y=1,local_size_z=1) in;
 const float PI=3.14159265358979311599796346854;
 const float RADIAN=PI/180.0;
@@ -53,14 +45,10 @@ void main()
         }break;
         case 4://contrast streching
         {
-
+            ///errro in this caus fragment shader inp differn thand compute input;
             // hsi.b=hsi.b+params[0]*255.0/360.0-128.0;
             hsi.b=contrastStretch(hsi.b,params[0],params[1],params[2],params[3]);
 
-        }break;
-        case 5://Histogram
-        {
-            bins[uint(hsi.b)]+=1;
         }break;
         default:
         {hsi.b=hsi.b;}

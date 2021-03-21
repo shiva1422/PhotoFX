@@ -34,6 +34,12 @@ public:
    static void useGlProgram(GLuint programId){glUseProgram(programId);activeProgram=programId;};
     static GLuint  getProgramId(){return activeProgram;}
     static void setDefaultGlProgram(){glUseProgram(UIProgram);activeProgram=UIProgram;}
+    void toggleProcessingType()
+    {   if(editor)
+        editor->toggleProcessingType();
+        else
+            Loge("ToggleProcessingType","cant as there is no valid editor");
+    }
 
 };
 

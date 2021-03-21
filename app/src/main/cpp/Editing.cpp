@@ -6,7 +6,7 @@
 #include "Editing.h"
 #include "Main.h"
 const int PARAMSLOC=5,FILTERTYPELOC=0;
-std::string ShaderManager::shadersFolder="Filters";
+std::string Editor::shadersFolder="Filters";
 void Editor::onInputValuesChanged(uint sliderNo, float newInputValue)
 {
     ////////make sliderNo (equal) or attahed to a certain shader input param nad newInputValue to that params value;
@@ -44,7 +44,7 @@ void Editor::onInputValuesChanged(uint sliderNo, float newInputValue)
 }
 void Editor::process()
 {
-    Loge("process","sds");
+  //  Loge("process","sds");
     if(isUpdatedNeeded)
     {
         if(useGLCompute)
@@ -105,30 +105,21 @@ void Editor::vfShaderProcess()
 void Editor::computeProcess()
 {
     //TO decide how work shoulld be decide use workGroupsize and counts
-    static bool isProgramCreated=false;
-    static GLuint computeProgram;
-    if(!isProgramCreated)
-    {
-        computeProgram=Shader::createComputeProgram(AppContext::getApp(),"Filters/computeShaders/enhance.glsl");
-        if(computeProgram)
-            isProgramCreated=true;
-    }
-
-    GlobalData::useGlProgram(computeProgram);
+    GlobalData::useGlProgram(activeShaderId);
     setShaderInputs();
     glUniform1i(0,(int)EactiveFilter);
-  //  glBindBufferBase(GL_SHADER_STORAGE_BUFFER,2,editableImage->histogramBuffer);
     glBindImageTexture(0, editableImage->getInputTexId(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8UI);///////texture should be set before this
     glBindImageTexture(1,editableImage->getOutputTexId(), 0, GL_FALSE, 0, GL_WRITE_ONLY,GL_RGBA8UI);
-  //  Graphics::printGlError("ComputeProcess before");
     glDispatchCompute(editableImage->getImageWidth(),editableImage->getImageHeight(),1);
-  //  Graphics::printGlError("computeProcess after;");
     //   printGlError("computing");
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER,2,0);//dont forget
+    //glBindBufferBase(GL_SHADER_STORAGE_BUFFER,2,0);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER,0);
-    editableImage->showHistogramValues();
+    glBindImageTexture(0, 0, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8UI);///////texture should be set before this
+    glBindImageTexture(1,0, 0, GL_FALSE, 0, GL_WRITE_ONLY,GL_RGBA8UI);
+  //  editableImage->showHistogramValues();
+  Graphics::printGlError("computeProcess error");
     GlobalData::setDefaultGlProgram();
     ///////glBindImaageTexture to 0;
 }
@@ -136,17 +127,14 @@ void Editor::setActiveSubOption(uint ActiveSubOption)
 {
     this->subOptionActive=ActiveSubOption;
     setActiveFilter();
+    manageShaders();
 }
 void Editor::setActiveOption(uint ActiveOption)
 {
     this->optionActive=ActiveOption;
-    activeShaderId=ShaderManager::createShaderProgram(optionActive);
-    if(activeShaderId==0)
-    {
-        Loge("ERROR:EditingonOptionSet","could not create shader program");
-    }
-    if(optionActive==4)
-        toggleUseGlCompute();
+   // manageShaders();//create shaders only when suboption is selected;
+
+
 }
 void Editor::setOptions(ImageViewStack *optionsMenu, ImageViewStack *subOptionsMenu)
 {
@@ -191,35 +179,7 @@ void Editor::setShaderInputs()
         }
     }
 }
-GLuint ShaderManager::createShaderProgram(uint option)
-{//////delete previous unused program;also try removing this class and and in editing context create a method for converting option to shader paths and create shader program using Graphics;
-std::string vertexSource=shadersFolder +"/" + "vertex.glsl";
-std::string fragmentSource=shadersFolder + "/";
-//////initially shader is invalid
-Loge("ShaderManager::createShaderPro","%d option",option);
-    switch (option)
-    {
-        case 0:
-        {
-            fragmentSource+="enhance.glsl";
-        }
-        break;
-        case 1:
-        {
-            fragmentSource=shadersFolder + "test.glsl";
-        }
-        break;
-        default:
-        {
-            Loge("ShaderMangage:createShaderProgram","Invalid Option for creating Shader");
-        return 0;///need not return zero instead keep active shader program
-        }
 
-    }
-    /////////////need not compile vertexShader EveryTime as it is same for all(if not deleted) :
-  //  Loge("the shaderloca ","%s ,%s",vertexSource.c_str(),fragmentSource.c_str());
-    return Shader::createShaderProgram(AppContext::getApp(),vertexSource.c_str(),fragmentSource.c_str());
-}
 void Editor::setActiveFilter()
 {
     ///need to compile new shader if not same as previous;
@@ -265,6 +225,74 @@ void Editor::setActiveFilter()
             }
         }
         break;
+        case 1:
+        {
+            switch (subOptionActive)
+            {
+                EactiveFilter=EQ_I;
+                eActiveShader=EQ_SHADER;/////but computeShader;
+              //  toggleProcessingType();//use glCompute if not possible in vertex and FragmentShaders;
+            }
+        }break;
+
+    }
+}
+
+void Editor::toggleProcessingType()
+{
+
+        useGLCompute=!useGLCompute;
+        if(useGLCompute)
+        {
+            Loge("Editor","usingGlCompute");
+        } else
+            Loge("Editor","Not usingGlCompute");
+
+
+    manageShaders();/////need Right management;
+}
+void Editor::manageShaders()
+{
+    //////delete previous unused program;also try removing this class and and in editing context create a method for converting option to shader paths and create shader program using Graphics;
+    std::string vertexSource=shadersFolder +"/" + "vertex.glsl";
+    std::string fragmentSource=shadersFolder + "/";
+    if(useGLCompute)
+    {
+        fragmentSource=shadersFolder + "/computeShaders/";
+    }
+//////initially shader is invalid
+    Loge("ShaderManager::createShaderPro","%d option",optionActive);
+    switch (eActiveShader)
+    {
+        case HSI_SHADER:
+        {
+            fragmentSource+="enhance.glsl";
+        }
+            break;
+        case EQ_SHADER:
+        {
+            fragmentSource=shadersFolder + "equalize.glsl";
+        }
+            break;
+        default:
+        {
+            Loge("ShaderMangage:createShaderProgram","Invalid Option for creating Shader");
+            return ;///need not return zero instead keep active shader program
+        }
+
+    }
+    /////////////need not compile vertexShader EveryTime as it is same for all(if not deleted) :
+    //  Loge("the shaderloca ","%s ,%s",vertexSource.c_str(),fragmentSource.c_str());
+    glDeleteShader(activeShaderId);////should do only if there is change
+    if(!useGLCompute)
+    activeShaderId= Shader::createShaderProgram(AppContext::getApp(),vertexSource.c_str(),fragmentSource.c_str());
+    else
+    {
+        activeShaderId=Shader::createComputeProgram(AppContext::getApp(),fragmentSource.c_str());
+    }
+    if(activeShaderId==0)
+    {
+        Loge("ERROR:EditingonOptionSet","could not create shader program");
     }
 }
 

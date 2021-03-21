@@ -14,6 +14,8 @@ GLuint Shader::createShaderProgram(android_app *app,const char *vertexShader, co
     Shader VertexShader,FragmentShader;
     VertexShader.loadAndCompileShader(app,vertexShader,GL_VERTEX_SHADER);
     FragmentShader.loadAndCompileShader(app,fragmentShader,GL_FRAGMENT_SHADER);
+    VertexShader.deleteSource();
+    FragmentShader.deleteSource();///should the shaderPrograms alo be deleted after linking?
     return linkShaders(VertexShader.id,FragmentShader.id);
 
 }

@@ -13,7 +13,17 @@ android_app * OnTouchListener::app=nullptr;
 
 bool touchFunct(float touchX, float touchY, TouchAction touchAction)
 {
-    Loge("EVentH","in touch function external");
+   // Loge("EVentH","in touch function external");
+    return true;
+}
+bool ToggleProcessingTypeTouchListener::onTouch(float touchX, float touchY, int pointerId, TouchAction touchAction) {return true;}
+bool ToggleProcessingTypeTouchListener::onTouch(float touchX, float touchY, int pointerId, TouchAction touchAction, View *view)
+{
+    if(touchAction==ACTION_DOWN)
+    {
+        GlobalData *globalData=(GlobalData *)app->userData;
+        globalData->toggleProcessingType();
+    }
     return true;
 }
 bool FilesTouchListener::onTouch(float touchX, float touchY, int pointerId, TouchAction touchAction) {return true;}

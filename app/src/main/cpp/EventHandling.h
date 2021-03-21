@@ -76,5 +76,11 @@ public:
     virtual bool onTouch(float touchX,float touchY,int pointerId,TouchAction touchAction,View *view) override ;
 
 };
+class ToggleProcessingTypeTouchListener : public OnTouchListener{
+public:
+    virtual bool onTouch(float touchX,float touchY,int pointerId,TouchAction touchAction) override ;
+    virtual bool onTouch(float touchX,float touchY,int pointerId,TouchAction touchAction,View *view) override ;
+
+};
 
 #endif //PHOTOFX_EVENTHANDLING_H

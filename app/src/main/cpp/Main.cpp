@@ -98,6 +98,8 @@ ViewGroup viewGroup;
     fileExplorer.setBoundsDeviceIndependent(0,0,showFilesImage.width,showFilesImage.height);
     fileExplorer.setTexture(&showFilesImage);
     fileExplorer.setOnTouchListener(new FilesTouchListener());
+    ImageView toggleComputeView(displayParams.screenWidth*50/100,0,100,100);
+    toggleComputeView.setOnTouchListener(new ToggleProcessingTypeTouchListener());//delete when done;
 
 
     // MainImageView.setBoundsDeviceIndependent(0,displayParams.screenHeight*20/100,InputImage.width,InputImage.height);
@@ -128,6 +130,7 @@ for(int i=0;i<4;i++)
 viewGroup.addView(&sliderSet[i]);
 viewGroup.addView(&MainImageView);
 viewGroup.addView(&fileExplorer);
+viewGroup.addView(&toggleComputeView);
 globalData.contentView=&viewGroup;
 
 Editor editor;
@@ -161,10 +164,10 @@ outputImage.setOnTouchListener(new myListener());*/
         //UILogE("OUTERLOOP");
         while ((eventId = ALooper_pollAll(0, &fdesc, &events, (void **) &source)) >= 0)
         {
-            UILogE("INNERLOOP");
+            //UILogE("INNERLOOP");
             if (source)
             {
-                UILogE("EVENT THERE PROCESSING");
+               // UILogE("EVENT THERE PROCESSING");
                 source->process(app, source);
                 editor.process();
                 GlobalData::useGlProgram(GlobalData::UIProgram);
