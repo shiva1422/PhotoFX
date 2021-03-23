@@ -1,44 +1,56 @@
 #version 310 es
+layout(local_size_x = 1,local_size_y=1,local_size_z=1) in;
 vec3 rgbToHsi(vec3 rgb);
 vec3 hsiToRgb(vec3 hsi);
 float logTranform(float intensity,float c);//check can be done on other as well ;
 float powerTransform(float intensity, float c);
 float contrastStretch(float intensity,float r1,float s1,float r2,float s2);
 layout(std430) buffer;
-layout (rgba8ui,binding=0) uniform readonly highp uimage2D image;//image
-layout (std430, binding=1) buffer binsDat//histogramBuffer
+layout (rgba8ui,binding=0) uniform readonly highp uimage2D imageIn;//image//image unifroms are supported in fragment shaders so try equalize in fragemnt shader;
+layout(rgba8ui,binding=1) uniform writeonly highp uimage2D imageOut;/////readonly or write only not needed;
+layout (std430, binding=2) buffer binsDat//histogramBuffer//check binding point can be same as image vars
 {
     int bins[256];
 };
-layout(local_size_x = 1,local_size_y=1,local_size_z=1) in;
 const float PI=3.14159265358979311599796346854;
 const float RADIAN=PI/180.0;
 layout(location=0) uniform int filterType;
-layout(location=5) uniform float params[4];
+layout(location=5) uniform float params[4];///no need for eq has it has no sliders
 void main()
 {
     int finalPixel;
     ivec2 pos=ivec2(gl_GlobalInvocationID.xy);
     uint lid=gl_LocalInvocationIndex;
-    uvec4 outp= imageLoad(image,pos);//////.rgba cool fx
+    uvec4 outp= imageLoad(imageIn,pos);//////.rgba cool fx
     // pixel = removeGreen(pixel);
     // finalPixel=RgbaToInt(pixel);
     vec3 rgb=vec3(outp.xyz);
-    vec3 hsi=rgbToHsi(rgb);
+    vec3 hsi=rgbToHsi(rgb);////Thes covertion no need for rgb histograms
     switch(filterType)
     {
        case 0://histogram for I;
         {
-
+            atomicAdd(bins[uint(hsi.b)],1);/////for floats type adtomic load stores not directly but input image as float and ouput as int just  like that check
         }
-        case 5://Histogram
+        break;
+        case 1://for R
         {
-            bins[uint(hsi.b)]+=1;
+           // bins[outp.r]+=1;
+            atomicAdd(bins[outp.r],1);//return value before adding
         }break;
+        case 2://for G
+        {
+            atomicAdd(bins[outp.g],1);
+        }break;
+        case 3://for B
+        {
+            atomicAdd(bins[outp.b],1);
+        }break;
+       default:
+        {
+            hsi.b=hsi.b;//cuz compiling fails with empty default;
+        }
     }
-    rgb=hsiToRgb(hsi);
-    uvec4 outpu=uvec4(rgb,outp.a);
-    imageStore(imageout,pos,uvec4(outpu));
 }
 vec3 rgbToHsi(vec3 rgb)//use seperate r,g,b than a vector;no extram memory and conversion needed
 {

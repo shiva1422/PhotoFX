@@ -125,11 +125,12 @@ void EditableImage::drawHistogram()
     Graphics::printGlError("drawHistogram");*////Make above work;
 
   //draw using normal methd
+  int32_t  totalPixelsFromHistogra=0;
         GlobalData::setDefaultGlProgram();
         glUniform1i(0,3);
         float lineVerts[256*4];
         glBindBuffer(GL_SHADER_STORAGE_BUFFER,histogramBuffer);
-         int32_t  *bins=(int32_t *)glMapBufferRange(GL_SHADER_STORAGE_BUFFER,0,256,GL_MAP_READ_BIT|GL_MAP_WRITE_BIT);
+         int32_t  *bins=(int32_t *)glMapBufferRange(GL_SHADER_STORAGE_BUFFER,0,256,GL_MAP_READ_BIT);
     if(bins)
     {
         for(int i=0;i<256;i++)
@@ -137,9 +138,10 @@ void EditableImage::drawHistogram()
             lineVerts[4*i]=-1.0+i*2.0/256.0;
             lineVerts[4*i+1]=0.0;
             lineVerts[4*i+2]=lineVerts[4*i];
-            lineVerts[4*i+3]=300*float(bins[i])/float(image->width*image->width);
+            lineVerts[4*i+3]=100*float(bins[i])/float(image->width*image->height);
+            totalPixelsFromHistogra+=bins[i];
         }
-        Loge("Histogram values","readto draw");
+        Loge("Histogram values","readto draw totalPix from histogram %d and totalPixels of Images is %d (just to check if they match=>accurate histogram)",totalPixelsFromHistogra,image->width*image->height);
     } else
     {
         Loge("resetHistogram","cannot mapBuffer");
@@ -158,7 +160,7 @@ void EditableImage::createHistogramTexture()
     {glDeleteBuffers(1,&histogramBuffer);}
     glGenBuffers(1, &histogramBuffer);
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER,histogramBuffer);
-    glBufferData(GL_PIXEL_UNPACK_BUFFER, 256*sizeof(int32_t),(void *)0 ,GL_DYNAMIC_DRAW);
+    glBufferData(GL_PIXEL_UNPACK_BUFFER, 256*sizeof(int32_t),(void *)0 ,GL_DYNAMIC_COPY);
     if(Graphics::printGlError("Histogram::Texture")==GL_OUT_OF_MEMORY)
         return;
     if(glIsTexture(histogramTexId))

@@ -16,6 +16,7 @@ void GlobalData::menuItemChanged()
         editor->setActiveOption(optionMenu->getActiveViewNo());
         editor->setActiveSubOption(subOptionsMenu->getActiveViewNo());
         /////reset all req inputViews(Sliders);
+        if(optionMenu->getActiveViewNo()!=1)
         for(int i=0;i<SliderSet::sliderCounter;i++)
         {
             slider[i].reset();//check !null;
@@ -24,6 +25,20 @@ void GlobalData::menuItemChanged()
     else
         {
         Loge("GlobalData::muItemChanged Error","Editing Context Not set Yet");
+        }
+    if(optionMenu->getActiveViewNo()==1)
+    {
+        for(int i=0;i<4;i++)
+        {
+            slider[i].setVisibility(false);
+        }
+    }
+    else
+        {
+            for(int i=0;i<4;i++)
+            {
+                slider[i].setVisibility(true);
+            }
         }
 
 }

@@ -10,7 +10,7 @@ std::string Editor::shadersFolder="Filters";
 void Editor::onInputValuesChanged(uint sliderNo, float newInputValue)
 {
     ////////make sliderNo (equal) or attahed to a certain shader input param nad newInputValue to that params value;
-   // Loge("Editor:onInputChanged ","SliderNo is %d and value is %f",sliderNo,newInputValue);
+    Loge("Editor:onInputChanged ","SliderNo is %d and value is %f",sliderNo,newInputValue);
     switch (sliderNo)
     {
         case 0://param1;
@@ -107,9 +107,8 @@ void Editor::computeProcess()
     //TO decide how work shoulld be decide use workGroupsize and counts
     GlobalData::useGlProgram(activeShaderId);
     setShaderInputs();
-    glUniform1i(0,(int)EactiveFilter);
     glBindImageTexture(0, editableImage->getInputTexId(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8UI);///////texture should be set before this
-    glBindImageTexture(1,editableImage->getOutputTexId(), 0, GL_FALSE, 0, GL_WRITE_ONLY,GL_RGBA8UI);
+    glBindImageTexture(1,editableImage->getOutputTexId(), 0, GL_FALSE, 0, GL_WRITE_ONLY,GL_RGBA8UI);//////should be moved to setshaderInputs?
     glDispatchCompute(editableImage->getImageWidth(),editableImage->getImageHeight(),1);
     //   printGlError("computing");
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
@@ -120,6 +119,7 @@ void Editor::computeProcess()
     glBindImageTexture(1,0, 0, GL_FALSE, 0, GL_WRITE_ONLY,GL_RGBA8UI);
   //  editableImage->showHistogramValues();
   Graphics::printGlError("computeProcess error");
+  Loge("computeProcess","the dispacthc count is %d",editableImage->getImageWidth()*editableImage->getImageHeight());
     GlobalData::setDefaultGlProgram();
     ///////glBindImaageTexture to 0;
 }
@@ -128,6 +128,11 @@ void Editor::setActiveSubOption(uint ActiveSubOption)
     this->subOptionActive=ActiveSubOption;
     setActiveFilter();
     manageShaders();
+    if(optionActive==1)
+    {//equalize should work on cliking the suboption so no need for sliders
+        isUpdatedNeeded=true;
+
+    }
 }
 void Editor::setActiveOption(uint ActiveOption)
 {
@@ -170,6 +175,7 @@ void Editor::setShaderInputs()
         }break;
         case HISTOGRAM:
         {
+            glUniform1i(FILTERTYPELOC,subOptionActive);
             glBindBufferBase(GL_SHADER_STORAGE_BUFFER,2,editableImage->histogramBuffer);
             editableImage->resetHistogram();
         }break;
@@ -191,7 +197,7 @@ void Editor::setActiveFilter()
             {
                 case 0:
                 {
-                    EactiveFilter=LIGHT;//also set the shader here.
+                    EactiveFilter=LIGHT;//also set the shader here./////is all suboption have same shader make it if instead switch for that option
                     eActiveShader=HSI_SHADER;
                 }break;
                 case 1:
@@ -219,7 +225,7 @@ void Editor::setActiveFilter()
                 case 5:
                 {
                     EactiveFilter=HISTOGRAM;
-                    eActiveShader=HSI_SHADER;/////but computeShader;
+                    eActiveShader=HSI_SHADER;/////but computeShader;/////remmovet his
                 }break;
 
             }
@@ -227,12 +233,8 @@ void Editor::setActiveFilter()
         break;
         case 1:
         {
-            switch (subOptionActive)
-            {
-                EactiveFilter=EQ_I;
-                eActiveShader=EQ_SHADER;/////but computeShader;
-              //  toggleProcessingType();//use glCompute if not possible in vertex and FragmentShaders;
-            }
+            EactiveFilter=HISTOGRAM;
+            eActiveShader=EQ_SHADER;
         }break;
 
     }
@@ -271,7 +273,7 @@ void Editor::manageShaders()
             break;
         case EQ_SHADER:
         {
-            fragmentSource=shadersFolder + "equalize.glsl";
+            fragmentSource += "equalize.glsl";
         }
             break;
         default:
@@ -282,7 +284,7 @@ void Editor::manageShaders()
 
     }
     /////////////need not compile vertexShader EveryTime as it is same for all(if not deleted) :
-    //  Loge("the shaderloca ","%s ,%s",vertexSource.c_str(),fragmentSource.c_str());
+      Loge("the shaderloca ","%s ,%s",vertexSource.c_str(),fragmentSource.c_str());
     glDeleteShader(activeShaderId);////should do only if there is change
     if(!useGLCompute)
     activeShaderId= Shader::createShaderProgram(AppContext::getApp(),vertexSource.c_str(),fragmentSource.c_str());

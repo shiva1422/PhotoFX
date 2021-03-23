@@ -82,3 +82,14 @@
 
 
 
+
+///////Atomic operations
+
+#version 420 core
+// This is an image that will be used to count overdraw in
+// the scene.
+layout (r32ui) uniform uimage2D overdraw_count;
+void main(void) {
+// Atomically add one to the contents of memory
+imageAtomicAdd(overdraw_count, ivec2(gl_FragCoord.xy), 1);
+}

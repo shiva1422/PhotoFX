@@ -57,8 +57,11 @@ ViewGroup::ViewGroup()
 void SliderSet::draw()
 {
   //  View::draw();
-    baseImageView.clearRect();
-    pointerImageView.clearRect();//.draw() for images
+  if(visible){
+      baseImageView.clearRect();
+      pointerImageView.clearRect();//.draw() for images
+  }
+
 
 
 }
@@ -508,6 +511,7 @@ bool ViewGroup::isTouched(float touchX, float touchY,int pointerId,TouchAction t
      //   UILogE("ViewGroup touched");
         for(int i=0;i<noViews;i++)
         {
+            if(views[i]->getVisibility())
             if(views[i]->isTouched(touchX,touchY,pointerId,touchAction))
             {
                 break;
