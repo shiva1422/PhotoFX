@@ -47,10 +47,10 @@ void main()
 
         }
         break;
-        case 2://histogram;
+        case 2://histogram;////now histogram is acturally drawn in default check in drawHistogram
         {
             finalVerts.x=verts.x+(instanceId*2.0/256.0);
-            finalVerts.y=1000.0*float(bins[gl_InstanceID]);
+            finalVerts.y=100.0*float(bins[gl_InstanceID]);
            // finalVerts.y=float(gl_InstanceID)/256.0;
 
         }

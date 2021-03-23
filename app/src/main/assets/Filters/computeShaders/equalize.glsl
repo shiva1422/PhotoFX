@@ -8,47 +8,93 @@ float contrastStretch(float intensity,float r1,float s1,float r2,float s2);
 layout(std430) buffer;
 layout (rgba8ui,binding=0) uniform readonly highp uimage2D imageIn;//image//image unifroms are supported in fragment shaders so try equalize in fragemnt shader;
 layout(rgba8ui,binding=1) uniform writeonly highp uimage2D imageOut;/////readonly or write only not needed;
-layout (std430, binding=2) buffer binsDat//histogramBuffer//check binding point can be same as image vars
+layout (std430, binding=2) buffer binsDat//binsBuffer//check binding point can be same as image vars
 {
     int bins[256];
+};
+layout (std430,binding=3) buffer equalizedData
+{
+ int eqVals[256];//values after equalization not bins;//actually 8 bit uint is enough for this;
 };
 const float PI=3.14159265358979311599796346854;
 const float RADIAN=PI/180.0;
 layout(location=0) uniform int filterType;
+layout(location=1) uniform int paramInt;
 layout(location=5) uniform float params[4];///no need for eq has it has no sliders
 void main()
 {
     int finalPixel;
     ivec2 pos=ivec2(gl_GlobalInvocationID.xy);
     uint lid=gl_LocalInvocationIndex;
-    uvec4 outp= imageLoad(imageIn,pos);//////.rgba cool fx
+    uvec4 inPix= imageLoad(imageIn,pos);//////.rgba cool fx
     // pixel = removeGreen(pixel);
     // finalPixel=RgbaToInt(pixel);
-    vec3 rgb=vec3(outp.xyz);
+    vec3 rgb=vec3(inPix.xyz);
     vec3 hsi=rgbToHsi(rgb);////Thes covertion no need for rgb histograms
-    switch(filterType)
+    if(paramInt==0)//histogram not computed calulates bins here//////cases should match in else aswell
     {
-       case 0://histogram for I;
+        switch(filterType)
         {
-            atomicAdd(bins[uint(hsi.b)],1);/////for floats type adtomic load stores not directly but input image as float and ouput as int just  like that check
+            case 0://histogram for I;//
+            {
+                atomicAdd(bins[uint(hsi.b)],1);/////for floats type adtomic load stores not directly but input image as float and ouput as int just  like that check
+            }
+            break;
+            case 1://for R
+            {
+                // bins[outp.r]+=1;
+                atomicAdd(bins[inPix.r],1);//return value before adding
+            }break;
+            case 2://for G
+            {
+                atomicAdd(bins[inPix.g],1);
+            }break;
+            case 3://for B
+            {
+                atomicAdd(bins[inPix.b],1);
+            }break;
+            default:
+            {
+                hsi.b=hsi.b;//cuz compiling fails with empty default;
+                //vec3 rgb=vec3(outp.xyz);
+            }
         }
-        break;
-        case 1://for R
+    }
+    else if(paramInt==1)//bin calculate in above if and cdf bins calculated on cpu
+    {
+        switch (filterType)
         {
-           // bins[outp.r]+=1;
-            atomicAdd(bins[outp.r],1);//return value before adding
-        }break;
-        case 2://for G
-        {
-            atomicAdd(bins[outp.g],1);
-        }break;
-        case 3://for B
-        {
-            atomicAdd(bins[outp.b],1);
-        }break;
-       default:
-        {
-            hsi.b=hsi.b;//cuz compiling fails with empty default;
+            case 0:
+            {
+               hsi.b=float(eqVals[int(hsi.b)]);//check if conversions are correct;
+                rgb=hsiToRgb(hsi);
+                imageStore(imageOut,pos,uvec4(rgb,inPix.a));
+            }break;
+            case 1:
+            {
+                uvec4 outPix;
+                outPix.r=uint(eqVals[inPix.r]);
+                outPix.gba=inPix.gba;
+                imageStore(imageOut,pos,outPix);
+
+            }break;
+            case 2:
+            {
+                uvec4 outPix;
+                outPix.g=uint(eqVals[inPix.g]);
+                outPix.rba=inPix.rba;
+                imageStore(imageOut,pos,outPix);
+            }break;
+            case 3 :
+            {
+                uvec4 outPix;
+                outPix.b=uint(eqVals[inPix.b]);
+                outPix.rga=inPix.rga;
+                imageStore(imageOut,pos,outPix);
+            }break;
+
+            default :
+            { hsi.b=hsi.b; }
         }
     }
 }

@@ -14,79 +14,13 @@ EditableImage::EditableImage(float startX, float startY, float Width, float heig
     outputTexId=outputBuffer.getTexId();
     inputTexId=texId;//two lines so that by default super draw method draw ouput;based on need we can change them to draw ouptu input or both.
     texId=outputTexId;//since these texId all beolong to single object exchnaging them is no problem (also input output are same size;
-    createHistogramTexture();//////should not be in consrtucted only create and delelte when rquired;
+    createHistogramTextures();//////should not be in consrtucted only create and delelte when rquired;
 }
-void EditableImage::initHistogramBuffer()
-{
-    static bool isBufferInitialized=false;
-    if(!isBufferInitialized)
-    {
-        glGenBuffers(1,&histogramBuffer);
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER,histogramBuffer);
-        glBufferData(GL_SHADER_STORAGE_BUFFER,256*sizeof(int32_t),(void * )0,GL_DYNAMIC_COPY);
-        int32_t *bindata=(int32_t *)glMapBufferRange(GL_SHADER_STORAGE_BUFFER,0,256*sizeof(int32_t),GL_MAP_WRITE_BIT|GL_MAP_READ_BIT);
-        if(bindata)
-        {
-            Loge("HistogramEqualization","success buffer;.;;;;;;;;;;;;;");
-            memset(bindata,0,256*sizeof(int32_t));
-            for(int i=0;i<255;i++)
-                Loge("histogram buffer value  ","the value at %d is %d",i,bindata[i]);
-        }
-        glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-        Graphics::printGlError("HistoGramEqualization");
-        isBufferInitialized=true;
-    }
-    //to read or write ssbo
-    //step1
-    GLuint blockIndex=0;
-    blockIndex=glGetProgramResourceIndex(GlobalData::getProgramId(),GL_SHADER_STORAGE_BLOCK,"bins");///may not be in curren program;
-    //step 2 coonec block to ssbo tell shader on which binding oint it can find ssbo (2);
-    GLuint bindingPoint=2;//same as in shader;
-   // glBindBufferBase(GL_SHADER_STORAGE_BUFFER,bindingPoint,ssboId);
-    //glUniformBlockBinding()
-}
-void EditableImage::computeHistogram()
-{
-    //just for printing;
-    static bool isBufferInitialized=false;
-    if(!isBufferInitialized)
-    {
-        glGenBuffers(1,&histogramBuffer);
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER,histogramBuffer);
-        glBufferData(GL_SHADER_STORAGE_BUFFER,256*sizeof(int32_t),(void * )0,GL_DYNAMIC_COPY);
-        int32_t *bindata=(int32_t *)glMapBufferRange(GL_SHADER_STORAGE_BUFFER,0,256*sizeof(int32_t),GL_MAP_WRITE_BIT|GL_MAP_READ_BIT);
-        if(bindata)
-        {
-            Loge("HistogramEqualization","success buffer;.;;;;;;;;;;;;;");
-            memset(bindata,0,256*sizeof(int32_t));
-            for(int i=0;i<255;i++)
-                Loge("histogram buffer value  ","the value at %d is %d",i,bindata[i]);
-        }
-        glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-        Graphics::printGlError("HistoGramEqualization");
-        isBufferInitialized=true;
-    }
-    if(isBufferInitialized)
-    {
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER,histogramBuffer);
-        int32_t *bindata=(int32_t *)glMapBufferRange(GL_SHADER_STORAGE_BUFFER,0,256*sizeof(int32_t),GL_MAP_WRITE_BIT|GL_MAP_READ_BIT);
-        if(bindata)
-        {
-             memset(bindata,0,256*sizeof(int32_t));
-            for(int i=0;i<255;i++)
-                Loge("histogram buffer value  ","the value at %d is %d",i,bindata[i]);
-        } else
-        {
-            Loge("computeHis","could not map");
-        }
-        glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-    }
 
-
-}
+//just for printing;
 void EditableImage::showHistogramValues()
 {
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER,histogramBuffer);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, binsBuffers[0]);
     int32_t *bindata=(int32_t *)glMapBufferRange(GL_SHADER_STORAGE_BUFFER,0,256*sizeof(int32_t),GL_MAP_WRITE_BIT|GL_MAP_READ_BIT);
     if(bindata)
     {
@@ -112,10 +46,10 @@ void EditableImage::drawHistogram()
         Loge("drawHistogra","invalid Index");
     }
     glUniformBlockBinding(GlobalData::getProgramId(),binsUniformIndex,2);
-    glBindBuffer(GL_UNIFORM_BUFFER,histogramBuffer);
-    glBindBufferBase(GL_UNIFORM_BUFFER,binsUniformIndex,histogramBuffer);////checkc layout packing form st430 only for ssbos
+    glBindBuffer(GL_UNIFORM_BUFFER,binsBuffer);
+    glBindBufferBase(GL_UNIFORM_BUFFER,binsUniformIndex,binsBuffer);////checkc layout packing form st430 only for ssbos
     Graphics::printGlError("histogram drawing");
-   //glBindImageTexture(0, histogramTexId, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32I);///////texture should be set before this image variable not supported by vertexshader
+   //glBindImageTexture(0, binsTexId, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32I);///////texture should be set before this image variable not supported by vertexshader
 
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0,2,GL_FLOAT,GL_FALSE,0,lineVertss);
@@ -129,8 +63,8 @@ void EditableImage::drawHistogram()
         GlobalData::setDefaultGlProgram();
         glUniform1i(0,3);
         float lineVerts[256*4];
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER,histogramBuffer);
-         int32_t  *bins=(int32_t *)glMapBufferRange(GL_SHADER_STORAGE_BUFFER,0,256,GL_MAP_READ_BIT);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, binsBuffers[0]);
+         int32_t  *bins=(int32_t *)glMapBufferRange(GL_SHADER_STORAGE_BUFFER,0,256*sizeof(int32_t),GL_MAP_READ_BIT);
     if(bins)
     {
         for(int i=0;i<256;i++)
@@ -154,44 +88,125 @@ void EditableImage::drawHistogram()
 
 
 }
-void EditableImage::createHistogramTexture()
+void EditableImage::createHistogramTextures()   //////Make clear funcrion as well
 {
-    if(glIsBuffer(histogramBuffer))
-    {glDeleteBuffers(1,&histogramBuffer);}
-    glGenBuffers(1, &histogramBuffer);
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER,histogramBuffer);
-    glBufferData(GL_PIXEL_UNPACK_BUFFER, 256*sizeof(int32_t),(void *)0 ,GL_DYNAMIC_COPY);
-    if(Graphics::printGlError("Histogram::Texture")==GL_OUT_OF_MEMORY)
-        return;
-    if(glIsTexture(histogramTexId))
-        glDeleteTextures(1,&histogramTexId);
-    glGenTextures(1, &histogramTexId);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, histogramTexId);
-    glTexStorage2D(GL_TEXTURE_2D, 1, GL_R32I, 256,1);//wiki commonmistakes//use glTexImage for mutable textures.//glpixelstore for way to read(pack)and write(unpack) image using this fun.
-    glTexSubImage2D(GL_TEXTURE_2D,0,0,0,256,1,GL_RGBA,GL_UNSIGNED_BYTE,0);
-    Graphics::printGlError("ImageView::ImageView(Bounds,Bitmap *),glTextStorage");
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER,0);
-    glBindTexture(GL_TEXTURE_2D,0);
+    for(int i=0;i<2;i++)
+    {
+        if(glIsBuffer(binsBuffers[i]))
+            glDeleteBuffers(1,&binsBuffers[i]);
+
+        glGenBuffers(1,&binsBuffers[i]); ///if Fails?
+        glBindBuffer(GL_PIXEL_UNPACK_BUFFER,binsBuffers[i]);
+        glBufferData(GL_PIXEL_UNPACK_BUFFER,256*sizeof(int32_t),(void *)0,GL_DYNAMIC_COPY);
+        if(Graphics::printGlError("Histogram::CreateTexture")==GL_OUT_OF_MEMORY)
+        {
+            continue;
+        }
+        if(glIsTexture(binsTexIds[i]))
+            glDeleteTextures(1,&binsTexIds[i]);
+
+        glGenTextures(1,&binsTexIds[i]); //fails?
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D,binsTexIds[i]);
+        glTexStorage2D(GL_TEXTURE_2D, 1,GL_R32I, 256,1);//wiki commonmistakes//use glTexImage for mutable textures.//glpixelstore for way to read(pack)and write(unpack) image using this fun.
+        glTexSubImage2D(GL_TEXTURE_2D,0,0,0,256,1,GL_RGBA,GL_UNSIGNED_BYTE,0);//check if this need to be changed for both binbuffers;
+         glBindBuffer(GL_PIXEL_UNPACK_BUFFER,0);
+         glBindTexture(GL_TEXTURE_2D,0);
+         ////check any effect of texture formats in sampler in shaders;
+    }
+
+
+
     if(Graphics::printGlError("ImageView::ImageView(Bounds,Bitmap*)")==GL_NO_ERROR)
     {
         Loge("HistogramTexture","created");
         resetHistogram();
 
     }
+
 }
-void EditableImage::resetHistogram()
+void EditableImage::resetHistogram() {
+    for (int i = 0; i < 2; i++)
+    {
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, binsBuffers[i]);
+        void *bins = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, 256 * sizeof(int32_t),
+                                      GL_MAP_WRITE_BIT);
+        if (bins)
+        {
+            memset(bins, 0, 256 * sizeof(int32_t));
+            Loge("resetHistogram", "success");
+        }
+        else
+        {
+            Loge("resetHistogram", "cannot map buffer");
+        }
+        glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+    }
+    isHistogramCalculated=false;
+}
+void EditableImage::computeHistogram()
 {
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER,histogramBuffer);
-    int32_t  *bins=(int32_t *)glMapBufferRange(GL_SHADER_STORAGE_BUFFER,0,256,GL_MAP_READ_BIT|GL_MAP_WRITE_BIT);
-    if(bins)
+    //isHistorgramCalcuated should be set is success
+    Loge("Compute Histogram","started");
+    ///////One Buffer is sufficient for bins Actualy,check cause we are calcuating here both no or might need both int buffers for before and after bins
+    int32_t bins[256];
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER,binsBuffers[0]);
+    int32_t *binsBefore=(int32_t *)glMapBufferRange(GL_SHADER_STORAGE_BUFFER,0,256*sizeof(int32_t),GL_MAP_READ_BIT);
+    if(binsBefore)
     {
-        memset(bins,0,256*sizeof(int32_t));
-        Loge("resetHistogram","success");
-    } else
+        memcpy(bins,binsBefore,256*sizeof(int32_t));
+    }
+    else
+        {
+        Loge("computeHistogram","cant map buffer");
+            glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+            glBindBuffer(GL_SHADER_STORAGE_BUFFER,0);
+            return;
+        }
+    glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER,binsBuffers[1]);
+    int32_t *binsAfter=(int32_t *)glMapBufferRange(GL_SHADER_STORAGE_BUFFER,0,256*sizeof(int32_t),GL_MAP_READ_BIT|GL_MAP_WRITE_BIT);
+    if(binsAfter)
     {
-        Loge("resetHistogram","cannot mapBuffer");
+
+        float imageH=(float)getImageHeight();
+        float imageW=(float)getImageWidth();
+        if(imageH!=0&&imageW!=0)
+        {
+            double tempBins[256];
+            for(int i=0;i<256;i++)
+            {
+                tempBins[i]=(float)(bins[i]);
+                tempBins[i]/=(imageH*imageW);
+            }
+            for(int i=1;i<256;i++)
+            {
+                Loge(" bincal","before at %d is %lf",i,tempBins[i]);
+                tempBins[i]+=tempBins[i-1];
+                Loge("bincal","after %lf",tempBins[i]);
+                binsAfter[i]=(int)(tempBins[i]*255.0);
+             //   Loge("tests","loop id %d",i);
+            }
+            isHistogramCalculated=true;
+        }
+        else
+        {
+            Loge("COmputeHistogram error","imagesize found 0 could not compute");
+        }
+
+    }
+    else
+    {
+        Loge("computeHistogram error","could not map outputBuf");
+        glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER,0);
+        return;
     }
     glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER,0);
+    Loge("Histogram Compute","success");
+    isHistogramCalculated=true;
+
 }

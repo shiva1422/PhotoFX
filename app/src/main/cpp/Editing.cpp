@@ -47,6 +47,7 @@ void Editor::process()
   //  Loge("process","sds");
     if(isUpdatedNeeded)
     {
+        GlobalData::useGlProgram(activeShaderId);
         if(useGLCompute)
         {
             Loge("Editor","using GlCompute");
@@ -58,14 +59,13 @@ void Editor::process()
             vfShaderProcess();
         }
            isUpdatedNeeded= false;
+        GlobalData *globalData = (GlobalData *) ((AppContext::getApp())->userData);
+        GlobalData::useGlProgram(globalData->UIProgram);
     }
 
 }
 void Editor::vfShaderProcess()
 {
-    srand(time(nullptr));
-    static float param = 1.0;
-    GlobalData::useGlProgram(activeShaderId);
     editableImage->outputBuffer.makeActive();
     glClearColor(0.0, 0.0, 0.0, 1.0);///check if needed (or move to frameBuffer);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -91,21 +91,15 @@ void Editor::vfShaderProcess()
     glBindTexture(GL_TEXTURE_2D, 0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     // Graphics::printGlError("1fxShader");
-    GlobalData *globalData = (GlobalData *) ((AppContext::getApp())->userData);
-    GlobalData::useGlProgram(globalData->UIProgram);
     FrameBuffer::setToDefault();
-    //glUniform1i(3,0);
-    // Graphics::printGlError("2fxShader");
 
 
-    param += 5;
-    if (param > 360.0)
-        param = 0.00;
+
 }
 void Editor::computeProcess()
 {
     //TO decide how work shoulld be decide use workGroupsize and counts
-    GlobalData::useGlProgram(activeShaderId);
+    Graphics::printGlError("computeProcess error1");
     setShaderInputs();
     glBindImageTexture(0, editableImage->getInputTexId(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8UI);///////texture should be set before this
     glBindImageTexture(1,editableImage->getOutputTexId(), 0, GL_FALSE, 0, GL_WRITE_ONLY,GL_RGBA8UI);//////should be moved to setshaderInputs?
@@ -113,14 +107,24 @@ void Editor::computeProcess()
     //   printGlError("computing");
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-    //glBindBufferBase(GL_SHADER_STORAGE_BUFFER,2,0);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER,0);
     glBindImageTexture(0, 0, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8UI);///////texture should be set before this
     glBindImageTexture(1,0, 0, GL_FALSE, 0, GL_WRITE_ONLY,GL_RGBA8UI);
   //  editableImage->showHistogramValues();
-  Graphics::printGlError("computeProcess error");
+  Graphics::printGlError("computeProcess error2");
   Loge("computeProcess","the dispacthc count is %d",editableImage->getImageWidth()*editableImage->getImageHeight());
-    GlobalData::setDefaultGlProgram();
+  if(optionActive==1)
+  {
+      if(!editableImage->isHistogramCalculated)//setHistogram to false when switching suboption or and clear whenc swithcing option
+      {
+
+          editableImage->computeHistogram();
+          if(editableImage->isHistogramCalculated)
+          {
+              computeProcess();
+          }
+      }
+  }
     ///////glBindImaageTexture to 0;
 }
 void Editor::setActiveSubOption(uint ActiveSubOption)
@@ -131,8 +135,10 @@ void Editor::setActiveSubOption(uint ActiveSubOption)
     if(optionActive==1)
     {//equalize should work on cliking the suboption so no need for sliders
         isUpdatedNeeded=true;
+        editableImage->isHistogramCalculated=false;
 
     }
+
 }
 void Editor::setActiveOption(uint ActiveOption)
 {
@@ -176,7 +182,13 @@ void Editor::setShaderInputs()
         case HISTOGRAM:
         {
             glUniform1i(FILTERTYPELOC,subOptionActive);
-            glBindBufferBase(GL_SHADER_STORAGE_BUFFER,2,editableImage->histogramBuffer);
+            int tempInt=0;
+            if(editableImage->isHistogramCalculated)
+            {tempInt=1;}
+            glUniform1i(1,tempInt);
+            glBindBufferBase(GL_SHADER_STORAGE_BUFFER,2,editableImage->binsBuffers[0]);
+            glBindBufferBase(GL_SHADER_STORAGE_BUFFER,3,editableImage->binsBuffers[1]);
+            if(!editableImage->isHistogramCalculated)
             editableImage->resetHistogram();
         }break;
         default:
