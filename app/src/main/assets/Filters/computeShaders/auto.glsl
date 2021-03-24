@@ -10,11 +10,11 @@ layout (rgba8ui,binding=0) uniform readonly highp uimage2D imageIn;//image//imag
 layout(rgba8ui,binding=1) uniform writeonly highp uimage2D imageOut;/////readonly or write only not needed;
 layout (std430, binding=2) buffer binsDat//binsBuffer//check binding point can be same as image vars
 {
-    int bins[256];
+    int bins[360];
 };
 layout (std430,binding=3) buffer equalizedData
 {
- int eqVals[256];//values after equalization not bins;//actually 8 bit uint is enough for this;
+ int eqVals[360];//values after equalization not bins;//actually 8 bit uint is enough for this;
 };
 const float PI=3.14159265358979311599796346854;
 const float RADIAN=PI/180.0;
@@ -33,30 +33,65 @@ void main()
     vec3 hsi=rgbToHsi(rgb);////Thes covertion no need for rgb histograms
     if(paramInt==0)//histogram not computed calulates bins here//////cases should match in else aswell
     {
-        switch(filterType)
+        switch(filterType)//first 6 for histogramequ;
         {
-            case 0://histogram for I;//
-            {
-                atomicAdd(bins[uint(hsi.b)],1);/////for floats type adtomic load stores not directly but input image as float and ouput as int just  like that check
-            }
-            break;
-            case 1://for R
+
+            case 0://for R
             {
                 // bins[outp.r]+=1;
                 atomicAdd(bins[inPix.r],1);//return value before adding
             }break;
-            case 2://for G
+            case 1://for G
             {
                 atomicAdd(bins[inPix.g],1);
             }break;
-            case 3://for B
+            case 2://for B
             {
                 atomicAdd(bins[inPix.b],1);
             }break;
+            case 3://histogram for I;//
+            {
+                atomicAdd(bins[uint(hsi.b)],1);/////for floats type adtomic load stores not directly but input image as float and ouput as int just  like that check
+            }
+            break;
+            case 4://H
+            {
+                atomicAdd(bins[uint(hsi.r)],1);///actually igonring decimals check to composate by add or sub difference in ouput
+            }break;
+            case 5:
+            {
+                float tempSat=hsi.g*255.0;
+                atomicAdd(bins[uint(tempSat)],1);
+            }break;
+            case 6:
+            {
+                imageStore(imageOut,pos,inPix.rbga);
+
+            }break;
+            case 7:
+            {
+                imageStore(imageOut,pos,inPix.gbra);
+
+            }break;
+            case 8:
+            {
+                imageStore(imageOut,pos,inPix.grba);
+
+            }break;
+            case 9:
+            {
+                imageStore(imageOut,pos,inPix.brga);
+
+            }break;
+            case 10:
+            {
+                imageStore(imageOut,pos,inPix.bgra);
+            }break;
+
             default:
             {
-                hsi.b=hsi.b;//cuz compiling fails with empty default;
-                //vec3 rgb=vec3(outp.xyz);
+                imageStore(imageOut,pos,inPix);
+
             }
         }
     }
@@ -64,13 +99,8 @@ void main()
     {
         switch (filterType)
         {
+
             case 0:
-            {
-               hsi.b=float(eqVals[int(hsi.b)]);//check if conversions are correct;
-                rgb=hsiToRgb(hsi);
-                imageStore(imageOut,pos,uvec4(rgb,inPix.a));
-            }break;
-            case 1:
             {
                 uvec4 outPix;
                 outPix.r=uint(eqVals[inPix.r]);
@@ -78,19 +108,44 @@ void main()
                 imageStore(imageOut,pos,outPix);
 
             }break;
-            case 2:
+            case 1:
             {
                 uvec4 outPix;
                 outPix.g=uint(eqVals[inPix.g]);
                 outPix.rba=inPix.rba;
                 imageStore(imageOut,pos,outPix);
             }break;
-            case 3 :
+            case 2 :
             {
                 uvec4 outPix;
                 outPix.b=uint(eqVals[inPix.b]);
                 outPix.rga=inPix.rga;
                 imageStore(imageOut,pos,outPix);
+            }break;
+            case 3:
+            {
+                hsi.b=float(eqVals[int(hsi.b)]);//check if conversions are correct;
+                rgb=hsiToRgb(hsi);
+                imageStore(imageOut,pos,uvec4(rgb,inPix.a));///move this from all cases to out of switch
+            }break;
+            case 4:
+            {
+                uvec4 outPix;
+                hsi.r=float(eqVals[uint(hsi.r)]);/////hue values are rounded to ints so check to add /sub difference; for intermediat hues;
+                outPix.rgb=uvec3(hsiToRgb(hsi));
+                outPix.a=inPix.a;
+                imageStore(imageOut,pos,outPix);
+            }break;
+            case 5:
+            {
+                float tempSat=hsi.g*255.0;
+                hsi.g=float(eqVals[uint(tempSat)]);
+                hsi.g=hsi.g/255.0;
+                uvec4 outPix;
+                outPix.rgb=uvec3(hsiToRgb(hsi));
+                outPix.a=inPix.a;
+                imageStore(imageOut,pos,outPix);
+
             }break;
 
             default :

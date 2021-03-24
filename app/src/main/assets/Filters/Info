@@ -1,0 +1,172 @@
+
+
+Human eye more sensitive to brighness than color processing images in rgb is result is unreal and unpleasing to eye so RGB TO HSI.
+
+intensity -equal amounts of light.
+RGB 6 Saturation. White light is caused by equal amounts of each of R, G and B. If we take the
+minimum one of these and subtract that amount from each of R, G and B, then we eliminate the grayscale
+(intensity) and what is left has only two color components instead of three (the minimum one is now zero).
+Thus this new color has no white light pollution and so it is fully saturated and represents a single wavelength
+(see Figure 8.2) or a combination of only two primary colors. It is the saturation. Because I has a maximum
+value of 1 here, we can take saturation =1-min(rgb);
+
+//To convert a pixel (H, S, I) in the opposite direction to (R, G, B), we
+  consider the cases where the point P isin one of the following regions of the chromaticity triangle: H < 120°
+  (red-green), 120° < H < 240° (green-blue), or else 240° < H < 360° (blue-red).
+
+
+Opengl built in functions;
+isinf and innan
+
+IDEAS:normazlized color effect(hue or saturation get anim fx)
+1.subtracting minimun value of same value from rgb(adding light ,polliutin to the color);
+2.when increaing hue only two color values increase and the third one should not.cause hue is (only two colors after subtracting grAY VALUE FROM RGB)
+3.saturaction is change by muliplying >and <1 and hue is changed using by inc and dec;
+4.processing similar to grayscale can be done on intensity.
+5.tranlate,scale,rotate sheer pg(110)(inverse transforms better.)
+6.Difference image
+7.Shades ,Tones and Tints,Exposure ,shadows ,highlights(intensity level slizing), contrast,invert i in hsi;
+8..MONOCROME SET auu hues to same and check changing sat //Groma gray+monochrome
+9.Try all gray scale processing on individual components of r,g,b.
+10.Histogram for r,g,b,h,s,i,total intensity
+
+Values:
+range of eye focal length 14 to 17 mm.
+book 1 page 61 image height captured by eyed r
+visible spectrum - 0.43um(voilet) to 0.79um(red)
+dynamic range - highest/lowest intensity values.
+contrast = highest - lowest intensity;
+
+ImageProcessing theroy:
+.cones sensitive to color rod give overall picture of field of view and sensitve low levels of illumination(dim light vison).
+.in cameras focal length is same but distance beteen image plane and lens is adusted for focusing at various distances whereas in eyes
+the distance is fix and  proper focus is acheived varying shape of lens.
+.E=hv;light (wave and particle)
+.intensity<-> graylevel;
+.other than frquency quality of chromatic light is described by radiance,illuminace,brighnes.
+.spacial resolution can be line pairs per unit distance,dots per unit distance.
+  scaling: nearest neighbour,bilinear,bicubic,splines,wavelets etc
+  Adjaceny of pixels;
+  Distance Measures:
+  Fuzzy sets:
+  Arithmatice operation between pixel pairs,averagin imagaes for having noise,subrating for dofferemces,diviede/muliply for shading correction.
+ Geometric spacial Transforms(110 pg)=spacial transforms(trs sheer(affline tranform) and intensity interpolation.
+
+ CH-3:spacial Processing:
+
+ intensity transformation(single pixels) and spacial filtering(neighbour hood like sharpening).
+ spacial filtering has neighbourhood with predefined operation(determines the filetering process) called spacial filter(spacial mask,kernel,template or window),the
+ smallest neighbourhood is 1x1 in which case is intensity(graylevel or mapping) transformation.
+
+ Contrast Streching:getting higher contrast by darkening intesities below k and brightening above k.(pg 129) through thresholding function
+
+ Image Enhancement:is process of manipulating image so that it is better for a specific application.
+        Intensity Transformation functs:linear(identity,negative),logarthmic(log ,inverse log),power-law(nth power and root).
+          image negative:L-1-r;(l is 256,r is input pix value)(dark regions enhacnce)
+
+          logarhmic:clog(1+r);c-const,r>=0,narrow range of intensity to wider range of intensity values ,expand dark pixel in image while  compressing
+          higher level values opposite is true for inverse log.(maybe shadows and highlights) exponential and lgorthmic are inverese funcion mirror about y=x;
+          (spreadin adn compressiong of intensity values) log function compress dynamic range of image with large variation of pixel values while for non large
+          variation power law may be considered.(lower intensities increase much while higher remains almost same_
+
+          Powelaw  transformations:(gamma correction ,contrast manipulation)
+          s=crpowerg where c and g are positive constants
+
+      Piecewise linea Transformations:complementary approach to above methods:(r represents input,s represents output)(thrresolding up and down)
+          constrast_Strching:
+          expand range of intensity levels in image so it spans the full range of recording medium or display device
+                points (r1,s1) and (r2,s2) control the shape of transormaton function,if r1=s1 and r2=s2 then it is a linear func with no change;
+                assuming r1<=r2 and s1<=s2  various value of these gives various degree of spread of intensity thus affecting contrast.
+                                if(r1=r2)and s1=0 and s2=L-1 then its a thresolding function with giving binary image.
+                //check (r1,s1=(rmin,0) and r2,s2=(rmax,L-1) or instead of rmax rmin uses average intensity
+
+
+        Intensity Level slicing:(highlights)
+        two variation-1)increase(decrease) inteseities betwwen a range and lower all other .2)increase of decresase between range and other raming same or aboutt the mean.
+
+        Bit-plane slicing:
+        instead of highlighting the intensity-level ranges we can highlight the contributin made to total image appearance by specific bits
+        8bits-8 planes
+        each bit plane is a binary image
+        higher signifance bits store more relevant to images so storing images with top 4 bit planes can lead to reductin in storage by 50% while not changing much visually
+
+
+
+     HISTOGRAM PROCESSING:
+
+     h(rk)=nk,where rk is intensity of kth pixel and nk is number of pixels with instensity rk
+     normalized histogram P(rk)=nk/MN,where m and n are row and coloums(which is probabilit of ocuurance of rk in image)
+        EQUALIZATION(or)Linearization transform funct:(adaptive contrast enhancement)
+        s=T(r)
+        .T(r) is monotonically increasing means output pixel value never less than input
+        that thus no artifacts when reversing function;
+        ps(s)=pr(r)*(ds/dr)->probabillity density as intensity value is a random variable and T(r) is contiuus and differntialble;
+
+        eqalized out sk=((L-1)/MN) * sigma j=0 to k  nj where k=0 to L-1 (L =max 2powerr8 =256
+
+        images with same contnt have similar historgrams even if the contrasts differ
+
+     
+
+
+
+
+
+
+          CH_6 color Image Processing:
+
+          achromatic -has only intensity(gray level).
+          three quantities used to descibe quality of chromatic light SOURCe - radiance,luminance, and brightness,
+          radiance is total amount of energy that flows from light source(measured in watts).
+          luminance is amount of energy observer percieves from light source(lumens).
+          brightness practically impossible to measure(embodies achromatic notion of intensity and one of keyFacts in describing color sensation)
+          Primary colors RGB;primary color of light is one that subracts(R) or absorbs(primary color) of lightand reflects/transmits the other two(G,B).
+          primary and secondary colors of pigments are inverted of primary color of light.
+          primary color added to get secondary colors b+g=cyan ,r+b=magenta, r+g=yellow,
+
+          characteristics that distingushes one color from another are hue ,saturation,brightness(intensity)
+          hue represents the dominant color as percieved by an observer whereas (red,green ,orange etc colors),whereas the saturation
+          is relative purity of amount of white light mixed with a hue.
+
+           hue + saturation =chromaticity ,therfore ,a color may be characterised by chromacity and brightness
+
+           COlor modees;
+           rgb,cmy,cmyk(blaack -k),hsi.
+
+           pseudocolor ImageProcessing:
+           pSeudocolor(false-color) image processing consists of assigning colors to gray values  based on specified criteria
+
+           Intensity(density) slicinng:
+           COlor Balance:
+      BAsics of full color image processing:
+      color image can be though of vecor of r,g,b(h,s,i) 3 images.
+      try add gray scale processing to each of r,g,b(not always a good idea).
+
+
+
+
+Research:
+pseudocolor image processing(color intesity as gray values maybe)
+chromacity diagram,color gamut
+radiance luminance brightness;
+dimlight vision;
+brightness adapation (human)
+Optical illusions
+simultaneous contrast.
+false contouring
+
+Todo:
+copy of Em spectrum
+ligth prism experiment;
+24bit color cube
+
+Graphs:
+
+rgb-hsi,
+log,power law;
+
+
+Shaders and filters:
+Gamma is power law
+Contrast is Contrast Stretching
+hsi.glsl-/color conversion hsi manipulation,COntrast

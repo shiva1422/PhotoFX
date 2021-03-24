@@ -115,15 +115,19 @@ void Editor::computeProcess()
   Loge("computeProcess","the dispacthc count is %d",editableImage->getImageWidth()*editableImage->getImageHeight());
   if(optionActive==1)
   {
-      if(!editableImage->isHistogramCalculated)//setHistogram to false when switching suboption or and clear whenc swithcing option
+      if(subOptionActive<6)
       {
-
-          editableImage->computeHistogram();
-          if(editableImage->isHistogramCalculated)
+          if(!editableImage->isHistogramCalculated)//setHistogram to false when switching suboption or and clear whenc swithcing option
           {
-              computeProcess();
+
+              editableImage->computeHistogram(subOptionActive);
+              if(editableImage->isHistogramCalculated)
+              {
+                  computeProcess();
+              }
           }
       }
+
   }
     ///////glBindImaageTexture to 0;
 }
@@ -136,6 +140,7 @@ void Editor::setActiveSubOption(uint ActiveSubOption)
     {//equalize should work on cliking the suboption so no need for sliders
         isUpdatedNeeded=true;
         editableImage->isHistogramCalculated=false;
+        //editableImage->resetHistogram();
 
     }
 
@@ -285,7 +290,7 @@ void Editor::manageShaders()
             break;
         case EQ_SHADER:
         {
-            fragmentSource += "equalize.glsl";
+            fragmentSource += "auto.glsl";
         }
             break;
         default:

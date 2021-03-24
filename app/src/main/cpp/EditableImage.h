@@ -18,6 +18,7 @@ private:
 
 public:
     /////////User Ssbos instead of fbos(arm doc compute shaders)ShaderImages
+    int32_t binsSize=360;//256 would be enough but for hue eq 360 required;
     bool isHistogramCalculated=false;
     GLuint binsBuffers[2]={0,0};//one for bins and one for cdf of bins;
     FrameBuffer outputBuffer;//stores output of image above after editing;//default const create id so just set dims and configure;
@@ -35,10 +36,10 @@ public:
 
     ///Move histogram works to separate file;
     void createHistogramTextures();//for bins and binsCDF not for input and output images
-    void computeHistogram();
+    void computeHistogram(int forWhat);//for what should be same as in auto shader//replace for what with enum
     void resetHistogram();
-    void drawHistogram();
-    void showHistogramValues();
+    void drawHistogram(int forWhat);
+    void showHistogramValues(int forWhat);//same as computeParam
 
 };
 
