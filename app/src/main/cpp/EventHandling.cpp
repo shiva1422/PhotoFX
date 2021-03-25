@@ -16,6 +16,16 @@ bool touchFunct(float touchX, float touchY, TouchAction touchAction)
    // Loge("EVentH","in touch function external");
     return true;
 }
+bool ToggleHistogramTL::onTouch(float touchX, float touchY, int pointerId, TouchAction touchAction) {return true;}
+bool ToggleHistogramTL::onTouch(float touchX, float touchY, int pointerId, TouchAction touchAction, View *view)
+{
+    if(touchAction==ACTION_DOWN)
+    {
+        GlobalData *globalData=(GlobalData *)app->userData;
+        globalData->activeHistogram=!globalData->activeHistogram;
+    }
+    return true;
+}
 bool ToggleProcessingTypeTouchListener::onTouch(float touchX, float touchY, int pointerId, TouchAction touchAction) {return true;}
 bool ToggleProcessingTypeTouchListener::onTouch(float touchX, float touchY, int pointerId, TouchAction touchAction, View *view)
 {

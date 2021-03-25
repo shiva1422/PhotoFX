@@ -80,14 +80,14 @@ ViewGroup viewGroup;
     //globalData.contentView=&MainImageView;
     ImageViewStack optionsStack(6,ImageView::defaultImage.width,ImageView::defaultImage.height);
     ImageViewStack subOptionsStack(11,ImageView::defaultImage.width,ImageView::defaultImage.height);
-    optionsStack.setBounds(0,displayParams.screenHeight*93/100,displayParams.screenWidth,displayParams.screenHeight*7.5/100);
-    subOptionsStack.setBounds(0,displayParams.screenHeight*85/100,displayParams.screenWidth,optionsStack.getHeight());
+    optionsStack.setBounds(0,displayParams.screenHeight*95/100,displayParams.screenWidth,displayParams.screenHeight*6/100);
+    subOptionsStack.setBounds(0,displayParams.screenHeight*90/100,displayParams.screenWidth,displayParams.screenHeight*4/100);
     subOptionsStack.setNoViewsVisible(11);
     ImageView TestImage(100,100,50,50);
     SliderSet sliderSet[4];
     for(int i=0;i<4;i++)
     {
-        sliderSet[i].setBounds(0,frameBounds.endY()+(i+1)*displayParams.screenHeight*2/100,displayParams.screenWidth,displayParams.screenHeight*2/100);
+        sliderSet[i].setBounds(0,frameBounds.endY()+(i+1)*(displayParams.screenHeight*2/100+10),displayParams.screenWidth,displayParams.screenHeight*2/100);
 
     }
 
@@ -100,6 +100,10 @@ ViewGroup viewGroup;
     fileExplorer.setOnTouchListener(new FilesTouchListener());
     ImageView toggleComputeView(displayParams.screenWidth*90/100,0,100,100);
     toggleComputeView.setOnTouchListener(new ToggleProcessingTypeTouchListener());//delete when done;
+    ImageView toggleHistogram(displayParams.screenWidth*90/100,150,100,100);
+    toggleHistogram.setOnTouchListener(new ToggleHistogramTL());//need clearing check
+
+
 
 
     // MainImageView.setBoundsDeviceIndependent(0,displayParams.screenHeight*20/100,InputImage.width,InputImage.height);
@@ -131,6 +135,7 @@ viewGroup.addView(&sliderSet[i]);
 viewGroup.addView(&MainImageView);
 viewGroup.addView(&fileExplorer);
 viewGroup.addView(&toggleComputeView);
+viewGroup.addView(&toggleHistogram);
 globalData.contentView=&viewGroup;
 
 Editor editor;
@@ -176,7 +181,10 @@ outputImage.setOnTouchListener(new myListener());*/
                 glClear(GL_COLOR_BUFFER_BIT);
                 frameBounds.clearRect();
                 globalData.contentView->draw();
-              //  MainImageView.drawHistogram();
+                if(globalData.activeHistogram)
+                {MainImageView.histogram.toggleActive();
+                globalData.activeHistogram= false;}
+                MainImageView.histogram.draw();
                 glUniform1i(glGetUniformLocation(globalData.UIProgram,"frameBuf"),(int)0);
                 if(eglSwapBuffers(appContext.eglDisplay, appContext.eglSurface) == EGL_FALSE)
                 {

@@ -10,9 +10,8 @@
 #include "Graphics.h"
 #include "EditableImage.h"
 #include "FilterProperties.h"
-enum EActiveShader{HSI_SHADER=0,EQ_SHADER};///FOR SHADER LOCATIONNS DIFFERENT FX MIGHT HAVE SAME SHADER(tracking glsl files)
-enum EActiveFilter{LIGHT=0,SATURATION,HUE,GAMMA,CONTRAST,HISTOGRAM};//should mathc in setActiveFilter and Shaders //BELOW ALSO SAME;
-enum EditSubOption{H=0,S,I};//maybe not need as EActiveFilter is same as EactiveSuboption
+enum EActiveShader{ENHANCE_SHADER=0,EQ_SHADER,HSI_SHADER};///FOR SHADER LOCATIONNS DIFFERENT FX MIGHT HAVE SAME SHADER(tracking glsl files)
+enum EActiveFilter{LIGHT=0,SATURATION,HUE,GAMMA,CONTRAST,HISTOGRAM,HSI};//should mathc in setActiveFilter and Shaders //BELOW ALSO SAME;
 enum EditOptions{ENHANCE=0,CHROMA,AUTO,GRAY,BLUR,TRANSFORM,THREED};
 class ImageViewStack;
 ///create editingContext for each image if needed;
@@ -23,7 +22,7 @@ private:
     float sliderValues[4]={0.0f,0.0f,0.0f,0.0f};
     float params[4]={0.0f,0.0f,0.0f,0.0f};
     EActiveFilter EactiveFilter;
-    EActiveShader eActiveShader=HSI_SHADER,ePreviouShader=HSI_SHADER;//deault;
+    EActiveShader eActiveShader=ENHANCE_SHADER,ePreviouShader=ENHANCE_SHADER;//deault;
     bool useGLCompute=false;
     static std::string shadersFolder;
     void computeProcess();

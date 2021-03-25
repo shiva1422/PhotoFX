@@ -7,6 +7,7 @@ import android.opengl.GLES31;
 import android.opengl.GLUtils;
 import android.util.Log;
 
+import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -71,8 +72,11 @@ public class Image
         vertices[3] = vertices[1];
         vertices[5] = (float)(1.0 - ((startY) * 2.0) / (float) ChooserRenderer.height);//topy
         vertices[7] = vertices[5];
-        vertexBuffer.put(vertices);
-        vertexBuffer.position(0);
+        try {
+            vertexBuffer.put(vertices);
+            vertexBuffer.position(0);
+        }
+        catch (BufferOverflowException boe){boe.printStackTrace();}
 
     }
 

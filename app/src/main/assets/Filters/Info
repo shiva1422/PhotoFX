@@ -29,6 +29,7 @@ IDEAS:normazlized color effect(hue or saturation get anim fx)
 8..MONOCROME SET auu hues to same and check changing sat //Groma gray+monochrome
 9.Try all gray scale processing on individual components of r,g,b.
 10.Histogram for r,g,b,h,s,i,total intensity
+11,Tint,Temperature,fade ,sharpen,saturation,contrast,exposure,intensity;
 
 Values:
 range of eye focal length 14 to 17 mm.

@@ -20,6 +20,7 @@ const float PI=3.14159265358979311599796346854;
 const float RADIAN=PI/180.0;
 layout(location=0) uniform int filterType;
 layout(location=1) uniform int paramInt;
+layout(location=2) uniform int inOrOut;//to determina if bins for input or output image;
 layout(location=5) uniform float params[4];///no need for eq has it has no sliders
 void main()
 {

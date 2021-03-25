@@ -19,7 +19,7 @@ include_directories(${FREETYPE}/include)
 #
 add_library(main SHARED Main.cpp GlobalData.cpp Commons.cpp)
 add_library(graphics STATIC Graphics.cpp UI.cpp gpgpu.cpp)
-add_library(offscreenrenders STATIC OffScreenRender.cpp OffScreenRender.h EditableImage.cpp)
+add_library(offscreenrenders STATIC OffScreenRender.cpp OffScreenRender.h EditableImage.cpp Histogram.cpp)
 add_library(events STATIC Touch.cpp Callbacks.cpp)
 add_library(javacalls STATIC JavaCalls.cpp JavaCalls.h)
 #add_library(jnimeths STATIC JniMethods.cpp)

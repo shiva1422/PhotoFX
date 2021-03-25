@@ -1,0 +1,48 @@
+//adative histogram Equalization,contrast limited adaptive equalization;
+
+Phonetics by Computer
+
+
+ImageeEditing in shaders:
+    without compute shaders earler either rasterizing a squad in fragment shader of transform feedback in vertex shader could be used;
+    Use ssbo(shader Images or imageVariables)(image load store) instead of fbo to render to texture;check buffer textures:
+    Just to access images (or data in buffer )using non normalized coordinates(like array) use buffer textures: to read write use load store with gimageVariable
+    similarly to read and write to use image load store(accesed with non normalized indices just ing image coords not tex coords)
+    Use atomic counter if ssbos not supported in vertex ,fragment shaders;
+
+
+
+
+//temperature ,tint,exposure ,saturation,clarity,blacks ,whites,shadows,highlights,contrast,dehaze ,vibrance;
+
+
+Tomorrow:
+Lights vs colors
+input and output check to see if ouput bins can be obtaind from bins and eqbuffer from histogram Table;
+//draw output histogram to compare;,add C,M,Y to histogram auto options
+//option 2 in non glCompute;,output histogram total count not matching check;
+//hsi
+..MONOCROME SET auu hues to same and check changing sat //Groma gray+monochrome set one of hsi to const and vary other
+
+
+
+//Day after:
+    Transforms ,Hue;
+
+
+
+
+    FUTURE:
+    Shaders have lot of duplicated code use proper manager;
+
+
+
+
+IMPROVE:
+Visiblity implemented only for sliders;
+
+
+
+openglINof:
+instead of frambuffer use image variables in gragmeth shaders
+Imagevarriable bound texture backing buffer as texture buffer instead PIXelUnapcBUffer

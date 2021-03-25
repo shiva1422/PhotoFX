@@ -20,6 +20,7 @@ private:
     SliderSet *slider=nullptr;
   static  GLuint activeProgram;
 public:
+    bool activeHistogram=false;//test only
     Editor *editor=nullptr;
     AppContext *appContext;
     DisplayParams *displayParams;
@@ -40,6 +41,7 @@ public:
         else
             Loge("ToggleProcessingType","cant as there is no valid editor");
     }
+
 
 };
 

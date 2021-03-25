@@ -13,6 +13,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.util.Size;
 import android.view.MotionEvent;
+import android.view.VelocityTracker;
 import android.view.View;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -57,7 +58,10 @@ public class ChooserRenderer implements GLSurfaceView.Renderer {/////////Opengl 
 
     //Touch
     private int pointerId;
-   private float initialTouchX=0.0f,initialTouchY=0.0f,previousTouchX=0.0f,previousTouchY=0.0f,totalMoveDisY=0.0f;
+    private boolean velocitySignPositive=false;
+    private float yTouchVelocity=0.0f;
+   private float initialTouchX=0.0f,initialTouchY=0.0f,previousTouchX=0.0f,previousTouchY=0.0f,totalMoveDisY=0.0f,moveDisForVelocity=0.0f;
+   private VelocityTracker touchVelocityTracker=null;
 
 
 ChooserRenderer(Context context) {
@@ -73,6 +77,24 @@ int testNo=0;
     @Override
     public void onDrawFrame(GL10 gl) {
       // Log.e("RendererChooser:draw","the prog id" + programId);
+        if(yTouchVelocity!=0)
+        {
+            moveDisForVelocity=-1*yTouchVelocity*(float)0.1;
+            onMove(moveDisForVelocity);
+            Log.e("move based " ,"in draw is " +moveDisForVelocity);
+            if(velocitySignPositive&&yTouchVelocity<0)//jus to track when the velocity changes from -ve  to +ve so to stop moving based on velocity;
+            {
+                yTouchVelocity=0;
+                moveDisForVelocity=0.0f;
+                velocitySignPositive=true;
+            }
+            else if(!velocitySignPositive && yTouchVelocity>0)
+            {
+                yTouchVelocity=0;
+                moveDisForVelocity=0.0f;
+                velocitySignPositive=true;
+            }
+        }
         GLES31.glUseProgram(programId);
         red+=0.05f;if(red>1){red=0;}
        // Log.e("PROGRAMID","" +programId);
@@ -254,6 +276,16 @@ int testNo=0;
                 initialTouchY=touchY;
                 previousTouchX=touchX;
                 previousTouchY=touchY;
+                if(touchVelocityTracker==null)
+                {
+                    touchVelocityTracker=VelocityTracker.obtain();
+                }
+                else
+                {
+                    touchVelocityTracker.clear();
+                }
+                touchVelocityTracker.addMovement(event);
+
 
             }break;
             case MotionEvent.ACTION_POINTER_DOWN:
@@ -265,6 +297,7 @@ int testNo=0;
                 int pointerCount=event.getPointerCount();
                 for(int i=0;i<pointerCount;i++)
                 {
+                    touchVelocityTracker.addMovement(event);
                     tempPointerId=event.getPointerId(i);
                     if(tempPointerId==pointerId)
                     {
@@ -274,38 +307,20 @@ int testNo=0;
                      //   float moveDisX=previousTouchX-touchX;//only moved along y
                         float moveDisY=previousTouchY-touchY;
                         totalMoveDisY+=moveDisY;
-                        //instead of below condition make it set to 0 positoin on touchup
-                        if(!(moveDisY<0&&images[startImageNo].cursorPos==0&&images[startImageNo].startY>=-0.1*images[startImageNo].height))
-                        for(int k=0;k<totalImagesToDraw;k++)
-                        {
-                            images[k].setBounds(images[k].startX,images[k].startY-moveDisY,images[k].width,images[k].height);
-                            ///currently all images have same bounds only need for one acturally(draw using one draw call);
-                        }
-                        // if(totalMoveDisY>(images[0].height))
-                        if(images[0].startY<-(images[0].height*1.5))//11/2 image down
-                        {
-
-                            rowUp();
-                            //imageUpdateNeeded=true;
-                            totalMoveDisY=0.0f;
-                        }
-                        else if(images[0].startY>0)
-                        {
-                            rowDown();
-                            //imageUpdateNeeded=true;
-                            totalMoveDisY=0.0f;
-                        }
+                        onMove(moveDisY);
                        // imageUpdateNeeded=true;
 
                         previousTouchX=touchX;
                         previousTouchY=touchY;
+
+                        touchVelocityTracker.computeCurrentVelocity(100);//log every second(1000ms);expensive so call every second
+                       // Log.e("Velocity", "X velocity: " + touchVelocityTracker.getXVelocity(pointerId));
+                        yTouchVelocity=touchVelocityTracker.getYVelocity(pointerId);
+                        Log.e("Velocity", "Y velocity: " + yTouchVelocity);
                     }
 
 
-
                 }
-
-
             }
             break;
             case MotionEvent.ACTION_POINTER_UP:
@@ -313,6 +328,9 @@ int testNo=0;
                 if(tempPointerId==pointerId)
                 {pointerId=-1;
                     Log.e("ontouchRenderer","pointerUP");
+                    if(yTouchVelocity>=0)
+                        velocitySignPositive=true;
+                    else velocitySignPositive=false;
                 }//setting pointer to invalid
             }break;
             case MotionEvent.ACTION_UP:
@@ -321,13 +339,49 @@ int testNo=0;
                 {
                     pointerId=-1;
                     Log.e("ontouchRenderer","ActionUP");
+                    if(yTouchVelocity>=0)
+                        velocitySignPositive=true;
+                    else velocitySignPositive=false;
                 }//setting pointer to invalid
+            }
+            break;
+            case MotionEvent.ACTION_CANCEL:
+            {
+                touchVelocityTracker.recycle();
             }
             break;
         }
 
        // imageUpdateNeeded=true;
 
+    }
+    public void onMove(float moveDisY)
+    {
+
+        //instead of below condition make it set to 0 positoin on touchup
+        Log.e("move distance","during movie is " + moveDisY);
+        if(!(moveDisY<0&&images[startImageNo].cursorPos==0&&images[startImageNo].startY>=-0.1*images[startImageNo].height))
+            for(int k=0;k<totalImagesToDraw;k++)
+            {
+                images[k].setBounds(images[k].startX,images[k].startY-moveDisY,images[k].width,images[k].height);
+                ///currently all images have same bounds only need for one acturally(draw using one draw call);
+            }
+        // if(totalMoveDisY>(images[0].height))
+        if(images[0].startY<-(images[0].height*1.0))//1.5 image down//make 1.0 to 1.5 if error in dims;
+        {
+
+            rowUp();
+            //imageUpdateNeeded=true;
+            totalMoveDisY=0.0f;/////is totalMoveDisY needed any move
+           // moveDisForVelocity=0.0f;//if called from drawFrame based on velocity
+        }
+        else if(images[0].startY>0)
+        {
+            rowDown();
+            //imageUpdateNeeded=true;
+            totalMoveDisY=0.0f;
+           // moveDisForVelocity=0.0f;
+        }
     }
     public void rowUp()
     {//check error if images are completed

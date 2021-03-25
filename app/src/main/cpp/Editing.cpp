@@ -117,13 +117,13 @@ void Editor::computeProcess()
   {
       if(subOptionActive<6)
       {
-          if(!editableImage->isHistogramCalculated)//setHistogram to false when switching suboption or and clear whenc swithcing option
+          if(!editableImage->histogram.isCalculated())//setHistogram to false when switching suboption or and clear whenc swithcing option
           {
 
-              editableImage->computeHistogram(subOptionActive);
-              if(editableImage->isHistogramCalculated)
+              editableImage->histogram.compute(subOptionActive);
+              if(editableImage->histogram.isCalculated())
               {
-                  computeProcess();
+                  computeProcess();///////app is stuck infinite loop
               }
           }
       }
@@ -139,7 +139,7 @@ void Editor::setActiveSubOption(uint ActiveSubOption)
     if(optionActive==1)
     {//equalize should work on cliking the suboption so no need for sliders
         isUpdatedNeeded=true;
-        editableImage->isHistogramCalculated=false;
+      editableImage->histogram.reset();//just setting isCalculateToFalse in enoug;
         //editableImage->resetHistogram();
 
     }
@@ -188,14 +188,18 @@ void Editor::setShaderInputs()
         {
             glUniform1i(FILTERTYPELOC,subOptionActive);
             int tempInt=0;
-            if(editableImage->isHistogramCalculated)
+            if(editableImage->histogram.isCalculated())
             {tempInt=1;}
             glUniform1i(1,tempInt);
-            glBindBufferBase(GL_SHADER_STORAGE_BUFFER,2,editableImage->binsBuffers[0]);
-            glBindBufferBase(GL_SHADER_STORAGE_BUFFER,3,editableImage->binsBuffers[1]);
-            if(!editableImage->isHistogramCalculated)
-            editableImage->resetHistogram();
+            glBindBufferBase(GL_SHADER_STORAGE_BUFFER,2,editableImage->histogram.binsBuffers[0]);
+            glBindBufferBase(GL_SHADER_STORAGE_BUFFER,3,editableImage->histogram.binsBuffers[1]);
+            if(!editableImage->histogram.isCalculated())
+            editableImage->histogram.reset();
         }break;
+        case HSI:
+        {
+            glUniform1fv(PARAMSLOC,4,params);
+        }
         default:
         {
 
@@ -215,34 +219,34 @@ void Editor::setActiveFilter()
                 case 0:
                 {
                     EactiveFilter=LIGHT;//also set the shader here./////is all suboption have same shader make it if instead switch for that option
-                    eActiveShader=HSI_SHADER;
+                    eActiveShader=ENHANCE_SHADER;
                 }break;
                 case 1:
                 {
                     EactiveFilter=SATURATION;
-                    eActiveShader=HSI_SHADER;
+                    eActiveShader=ENHANCE_SHADER;
 
                 }break;
                 case 2:
                 {
                     EactiveFilter=HUE;
-                    eActiveShader=HSI_SHADER;
+                    eActiveShader=ENHANCE_SHADER;
                 }break;
                 case 3:
                 {
                     EactiveFilter=GAMMA;
-                    eActiveShader=HSI_SHADER;
+                    eActiveShader=ENHANCE_SHADER;
                 }
                 break;
                 case 4:
                 {
                     EactiveFilter=CONTRAST;
-                    eActiveShader=HSI_SHADER;
+                    eActiveShader=ENHANCE_SHADER;
                 }break;
                 case 5:
                 {
                     EactiveFilter=HISTOGRAM;
-                    eActiveShader=HSI_SHADER;/////but computeShader;/////remmovet his
+                    eActiveShader=ENHANCE_SHADER;/////but computeShader;/////remmovet his
                 }break;
 
             }
@@ -252,6 +256,11 @@ void Editor::setActiveFilter()
         {
             EactiveFilter=HISTOGRAM;
             eActiveShader=EQ_SHADER;
+        }break;
+        case 2:
+        {
+            EactiveFilter=HSI;
+            eActiveShader=HSI_SHADER;
         }break;
 
     }
@@ -283,7 +292,7 @@ void Editor::manageShaders()
     Loge("ShaderManager::createShaderPro","%d option",optionActive);
     switch (eActiveShader)
     {
-        case HSI_SHADER:
+        case ENHANCE_SHADER:
         {
             fragmentSource+="enhance.glsl";
         }
@@ -292,7 +301,11 @@ void Editor::manageShaders()
         {
             fragmentSource += "auto.glsl";
         }
-            break;
+        break;
+        case HSI_SHADER:
+        {
+            fragmentSource += "hsi.glsl";
+        }break;
         default:
         {
             Loge("ShaderMangage:createShaderProgram","Invalid Option for creating Shader");
