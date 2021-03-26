@@ -117,11 +117,11 @@ void Editor::computeProcess()
   {
       if(subOptionActive<6)
       {
-          if(!editableImage->histogram.isCalculated())//setHistogram to false when switching suboption or and clear whenc swithcing option
+          if(!editableImage->inputHistogram.isCalculated())//setHistogram to false when switching suboption or and clear whenc swithcing option
           {
 
-              editableImage->histogram.compute(subOptionActive);
-              if(editableImage->histogram.isCalculated())
+              editableImage->inputHistogram.compute(subOptionActive);
+              if(editableImage->inputHistogram.isCalculated())
               {
                   computeProcess();///////app is stuck infinite loop
               }
@@ -139,7 +139,7 @@ void Editor::setActiveSubOption(uint ActiveSubOption)
     if(optionActive==1)
     {//equalize should work on cliking the suboption so no need for sliders
         isUpdatedNeeded=true;
-      editableImage->histogram.reset();//just setting isCalculateToFalse in enoug;
+      editableImage->inputHistogram.reset();//just setting isCalculateToFalse in enoug;
         //editableImage->resetHistogram();
 
     }
@@ -188,13 +188,13 @@ void Editor::setShaderInputs()
         {
             glUniform1i(FILTERTYPELOC,subOptionActive);
             int tempInt=0;
-            if(editableImage->histogram.isCalculated())
+            if(editableImage->inputHistogram.isCalculated())
             {tempInt=1;}
             glUniform1i(1,tempInt);
-            glBindBufferBase(GL_SHADER_STORAGE_BUFFER,2,editableImage->histogram.binsBuffers[0]);
-            glBindBufferBase(GL_SHADER_STORAGE_BUFFER,3,editableImage->histogram.binsBuffers[1]);
-            if(!editableImage->histogram.isCalculated())
-            editableImage->histogram.reset();
+            glBindBufferBase(GL_SHADER_STORAGE_BUFFER,2,editableImage->inputHistogram.binsBuffer);
+           // glBindBufferBase(GL_SHADER_STORAGE_BUFFER,3,editableImage->histogram.binsBuffers[1]);
+            if(!editableImage->inputHistogram.isCalculated())
+            editableImage->inputHistogram.reset();
         }break;
         case HSI:
         {

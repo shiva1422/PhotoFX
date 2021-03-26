@@ -15,5 +15,12 @@ EditableImage::EditableImage(float startX, float startY, float Width, float heig
     inputTexId=texId;//two lines so that by default super draw method draw ouput;based on need we can change them to draw ouptu input or both.
     texId=outputTexId;//since these texId all beolong to single object exchnaging them is no problem (also input output are same size;
    // createHistogramTextures();//////should not be in consrtucted only create and delelte when rquired;
-    histogram.setOwnerImage(this);
+   inputHistogram.setOwnerTexture(inputTexId);
+   outputHistogram.setOwnerTexture(outputTexId);
+   inputHistogram.setOwnerImage(this);
+   outputHistogram.setOwnerImage(this);
+}
+void EditableImage::onSaveEdit()
+{
+    //clear input histogram and output histog if histogram is active;
 }

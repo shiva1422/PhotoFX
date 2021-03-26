@@ -18,7 +18,7 @@ class GlobalData//defs in GlobalData.cpp
 private:
     ImageViewStack *optionMenu = nullptr,*subOptionsMenu=nullptr;
     SliderSet *slider=nullptr;
-  static  GLuint activeProgram;
+  static  GLuint activeProgram,previousProgram;
 public:
     bool activeHistogram=false;//test only
     Editor *editor=nullptr;
@@ -32,7 +32,12 @@ public:
     void setEditingContext(Editor *editor){ this->editor=editor;}
     void setMenu(ImageViewStack *imageViewStack,EMenuType);
     void addInputComponent(SliderSet *sliderSet,EInputType);
-   static void useGlProgram(GLuint programId){glUseProgram(programId);activeProgram=programId;};
+   static void useGlProgram(GLuint programId)
+   {    previousProgram=activeProgram;
+       glUseProgram(programId);
+       activeProgram=programId;
+   };
+    static void usePreviousProgram(){glUseProgram(previousProgram);};
     static GLuint  getProgramId(){return activeProgram;}
     static void setDefaultGlProgram(){glUseProgram(UIProgram);activeProgram=UIProgram;}
     void toggleProcessingType()

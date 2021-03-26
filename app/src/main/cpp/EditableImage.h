@@ -17,7 +17,9 @@ private:
     uint imageToDraw=0;//1-to draw input ,0 to draw ouput ,2for both;
 public:
     /////////User Ssbos instead of fbos(arm doc compute shaders)ShaderImages
-    Histogram histogram;
+    bool bEqualized=false;
+    Histogram inputHistogram,outputHistogram;
+    int32_t equalizedValues[360];
     FrameBuffer outputBuffer;//stores output of image above after editing;//default const create id so just set dims and configure;
     EditableImage();
   //  EditableImage(ImageView *inputImage){}
@@ -30,6 +32,9 @@ public:
     void drawOuput() ;
     int getImageWidth(){ return image->width;}
     int getImageHeight(){return image->height;}
+
+
+    void onSaveEdit();
 
 };
 

@@ -17,6 +17,8 @@ ImageeEditing in shaders:
 
 
 Tomorrow:
+
+Complete files scrolling complete and then selecting images from explorer;
 Lights vs colors
 input and output check to see if ouput bins can be obtaind from bins and eqbuffer from histogram Table;
 //draw output histogram to compare;,add C,M,Y to histogram auto options

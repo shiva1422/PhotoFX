@@ -57,9 +57,9 @@ public class ChooserRenderer implements GLSurfaceView.Renderer {/////////Opengl 
 
 
     //Touch
-    private int pointerId;
-    private boolean velocitySignPositive=false;
-    private float yTouchVelocity=0.0f;
+    private int pointerId,decelerationTimeInFrames=100;
+    private boolean velocitySignPositive=false,shouldDecelerate=true,isScrolling=false;
+    private float yTouchVelocity=0.0f,deceleration=0;
    private float initialTouchX=0.0f,initialTouchY=0.0f,previousTouchX=0.0f,previousTouchY=0.0f,totalMoveDisY=0.0f,moveDisForVelocity=0.0f;
    private VelocityTracker touchVelocityTracker=null;
 
@@ -77,11 +77,15 @@ int testNo=0;
     @Override
     public void onDrawFrame(GL10 gl) {
       // Log.e("RendererChooser:draw","the prog id" + programId);
-        if(yTouchVelocity!=0)
+        if(yTouchVelocity!=0)///move to sepeate function inside if
         {
             moveDisForVelocity=-1*yTouchVelocity*(float)0.1;
             onMove(moveDisForVelocity);
             Log.e("move based " ,"in draw is " +moveDisForVelocity);
+            if(shouldDecelerate)
+            {
+                yTouchVelocity-=deceleration;
+            }
             if(velocitySignPositive&&yTouchVelocity<0)//jus to track when the velocity changes from -ve  to +ve so to stop moving based on velocity;
             {
                 yTouchVelocity=0;
@@ -316,6 +320,8 @@ int testNo=0;
                         touchVelocityTracker.computeCurrentVelocity(100);//log every second(1000ms);expensive so call every second
                        // Log.e("Velocity", "X velocity: " + touchVelocityTracker.getXVelocity(pointerId));
                         yTouchVelocity=touchVelocityTracker.getYVelocity(pointerId);
+                        deceleration=yTouchVelocity/decelerationTimeInFrames;
+
                         Log.e("Velocity", "Y velocity: " + yTouchVelocity);
                     }
 
@@ -323,15 +329,25 @@ int testNo=0;
                 }
             }
             break;
-            case MotionEvent.ACTION_POINTER_UP:
+            case MotionEvent.ACTION_POINTER_UP:////move pointer up action up to function;
             {
                 if(tempPointerId==pointerId)
-                {pointerId=-1;
+                {
+                    pointerId=-1;
                     Log.e("ontouchRenderer","pointerUP");
                     if(yTouchVelocity>=0)
                         velocitySignPositive=true;
                     else velocitySignPositive=false;
+
+                    if(deceleration!=0)//should check aginst already scrolling not decleation;
+                    {
+                        decelerationTimeInFrames+=20;
+                        deceleration=yTouchVelocity/decelerationTimeInFrames;///decelate to 0 speed in 200 frames(use time instead of frames);
+                        ///if continuous scrolling increase frameCount or time to decelearate so as to scroll more;
+                    }
+
                 }//setting pointer to invalid
+
             }break;
             case MotionEvent.ACTION_UP:
             {
@@ -342,6 +358,13 @@ int testNo=0;
                     if(yTouchVelocity>=0)
                         velocitySignPositive=true;
                     else velocitySignPositive=false;
+
+                    if(deceleration!=0)//already scrolling
+                    {
+                        decelerationTimeInFrames+=20;
+                        deceleration=yTouchVelocity/decelerationTimeInFrames;///decelate to 0 speed in 200 frames(use time instead of frames);
+                        ///if continuous scrolling increase frameCount or time to decelearate so as to scroll more;
+                    }
                 }//setting pointer to invalid
             }
             break;

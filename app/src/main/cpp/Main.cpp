@@ -181,10 +181,7 @@ outputImage.setOnTouchListener(new myListener());*/
                 glClear(GL_COLOR_BUFFER_BIT);
                 frameBounds.clearRect();
                 globalData.contentView->draw();
-                if(globalData.activeHistogram)
-                {MainImageView.histogram.toggleActive();
-                globalData.activeHistogram= false;}
-                MainImageView.histogram.draw();
+                MainImageView.inputHistogram.draw();
                 glUniform1i(glGetUniformLocation(globalData.UIProgram,"frameBuf"),(int)0);
                 if(eglSwapBuffers(appContext.eglDisplay, appContext.eglSurface) == EGL_FALSE)
                 {
