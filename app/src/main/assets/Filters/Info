@@ -30,6 +30,9 @@ IDEAS:normazlized color effect(hue or saturation get anim fx)
 9.Try all gray scale processing on individual components of r,g,b.
 10.Histogram for r,g,b,h,s,i,total intensity
 11,Tint,Temperature,fade ,sharpen,saturation,contrast,exposure,intensity;
+12.grayscale images taking one of r,g,b,c,m,y,k,h,s,i;
+13.multiply histogram (intensity)or any graphs with sinusoid to gen noise;
+14.exposuew triangle
 
 Values:
 range of eye focal length 14 to 17 mm.
@@ -107,6 +110,10 @@ the distance is fix and  proper focus is acheived varying shape of lens.
 
         images with same contnt have similar historgrams even if the contrasts differ
 
+        Histogram matching:(pg152)
+        The method used to generate a processed image that has specifed histogram is called histogram matching or histogram speecification;
+
+
      
 
 
@@ -137,7 +144,11 @@ the distance is fix and  proper focus is acheived varying shape of lens.
            pseudocolor ImageProcessing:
            pSeudocolor(false-color) image processing consists of assigning colors to gray values  based on specified criteria
 
-           Intensity(density) slicinng:
+           Intensity(density) slicinng:(which i did as thresolding for binary image);
+                 try anime affect
+                 vaue above certain value get one value and below get other value (try for r,g,b,h,s,i);
+                 any processing can be done in any color space hsi,rgb,cmy,for ex to chang intesity just changing i in hsi is enogu whereas in rgb all three should be added to change intensity;
+
            COlor Balance:
       BAsics of full color image processing:
       color image can be though of vecor of r,g,b(h,s,i) 3 images.

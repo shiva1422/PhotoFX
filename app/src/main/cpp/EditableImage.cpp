@@ -20,7 +20,37 @@ EditableImage::EditableImage(float startX, float startY, float Width, float heig
    inputHistogram.setOwnerImage(this);
    outputHistogram.setOwnerImage(this);
 }
+void EditableImage::equalize(int histogramFor)
+{
+    eHistogramType=(EHistogramType)histogramFor;
+    if(!inputHistogram.isCalculated())
+        inputHistogram.compute(histogramFor);
+    Histogram::equalize(this);
+    if(bEqualized)
+    {
+        outputHistogram.updateBuffer(equalizedValues);//now outputHistogra contains eq values so before drawing call compute histogram on outputHistogram;anyways the bCalculated is false
+    }
+    else
+    {
+        Loge("Equalize","Failed");
+    }
+}
 void EditableImage::onSaveEdit()
 {
     //clear input histogram and output histog if histogram is active;
+}
+void EditableImage::draw()
+{
+    ImageView::draw();//draw active image either input or output by default output
+   // inputHistogram.draw();
+   if(inputHistogram.getVisibility())
+   {
+       inputHistogram.draw();
+   }
+   if(outputHistogram.getVisibility())
+   {
+       if(!outputHistogram.isCalculated())
+           outputHistogram.compute(eHistogramType);
+       outputHistogram.draw();
+   }
 }

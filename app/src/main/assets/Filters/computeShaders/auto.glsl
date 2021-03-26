@@ -5,11 +5,7 @@ vec3 hsiToRgb(vec3 hsi);
 layout(std430) buffer;
 layout (rgba8ui,binding=0) uniform readonly highp uimage2D imageIn;//image//image unifroms are supported in fragment shaders so try equalize in fragemnt shader;
 layout(rgba8ui,binding=1) uniform writeonly highp uimage2D imageOut;/////readonly or write only not needed;
-layout (std430, binding=2) buffer binsDat//binsBuffer//check binding point can be same as image vars
-{
-    int bins[360];
-};
-layout (std430,binding=3) buffer equalizedData
+layout (std430,binding=2) buffer binsData
 {
  int eqVals[360];//values after equalization not bins;//actually 8 bit uint is enough for this;
 };
@@ -29,74 +25,8 @@ void main()
     // finalPixel=RgbaToInt(pixel);
     vec3 rgb=vec3(inPix.xyz);
     vec3 hsi=rgbToHsi(rgb);////Thes covertion no need for rgb histograms
-    if(paramInt==0)//histogram not computed calulates bins here//////cases should match in else aswell
+    switch(filterType)//first 6 for histogramequ;
     {
-        switch(filterType)//first 6 for histogramequ;
-        {
-
-            case 0://for R
-            {
-                // bins[outp.r]+=1;
-                atomicAdd(bins[inPix.r],1);//return value before adding
-            }break;
-            case 1://for G
-            {
-                atomicAdd(bins[inPix.g],1);
-            }break;
-            case 2://for B
-            {
-                atomicAdd(bins[inPix.b],1);
-            }break;
-            case 3://histogram for I;//
-            {
-                atomicAdd(bins[uint(hsi.b)],1);/////for floats type adtomic load stores not directly but input image as float and ouput as int just  like that check
-            }
-            break;
-            case 4://H
-            {
-                atomicAdd(bins[uint(hsi.r)],1);///actually igonring decimals check to composate by add or sub difference in ouput
-            }break;
-            case 5:
-            {
-                float tempSat=hsi.g*255.0;
-                atomicAdd(bins[uint(tempSat)],1);
-            }break;
-            case 6:
-            {
-                imageStore(imageOut,pos,inPix.rbga);
-
-            }break;
-            case 7:
-            {
-                imageStore(imageOut,pos,inPix.gbra);
-
-            }break;
-            case 8:
-            {
-                imageStore(imageOut,pos,inPix.grba);
-
-            }break;
-            case 9:
-            {
-                imageStore(imageOut,pos,inPix.brga);
-
-            }break;
-            case 10:
-            {
-                imageStore(imageOut,pos,inPix.bgra);
-            }break;
-
-            default:
-            {
-                imageStore(imageOut,pos,inPix);
-
-            }
-        }
-    }
-    else if(paramInt==1)//bin calculate in above if and cdf bins calculated on cpu
-    {
-        switch (filterType)
-        {
 
             case 0:
             {
@@ -145,11 +75,38 @@ void main()
                 imageStore(imageOut,pos,outPix);
 
             }break;
+            case 6:
+            {
+                imageStore(imageOut,pos,inPix.rbga);
 
-            default :
-            { hsi.b=hsi.b; }
+            }break;
+            case 7:
+            {
+                imageStore(imageOut,pos,inPix.gbra);
+
+            }break;
+            case 8:
+            {
+                imageStore(imageOut,pos,inPix.grba);
+
+            }break;
+            case 9:
+            {
+                imageStore(imageOut,pos,inPix.brga);
+
+            }break;
+            case 10:
+            {
+                imageStore(imageOut,pos,inPix.bgra);
+            }break;
+
+            default:
+            {
+                imageStore(imageOut,pos,inPix);
+
+            }
         }
-    }
+
 }
 vec3 rgbToHsi(vec3 rgb)//use seperate r,g,b than a vector;no extram memory and conversion needed
 {

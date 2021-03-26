@@ -107,28 +107,12 @@ void Editor::computeProcess()
     //   printGlError("computing");
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER,2,0);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER,0);
     glBindImageTexture(0, 0, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8UI);///////texture should be set before this
     glBindImageTexture(1,0, 0, GL_FALSE, 0, GL_WRITE_ONLY,GL_RGBA8UI);
   //  editableImage->showHistogramValues();
-  Graphics::printGlError("computeProcess error2");
   Loge("computeProcess","the dispacthc count is %d",editableImage->getImageWidth()*editableImage->getImageHeight());
-  if(optionActive==1)
-  {
-      if(subOptionActive<6)
-      {
-          if(!editableImage->inputHistogram.isCalculated())//setHistogram to false when switching suboption or and clear whenc swithcing option
-          {
-
-              editableImage->inputHistogram.compute(subOptionActive);
-              if(editableImage->inputHistogram.isCalculated())
-              {
-                  computeProcess();///////app is stuck infinite loop
-              }
-          }
-      }
-
-  }
     ///////glBindImaageTexture to 0;
 }
 void Editor::setActiveSubOption(uint ActiveSubOption)
@@ -186,15 +170,14 @@ void Editor::setShaderInputs()
         }break;
         case HISTOGRAM:
         {
+            editableImage->equalize(subOptionActive);
+            if(editableImage->bEqualized)
+            {
+                //output histogram now contains equalized values; before drawing should be computed
+                //if not equalized outpu would be noise so
+            }
+            glBindBufferBase(GL_SHADER_STORAGE_BUFFER,2,editableImage->outputHistogram.binsBuffer);
             glUniform1i(FILTERTYPELOC,subOptionActive);
-            int tempInt=0;
-            if(editableImage->inputHistogram.isCalculated())
-            {tempInt=1;}
-            glUniform1i(1,tempInt);
-            glBindBufferBase(GL_SHADER_STORAGE_BUFFER,2,editableImage->inputHistogram.binsBuffer);
-           // glBindBufferBase(GL_SHADER_STORAGE_BUFFER,3,editableImage->histogram.binsBuffers[1]);
-            if(!editableImage->inputHistogram.isCalculated())
-            editableImage->inputHistogram.reset();
         }break;
         case HSI:
         {

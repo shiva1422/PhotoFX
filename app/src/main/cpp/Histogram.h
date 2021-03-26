@@ -4,9 +4,11 @@
 
 #ifndef PHOTOFX_HISTOGRAM_H
 #define PHOTOFX_HISTOGRAM_H
-
-
 #include "UI.h"
+
+/*
+ * Ouput histogram is calculated after image is edited so compute ouput histogram in EditableImage::draw() only
+ */
 class EditableImage;
 enum EHistogramType{R=0,G,B,I,H,S};//order should match with shader implemented order
 class Histogram : public ImageView{
@@ -26,12 +28,13 @@ public:
     GLuint binsBuffer=0;//first one stores input bins but second one stores equalized values,third one store ouput bins,three not need make one buffer holding all;
     Histogram();//rightNow only Default Contructor dont use imageViewConstructor while Creating;
     void setOwnerTexture(GLuint ownerId){this->ownerTexture=ownerId;}
-    void setOwnerImage(EditableImage *editableImage){this->ownerImage;}
+    void setOwnerImage(EditableImage *editableImage){this->ownerImage=editableImage;}
     void compute(int histogramType);//for what should be same as in auto shader//replace for what with enum
     void glCompute(int binSize);
     void cpuCompute(int binSize);
     void reset();
     void printValues();//same as computeParam
+    void updateBuffer(void *values);
     bool isCalculated(){return bCalculated;}
     virtual void draw() override ;
     void drawOutput();
