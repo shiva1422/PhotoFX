@@ -42,6 +42,7 @@ input and output check to see if ouput bins can be obtaind from bins and eqbuffe
 
 IMPROVE:
 Visiblity implemented only for sliders;
+//check when image is imported in rgb format cuz boom image seems to have different format;
 
 
 

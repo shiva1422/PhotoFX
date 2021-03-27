@@ -6,6 +6,10 @@
 #include "Histogram.h"
 #include "EditableImage.h"
 #include "Main.h"
+/*
+ Output hitogram should be reset when output image changes or will change like when change in options suboption sliders etc.
+ input histogram should be reset recacluated when the inpute image changes.
+ */
 GLuint Histogram::programId=0;
 Histogram::Histogram() ////Destructor
 {
@@ -212,8 +216,10 @@ void Histogram::draw()
         tempBinsSize=360;
     }
     int32_t  totalPixelsFromHistogra=0;
-    GlobalData::setDefaultGlProgram();
+    GlobalData::setDefaultGlProgram();//this need not cause its drawing inside EditableImage::draw as already uses sme program;
     glUniform1i(0,3);
+    GLuint colorLoc=glGetUniformLocation(GlobalData::getProgramId(),"uniformColor");
+    glUniform3f(colorLoc,this->r,this->g,this->b);
     float lineVerts[tempBinsSize*4];//////need to set unifrom based on tempBinsSize for drawing
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, binsBuffer);
     int32_t  *bins=(int32_t *)glMapBufferRange(GL_SHADER_STORAGE_BUFFER,0,tempBinsSize*sizeof(int32_t),GL_MAP_READ_BIT);
@@ -224,7 +230,7 @@ void Histogram::draw()
             lineVerts[4*i]=-1.0+i*2.0/tempBinsSize;
             lineVerts[4*i+1]=0.0;
             lineVerts[4*i+2]=lineVerts[4*i];
-            lineVerts[4*i+3]=20*float(bins[i])/float(ownerImage->getWidth()*ownerImage->getHeight());///if denom 0 also in drawoutpu
+            lineVerts[4*i+3]=5*float(bins[i])/float(ownerImage->getWidth()*ownerImage->getHeight());///if denom 0 also in drawoutpu
             totalPixelsFromHistogra+=bins[i];
         }
         Loge("Histogram values draw","readto draw totalPix from histogram %d and totalPixels of Images is %d (just to check if they match=>accurate histogram)",totalPixelsFromHistogra,ownerImage->getImageWidth()*ownerImage->getImageHeight());

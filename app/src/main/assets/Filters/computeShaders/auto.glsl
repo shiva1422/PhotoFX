@@ -25,12 +25,12 @@ void main()
     // finalPixel=RgbaToInt(pixel);
     vec3 rgb=vec3(inPix.xyz);
     vec3 hsi=rgbToHsi(rgb);////Thes covertion no need for rgb histograms
-    switch(filterType)//first 6 for histogramequ;
+    uvec4 outPix;
+    switch(filterType)//first 6 for histogramequ;//////reduce duplicated code;
     {
 
-            case 0:
+            case 0:///cases should correspond to in histogram.glsl
             {
-                uvec4 outPix;
                 outPix.r=uint(eqVals[inPix.r]);
                 outPix.gba=inPix.gba;
                 imageStore(imageOut,pos,outPix);
@@ -38,14 +38,12 @@ void main()
             }break;
             case 1:
             {
-                uvec4 outPix;
                 outPix.g=uint(eqVals[inPix.g]);
                 outPix.rba=inPix.rba;
                 imageStore(imageOut,pos,outPix);
             }break;
             case 2 :
             {
-                uvec4 outPix;
                 outPix.b=uint(eqVals[inPix.b]);
                 outPix.rga=inPix.rga;
                 imageStore(imageOut,pos,outPix);
@@ -58,7 +56,6 @@ void main()
             }break;
             case 4:
             {
-                uvec4 outPix;
                 hsi.r=float(eqVals[uint(hsi.r)]);/////hue values are rounded to ints so check to add /sub difference; for intermediat hues;
                 outPix.rgb=uvec3(hsiToRgb(hsi));
                 outPix.a=inPix.a;
@@ -69,25 +66,29 @@ void main()
                 float tempSat=hsi.g*255.0;
                 hsi.g=float(eqVals[uint(tempSat)]);
                 hsi.g=hsi.g/255.0;
-                uvec4 outPix;
                 outPix.rgb=uvec3(hsiToRgb(hsi));
                 outPix.a=inPix.a;
                 imageStore(imageOut,pos,outPix);
 
             }break;
-            case 6:
+            case 6://C
             {
-                imageStore(imageOut,pos,inPix.rbga);
+                outPix.r=uint(eqVals[inPix.r]);//check 255-uint(eq) for al cases
+                outPix.gba=inPix.gba;
+                imageStore(imageOut,pos,outPix);
+            }break;
+            case 7://M
+            {
+                outPix.g=uint(eqVals[inPix.g]);//check 255-uint(eq) for al cases
+                outPix.rba=inPix.rba;
+                imageStore(imageOut,pos,outPix);
 
             }break;
-            case 7:
+            case 8://Y
             {
-                imageStore(imageOut,pos,inPix.gbra);
-
-            }break;
-            case 8:
-            {
-                imageStore(imageOut,pos,inPix.grba);
+                outPix.b=uint(eqVals[inPix.b]);//check 255-uint(eq) for al cases
+                outPix.rga=inPix.rga;
+                imageStore(imageOut,pos,outPix);
 
             }break;
             case 9:

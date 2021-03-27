@@ -15,7 +15,9 @@ class EditableImage : public ImageView{ //the layer class consists of EditableIm
 private:
     GLuint outputTexId=0,inputTexId=0;//imageView texId is set to whatever we want to draw inputTexId is for storing default texId
     uint imageToDraw=0;//1-to draw input ,0 to draw ouput ,2for both;
+    int activeHistogram=0;//just to set the visibilty of histograms
     EHistogramType eHistogramType=R;
+
 public:
     /////////User Ssbos instead of fbos(arm doc compute shaders)ShaderImages
     bool bEqualized=false;
@@ -36,6 +38,7 @@ public:
 
     //editing
     void equalize(int histogramFor);
+    void toggleHistogramView();
 
 
     void onSaveEdit();

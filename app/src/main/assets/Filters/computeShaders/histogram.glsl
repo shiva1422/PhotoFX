@@ -18,10 +18,10 @@ void main()
     uvec4 inPix= imageLoad(image,pos);
     vec3 rgb=vec3(inPix.xyz);
     vec3 hsi=rgbToHsi(rgb);////Thes covertion no need for rgb histograms
-    switch (filterType)//first 6 for histogramequ;
+    switch (filterType)//first 6 for histogramequ; try equalize whole rgb ;
     {
 
-        case 0://for R
+        case 0://for R cases correpond to auto.glsl
         {
             // bins[outp.r]+=1;
             atomicAdd(bins[inPix.r], 1);//return value before adding
@@ -47,6 +47,21 @@ void main()
         {
             float tempSat=hsi.g*255.0;
             atomicAdd(bins[uint(tempSat)], 1);
+        }break;
+        case 6:////Cmy has same histograms like red except they are inverted;
+        {
+            uint cyan=uint(255)-inPix.r;//instead of 255-inpix her doe in auto.glsl check
+            atomicAdd(bins[uint(cyan)],1);
+        }break;
+        case 7:
+        {
+            uint magenta=uint(255)-inPix.g;
+            atomicAdd(bins[uint(magenta)],1);
+        }break;
+        case 8:
+        {
+            uint magenta=uint(255)-inPix.b;
+            atomicAdd(bins[uint(magenta)],1);
         }break;
     }
 }

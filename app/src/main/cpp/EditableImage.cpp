@@ -19,6 +19,10 @@ EditableImage::EditableImage(float startX, float startY, float Width, float heig
    outputHistogram.setOwnerTexture(outputTexId);
    inputHistogram.setOwnerImage(this);
    outputHistogram.setOwnerImage(this);
+   activeHistogram=4;//>3just so that histogram are invisible by defalut;
+   toggleHistogramView();//initially histograms are invisible
+   inputHistogram.setBackgroundColor(1.0,0.0,0.0,1.0);
+   outputHistogram.setBackgroundColor(0.0f,0.0f,1.0f,1.0);
 }
 void EditableImage::equalize(int histogramFor)
 {
@@ -35,6 +39,35 @@ void EditableImage::equalize(int histogramFor)
         Loge("Equalize","Failed");
     }
 }
+void EditableImage::toggleHistogramView()
+{
+    activeHistogram++;
+    if(activeHistogram>3)
+    {
+        activeHistogram=0;
+    }
+    if(activeHistogram==0)
+    {
+        inputHistogram.setVisibility(false);
+        outputHistogram.setVisibility(false);
+    }
+    else if(activeHistogram==1)
+    {
+        inputHistogram.setVisibility(true);
+        outputHistogram.setVisibility(false);
+    }
+    else if(activeHistogram==2)
+    {
+        inputHistogram.setVisibility(false);
+        outputHistogram.setVisibility(true);
+    }
+    else if(activeHistogram==3)
+    {
+        inputHistogram.setVisibility(true);
+        outputHistogram.setVisibility(true);
+    }
+
+}
 void EditableImage::onSaveEdit()
 {
     //clear input histogram and output histog if histogram is active;
@@ -50,7 +83,10 @@ void EditableImage::draw()
    if(outputHistogram.getVisibility())
    {
        if(!outputHistogram.isCalculated())
+       {
+           outputHistogram.reset();
            outputHistogram.compute(eHistogramType);
+       }
        outputHistogram.draw();
    }
 }

@@ -12,6 +12,7 @@ layout(location=2) uniform float param2;
 layout(location=3) uniform int frameBuf;///////check if needed else remove
 layout(location=4) uniform int param3;
 layout(location=5) uniform int param4;
+uniform vec3 uniformColor;
 uniform sampler2D image;
 layout(std140,binding=2) uniform binsData
 {
@@ -59,6 +60,7 @@ void main()
         {
             finalVerts.x=verts.x;
             finalVerts.y=verts.y;
+            colorOut=vec4(uniformColor.rgb,1.0);
         }
     }
 
@@ -77,6 +79,7 @@ void main()
     texZ=texZValue;
 
     gl_Position=vec4(finalVerts.x, finalVerts.y, 1.0, 1.0);
+
 
 }
 

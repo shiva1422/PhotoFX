@@ -33,6 +33,7 @@ IDEAS:normazlized color effect(hue or saturation get anim fx)
 12.grayscale images taking one of r,g,b,c,m,y,k,h,s,i;
 13.multiply histogram (intensity)or any graphs with sinusoid to gen noise;
 14.exposuew triangle
+15.invert whole and only one of r,g,b,;
 
 Values:
 range of eye focal length 14 to 17 mm.

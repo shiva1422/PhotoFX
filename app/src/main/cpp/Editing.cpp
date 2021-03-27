@@ -40,6 +40,7 @@ void Editor::onInputValuesChanged(uint sliderNo, float newInputValue)
     }
     //Loge("OnInputChange","sds");
    // process();
+   editableImage->outputHistogram.reset();
    isUpdatedNeeded=true;
 }
 void Editor::process()
@@ -127,6 +128,7 @@ void Editor::setActiveSubOption(uint ActiveSubOption)
         //editableImage->resetHistogram();
 
     }
+    editableImage->outputHistogram.reset();
 
 }
 void Editor::setActiveOption(uint ActiveOption)
