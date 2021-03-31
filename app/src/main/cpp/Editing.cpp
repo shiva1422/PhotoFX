@@ -183,8 +183,16 @@ void Editor::setShaderInputs()
         }break;
         case HSI:
         {
+
             glUniform1fv(PARAMSLOC,4,params);
+            glUniform1i(FILTERTYPELOC,subOptionActive);//0 from hsi1 and 1 for groma hsi2;
+
         }
+        break;
+        case BLUR:
+        {
+            glUniform1f(PARAMSLOC,params[0]);
+        }break;
         default:
         {
 
@@ -247,6 +255,12 @@ void Editor::setActiveFilter()
             EactiveFilter=HSI;
             eActiveShader=HSI_SHADER;
         }break;
+        case 3:
+        {
+            EactiveFilter=BLUR;
+            eActiveShader=BLUR_SHADER;
+        }
+        break;
 
     }
 }
@@ -291,6 +305,11 @@ void Editor::manageShaders()
         {
             fragmentSource += "hsi.glsl";
         }break;
+        case BLUR_SHADER:
+        {
+            fragmentSource+="blur.glsl";
+        }
+        break;
         default:
         {
             Loge("ShaderMangage:createShaderProgram","Invalid Option for creating Shader");

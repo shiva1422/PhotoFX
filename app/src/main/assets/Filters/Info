@@ -33,7 +33,9 @@ IDEAS:normazlized color effect(hue or saturation get anim fx)
 12.grayscale images taking one of r,g,b,c,m,y,k,h,s,i;
 13.multiply histogram (intensity)or any graphs with sinusoid to gen noise;
 14.exposuew triangle
-15.invert whole and only one of r,g,b,;
+15.invert whole and only one of r,g,b,; invert intensity 255-i;
+16.check cfd for histogram before and after equalization after eq it should be straigbline
+17.Histogram matching(specification ) implement; Local histogram processing as well
 
 Values:
 range of eye focal length 14 to 17 mm.
@@ -113,6 +115,27 @@ the distance is fix and  proper focus is acheived varying shape of lens.
 
         Histogram matching:(pg152)
         The method used to generate a processed image that has specifed histogram is called histogram matching or histogram speecification;
+
+        LOcal Histogram Processing:
+
+        Spatial Filtering:
+        Filtering -> allow or rejecting certain frequencies;
+        mask or kernel size m,n where m and n shoud be odd and minimum is 3x3;
+        correlation sum of products of filter coeffect with pixels.convultion same but rotate filter 180 before;
+        if filter mask is symmertric correlation and convultion yield same results;
+
+        Averaging filetr:covulutil/correlation with weights as 1/m*n(summation of coefficeints);sigma(w*f(x));
+        gaussian filetr= f(x,y)=exp -(xpow2 +ypow2)/2 sigma pow2 ;sigma ->standard deviation;
+
+        Smoothing Filters:(averaging or lowpass filters);
+            blurring and noise reduction;reduces sharp transitions in intensities in images;(because random noise typically has sharp transitions in intesitei);
+            but some times edges that also have sharp transition are blurred so some time smoothing filters are not recommended;these do reduce irrelavant information (in pixel region smaller than the mask);
+            filter with all equal coefficents is often called box filter;some times smaller images(than mask) could be removed with smoothig and big objects can be bloated making way for object detection;
+            ->check weighted average giveing centre more wight(4) and the diagonal one and perpedicluar two and dived by sum of coefficents;
+
+            Linear:
+            
+
 
 
      

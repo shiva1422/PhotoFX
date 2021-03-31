@@ -33,15 +33,25 @@ void main()
     vec3 rgb=vec3(inPix.xyz);
     vec3 hsi=rgbToHsi(rgb);////Thes covertion no need for rgb histograms
     //float lowValue=params[0];
-    float tempVal=0.0;
-    float highValue=params[1];
-    if(hsi.r<=highValue&&hsi.r>=params[0])
+    if(filterType==0)
     {
-        hsi.r+=params[2];
-        hsi.g*=params[3]*2.0/360.0;//see diff with ouside if
+        float tempVal=0.0;
+        float highValue=params[1];
+        if(hsi.r<=highValue&&hsi.r>=params[0])
+        {
+            hsi.r+=params[2];
+            hsi.g*=params[3]*2.0/360.0;//see diff with ouside if
+        }
+        if(hsi.r>360.0)
+        hsi.r-=360.0;
     }
-    if(hsi.r>360.0)
-    hsi.r-=360.0;
+    else if(filterType==1)
+    {
+        hsi.r=params[0];
+        hsi.g*=params[1]*10.0/360.0;
+        hsi.b=hsi.b+params[2]*255.0/360.0-128.0;
+    }
+
     rgb=hsiToRgb(hsi);
     uvec4 outPix=uvec4(rgb,inPix.a);
     imageStore(imageOut,pos,uvec4(outPix));
