@@ -20,6 +20,7 @@ private:
 
 public:
     /////////User Ssbos instead of fbos(arm doc compute shaders)ShaderImages
+    GLuint laplaceBuffer=0;//to store minimum value of laplace during sharpening
     bool bEqualized=false;
     Histogram inputHistogram,outputHistogram;
     int32_t equalizedValues[360];//size should be equal to binssize in histogram
@@ -38,10 +39,13 @@ public:
 
     //editing
     void equalize(int histogramFor);
+    void createLaplaceBuffer();/////For sharpening;
     void toggleHistogramView();
+    void computeLaplace();
 
 
     void onSaveEdit();
+    void onDestroy();
 };
 
 

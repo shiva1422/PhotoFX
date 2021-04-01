@@ -48,7 +48,7 @@ void main()
     else if(filterType==1)
     {
         hsi.r=params[0];
-        hsi.g*=params[1]*10.0/360.0;
+        hsi.g=params[1]*10.0/360.0;//hsi.g*=params[1]*10.0/360.0;
         hsi.b=hsi.b+params[2]*255.0/360.0-128.0;
     }
 

@@ -52,6 +52,7 @@ void Editor::process()
         if(useGLCompute)
         {
             Loge("Editor","using GlCompute");
+            setShaderInputs();
             computeProcess();///////sometimes slow as work is not diveided to use less more threads and less workgroups
         }
         else
@@ -101,7 +102,7 @@ void Editor::computeProcess()
 {
     //TO decide how work shoulld be decide use workGroupsize and counts
     Graphics::printGlError("computeProcess error1");
-    setShaderInputs();
+    //setShaderInputs();//moved to process();any error move back here;
     glBindImageTexture(0, editableImage->getInputTexId(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8UI);///////texture should be set before this
     glBindImageTexture(1,editableImage->getOutputTexId(), 0, GL_FALSE, 0, GL_WRITE_ONLY,GL_RGBA8UI);//////should be moved to setshaderInputs?
     glDispatchCompute(editableImage->getImageWidth(),editableImage->getImageHeight(),1);
@@ -191,7 +192,12 @@ void Editor::setShaderInputs()
         break;
         case BLUR:
         {
+            glUniform1i(FILTERTYPELOC,subOptionActive);
             glUniform1f(PARAMSLOC,params[0]);
+            glUniform1f(PARAMSLOC+1,params[1]);
+            glBindBufferBase(GL_SHADER_STORAGE_BUFFER,2,editableImage->laplaceBuffer);
+            if(subOptionActive==1)
+            editableImage->computeLaplace();
         }break;
         default:
         {

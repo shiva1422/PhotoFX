@@ -127,14 +127,34 @@ the distance is fix and  proper focus is acheived varying shape of lens.
         Averaging filetr:covulutil/correlation with weights as 1/m*n(summation of coefficeints);sigma(w*f(x));
         gaussian filetr= f(x,y)=exp -(xpow2 +ypow2)/2 sigma pow2 ;sigma ->standard deviation;
 
-        Smoothing Filters:(averaging or lowpass filters);
+        Smoothing Filters:(averaging or lowpass filters);(integrating filter)
             blurring and noise reduction;reduces sharp transitions in intensities in images;(because random noise typically has sharp transitions in intesitei);
             but some times edges that also have sharp transition are blurred so some time smoothing filters are not recommended;these do reduce irrelavant information (in pixel region smaller than the mask);
             filter with all equal coefficents is often called box filter;some times smaller images(than mask) could be removed with smoothig and big objects can be bloated making way for object detection;
             ->check weighted average giveing centre more wight(4) and the diagonal one and perpedicluar two and dived by sum of coefficents;
 
             Linear:
-            
+            Order-statistic(non linear filters):
+                whose response is based or order(ranking)the pixels contained in the image area encompassed by the filter and replacing the centre pixel with the ranking result.
+                eg.median filter -replace centre pixel with the median of the neightbourhood.(for soeme these are best as the reducee good noise reduction without lot blur.
+                median filter are best to remove salt and pepper noise(impulse noise).as it appears as black and white dots superimposed on image;objects with half size of filter are removed where as in linear almost full filtre size removed.
+                 median is based on 50% percentile of the intensity value we can use 100 or 0 percentile to replece or find max or min intensity value;
+                  so median,min,max and other filtre can be used as non linear filters.
+
+
+            SHARPENING SPATIAL FILTERS.(differentiating filter).(scale the image after diffenctiation i.e add to minimum to make new minumim as zero.)
+                The priciple objective of sharpening is highlighting the transitions in intensities.
+                first order derivative gives the differnce in intesitie,second order derivative intesitfies this differnce to make sharp boundarys;
+                laplacia delatf=doesquref/doexsquare + doesquarf/doeysquare;pg 183 equation (the centre pixle gets -4f(x,y) after expansion.
+                is an isotropic filter .i.e applying filter and rotating image and
+                rotating image and applying filter yields same result(independt of direction of discontinuities in image;read pg183.till tables.
+                    UnSharp masking and highboost filtering.
+                        subrating unsharped(smoothened) image from original image is called unsharp masking consits of following:
+                                1.blur original image;
+                                2.subtract blurred image from original (this differnce is called mask);
+                                3.add the mask to the original image;(with any weight(k) is needed,k=1 is unsharp masking k>1 is highboost filtering whereas k<1 deemphasizes the contribution of unsharp mask;).
+
+
 
 
 
