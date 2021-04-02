@@ -64,7 +64,7 @@ public class EditorActivity extends NativeActivity implements ActivityCompat.OnR
         Log.e("getBitmap", "the id is " + id);
         switch (id) {
             case 0:
-                bitmapId = R.drawable.girl;
+                bitmapId = R.drawable.gray;
                 break;
             case 1:
                 // bitmapId=R.drawable.ssnare;

@@ -192,13 +192,19 @@ void Editor::setShaderInputs()
         break;
         case BLUR:
         {
+            glUniform1i(FILTERTYPELOC,subOptionActive);//not needed for now;
+            glUniform1f(PARAMSLOC,params[0]);
+            glUniform1f(PARAMSLOC+1,params[1]);
+        }break;
+        case SHARPEN:
+        {
             glUniform1i(FILTERTYPELOC,subOptionActive);
             glUniform1f(PARAMSLOC,params[0]);
             glUniform1f(PARAMSLOC+1,params[1]);
             glBindBufferBase(GL_SHADER_STORAGE_BUFFER,2,editableImage->laplaceBuffer);
             if(subOptionActive==1)
-            editableImage->computeLaplace();
-        }break;
+                editableImage->computeLaplace();
+        }
         default:
         {
 
@@ -265,8 +271,14 @@ void Editor::setActiveFilter()
         {
             EactiveFilter=BLUR;
             eActiveShader=BLUR_SHADER;
+
         }
         break;
+        case 4:
+        {
+            EactiveFilter=SHARPEN;
+            eActiveShader=SHARPEN_SHADER;
+        }break;
 
     }
 }
@@ -316,6 +328,10 @@ void Editor::manageShaders()
             fragmentSource+="blur.glsl";
         }
         break;
+        case SHARPEN_SHADER:
+        {
+            fragmentSource+="sharpen.glsl";
+        }break;
         default:
         {
             Loge("ShaderMangage:createShaderProgram","Invalid Option for creating Shader");

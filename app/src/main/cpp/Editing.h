@@ -10,8 +10,8 @@
 #include "Graphics.h"
 #include "EditableImage.h"
 #include "FilterProperties.h"
-enum EActiveShader{ENHANCE_SHADER=0,EQ_SHADER,HSI_SHADER,BLUR_SHADER};///FOR SHADER LOCATIONNS DIFFERENT FX MIGHT HAVE SAME SHADER(tracking glsl files)
-enum EActiveFilter{LIGHT=0,SATURATION,HUE,GAMMA,CONTRAST,HISTOGRAM,HSI,BLUR};//should mathc in setActiveFilter and Shaders //BELOW ALSO SAME;
+enum EActiveShader{ENHANCE_SHADER=0,EQ_SHADER,HSI_SHADER,BLUR_SHADER,SHARPEN_SHADER};///FOR SHADER LOCATIONNS DIFFERENT FX MIGHT HAVE SAME SHADER(tracking glsl files)
+enum EActiveFilter{LIGHT=0,SATURATION,HUE,GAMMA,CONTRAST,HISTOGRAM,HSI,BLUR,SHARPEN};//should mathc in setActiveFilter and Shaders //BELOW ALSO SAME;
 //enum EditOptions{ENHANCE=0,CHROMA,AUTO,GRAY,BLUR,TRANSFORM,THREED};
 class ImageViewStack;
 ///create editingContext for each image if needed;
