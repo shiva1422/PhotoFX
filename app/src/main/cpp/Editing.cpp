@@ -10,7 +10,7 @@ std::string Editor::shadersFolder="Filters";
 void Editor::onInputValuesChanged(uint sliderNo, float newInputValue)
 {
     ////////make sliderNo (equal) or attahed to a certain shader input param nad newInputValue to that params value;
-    Loge("Editor:onInputChanged ","SliderNo is %d and value is %f",sliderNo,newInputValue);
+  //  Loge("Editor:onInputChanged ","SliderNo is %d and value is %f",sliderNo,newInputValue);
     switch (sliderNo)
     {
         case 0://param1;
@@ -105,7 +105,7 @@ void Editor::computeProcess()
     //setShaderInputs();//moved to process();any error move back here;
     glBindImageTexture(0, editableImage->getInputTexId(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8UI);///////texture should be set before this
     glBindImageTexture(1,editableImage->getOutputTexId(), 0, GL_FALSE, 0, GL_WRITE_ONLY,GL_RGBA8UI);//////should be moved to setshaderInputs?
-    glDispatchCompute(editableImage->getImageWidth(),editableImage->getImageHeight(),1);
+    glDispatchCompute(editableImage->workGroupSizeX,editableImage->workGroupSizeY,1);
     //   printGlError("computing");
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
@@ -202,7 +202,7 @@ void Editor::setShaderInputs()
             glUniform1f(PARAMSLOC,params[0]);
             glUniform1f(PARAMSLOC+1,params[1]);
             glBindBufferBase(GL_SHADER_STORAGE_BUFFER,2,editableImage->laplaceBuffer);
-            if(subOptionActive==1)
+            if(subOptionActive==1||subOptionActive==3)//check cases in shader these require two iterations;
                 editableImage->computeLaplace();
         }
         default:

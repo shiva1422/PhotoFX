@@ -20,25 +20,30 @@ void main()
     int m=3,n=3;//size of mask
     uvec4 finalPixel=uvec4(0,0,0,0);//just r,g,b enough;
     ivec2 center=imageDims/2;
-            if(kdistance(center,pos)<=params[0]*5.0)
+    for(pos.y=0;pos.y<imageDims.y;pos.y++)
+    {
+        finalPixel=uvec4(0,0,0,0);
+        if(kdistance(center,pos)<=params[0]*5.0)
+        {
+            for(int i=-4;i<5;i++)
             {
-                for(int i=-4;i<5;i++)
+                for(int j=-4;j<5;j++)
                 {
-                    for(int j=-4;j<5;j++)
+                    ivec2 tempPos=pos + ivec2(i,j);
+                    if(tempPos.x>=0 &&tempPos.y>=0 &&tempPos.x<imageDims.x&&tempPos.y<imageDims.y)
                     {
-                        ivec2 tempPos=pos + ivec2(i,j);
-                        if(tempPos.x>=0 &&tempPos.y>=0 &&tempPos.x<imageDims.x&&tempPos.y<imageDims.y)
-                        {
-                            finalPixel+=imageLoad(imageIn,tempPos);
-                        }
+                        finalPixel+=imageLoad(imageIn,tempPos);
                     }
                 }
-                //  finalPixel.r=uint(255*25);
-                finalPixel/=uint(81);//division not accurate so check
-                imageStore(imageOut,pos,uvec4(finalPixel.rgb,uint(255)));//////this alpha should be equal to input pixel;
             }
-            else
-            imageStore(imageOut,pos,imageLoad(imageIn,pos));
+            //  finalPixel.r=uint(255*25);
+            finalPixel/=uint(81);//division not accurate so check
+            imageStore(imageOut,pos,uvec4(finalPixel.rgb,uint(255)));//////this alpha should be equal to input pixel;
+        }
+        else
+        imageStore(imageOut,pos,imageLoad(imageIn,pos));
+    }
+
 
 
 

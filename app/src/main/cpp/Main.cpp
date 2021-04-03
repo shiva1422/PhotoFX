@@ -13,6 +13,8 @@
 #include "Editing.h"
 #include "UI.h"
 #include "Text.h"
+#include "Time.h"
+#include "gpgpu.h"
 
 
 void android_main(android_app *app)
@@ -163,7 +165,7 @@ public:
     }
 };
 outputImage.setOnTouchListener(new myListener());*/
-
+TimeDiff frameTime;
     while(true)
     {
         //UILogE("OUTERLOOP");
@@ -173,6 +175,7 @@ outputImage.setOnTouchListener(new myListener());*/
             if (source)
             {
                // UILogE("EVENT THERE PROCESSING");
+               frameTime.start();
                 source->process(app, source);
                 editor.process();
                 GlobalData::useGlProgram(GlobalData::UIProgram);
@@ -193,6 +196,9 @@ outputImage.setOnTouchListener(new myListener());*/
                     Graphics::printGlError("EGLSWAP DRAW LOOP");
 
                 };
+                frameTime.end();
+                frameTime.getTimeDiff();
+                //Compute::showGpuCapacity();
 
             }
 

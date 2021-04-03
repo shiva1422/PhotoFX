@@ -64,7 +64,7 @@ public class EditorActivity extends NativeActivity implements ActivityCompat.OnR
         Log.e("getBitmap", "the id is " + id);
         switch (id) {
             case 0:
-                bitmapId = R.drawable.gray;
+                bitmapId = R.drawable.boom;
                 break;
             case 1:
                 // bitmapId=R.drawable.ssnare;
@@ -150,7 +150,7 @@ public class EditorActivity extends NativeActivity implements ActivityCompat.OnR
             {
                 try {
                     requestStoragePermission();
-                    ChooserView b = new ChooserView(getApplicationContext(), uiShaderProgId);
+                    ChooserView b = new ChooserView(getApplicationContext());
                     popupWindow = new PopupWindow(b, (int) width, (int) height, true);
                     popupWindow.setFocusable(false);//set true after full screen
                     //popupWindow.setBackgroundDrawable(new ColorDrawable());

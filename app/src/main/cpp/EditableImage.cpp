@@ -24,6 +24,8 @@ EditableImage::EditableImage(float startX, float startY, float Width, float heig
    inputHistogram.setBackgroundColor(1.0,0.0,0.0,1.0);
    outputHistogram.setBackgroundColor(0.0f,0.0f,1.0f,1.0);
    createLaplaceBuffer();/////check if needed in contructor or just using while Sharpening;
+   workGroupSizeX=getImageWidth();
+  // workGroupSizeY=getImageHeight();
 }
 void EditableImage::equalize(int histogramFor)
 {
@@ -107,7 +109,7 @@ void EditableImage::computeLaplace()
     glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0,7*sizeof(int32_t), minMax);
     glBindImageTexture(0,getInputTexId(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8UI);///////texture should be set before this
     glBindImageTexture(1,getOutputTexId(), 0, GL_FALSE, 0, GL_WRITE_ONLY,GL_RGBA8UI);//////should be moved to setshaderInputs?
-    glDispatchCompute(getImageWidth(),getImageHeight(),1);
+    glDispatchCompute(workGroupSizeX,workGroupSizeY,1);
     //   printGlError("computing");
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);

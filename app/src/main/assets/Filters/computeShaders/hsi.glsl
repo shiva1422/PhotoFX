@@ -24,40 +24,42 @@ layout(location=2) uniform int inOrOut;//to determina if bins for input or outpu
 layout(location=5) uniform float params[4];///no need for eq has it has no sliders
 void main()
 {
-    int finalPixel;
+    ivec2 imageDims=imageSize(imageIn);
     ivec2 pos=ivec2(gl_GlobalInvocationID.xy);
-    uint lid=gl_LocalInvocationIndex;
-    uvec4 inPix= imageLoad(imageIn,pos);//////.rgba cool fx
-    // pixel = removeGreen(pixel);
-    // finalPixel=RgbaToInt(pixel);
-    vec3 rgb=vec3(inPix.xyz);
-    vec3 hsi=rgbToHsi(rgb);////Thes covertion no need for rgb histograms
-    //float lowValue=params[0];
-    if(filterType==0)
+    //uint lid=gl_LocalInvocationIndex;
+    uvec4 inPix;
+    vec3 rgb;
+    vec3 hsi;
+    for(pos.y=0;pos.y<imageDims.y;pos.y++)
     {
-        float tempVal=0.0;
-        float highValue=params[1];
-        if(hsi.r<=highValue&&hsi.r>=params[0])
+
+         inPix= imageLoad(imageIn,pos);
+         rgb=vec3(inPix.xyz);
+         hsi=rgbToHsi(rgb);
+        if(filterType==0)
         {
-            hsi.r+=params[2];
-            hsi.g*=params[3]*2.0/360.0;//see diff with ouside if
+            float tempVal=0.0;
+            float highValue=params[1];
+            if(hsi.r<=highValue&&hsi.r>=params[0])
+            {
+                hsi.r+=params[2];
+                hsi.g*=params[3]*2.0/360.0;//see diff with ouside if
+            }
+            if(hsi.r>360.0)
+            hsi.r-=360.0;
         }
-        if(hsi.r>360.0)
-        hsi.r-=360.0;
+        else if(filterType==1)
+        {
+            hsi.r=params[0];
+            hsi.g=params[1]*10.0/360.0;//hsi.g*=params[1]*10.0/360.0;
+            hsi.b=hsi.b+params[2]*255.0/360.0-128.0;
+        }
+
+        rgb=hsiToRgb(hsi);
+        uvec4 outPix=uvec4(rgb,inPix.a);
+        imageStore(imageOut,pos,uvec4(outPix));
+
     }
-    else if(filterType==1)
-    {
-        hsi.r=params[0];
-        hsi.g=params[1]*10.0/360.0;//hsi.g*=params[1]*10.0/360.0;
-        hsi.b=hsi.b+params[2]*255.0/360.0-128.0;
-    }
-
-    rgb=hsiToRgb(hsi);
-    uvec4 outPix=uvec4(rgb,inPix.a);
-    imageStore(imageOut,pos,uvec4(outPix));
-
-
-
 }
 vec3 rgbToHsi(vec3 rgb)//use seperate r,g,b than a vector;no extram memory and conversion needed
 {
@@ -139,20 +141,5 @@ vec3 hsiToRgb(vec3 hsi)
         g=r;
         b=r;
     }
-    /*  if(r>255.0)
-      r=255.0;
-      else if (r<0.0)
-      r=0.0;
-      if(g>255.0)
-      g=255.0;
-      else if(g<0.0)
-      g=0.0;
-      if(b>255.0)
-      b=255.0;
-      else if(b<0.0)
-      b=0.0;*/
-    // r=r/255.0;//////////required in fragmentShader;
-    //  g=g/255.0;
-    // b=b/255.0;
     return vec3(r,g,b);
 }

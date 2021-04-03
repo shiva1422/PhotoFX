@@ -16,6 +16,11 @@ import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
@@ -72,7 +77,7 @@ ChooserRenderer(Context context) {
 
 
 }
-int testNo=0;
+public native int createGlProgram(String vertexShaderSource,String fragmentShaderSource);
 
     @Override
     public void onDrawFrame(GL10 gl) {
@@ -149,10 +154,9 @@ int testNo=0;
 
     }
 
-    public native int createGlProgram(String vertexShaderPath,String fragmentShaderPath);
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {//////GL10?
-        programId=createGlProgram("sdf","dfs");//check if pogramcreated;
+        programId=createGlProgram("randomeForNow","randome for now");//this is actually source;
         GLES30.glUseProgram(programId);
         Image.mProgram=programId;
         getMediaCursor();////on worker thread

@@ -27,6 +27,7 @@ add_library(imageprocessing STATIC ImageProcessing.cpp)
 add_library(editing STATIC Editing.cpp FilterProperties.cpp)
 add_library(eventhandling STATIC EventHandling.cpp)
 add_library(text STATIC Text.cpp)
+add_library(time STATIC Time.cpp)
 
 #text
 add_library(ft2 STATIC IMPORTED)

@@ -34,13 +34,6 @@ private ChooserRenderer renderer;
         //setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
             setPreserveEGLContextOnPause(true);
         }
-        public ChooserView(Context context,int id)
-        {
-            this(context);
-            this.context=context;
-            uiProgramId=id;
-            renderer.programId=uiProgramId;
-        }
     View.OnTouchListener chooserTouchListener=new View.OnTouchListener() {
         @Override
         public boolean onTouch(View v, MotionEvent event) {

@@ -14,6 +14,14 @@ Java_com_kalasoft_photofx_ChooserRenderer_createGlProgram(JNIEnv *env, jobject t
 {
     Loge("JNIMETH","CRESTING PROGRAM");
   //  int program=0;av
-    return Shader::createShaderProgram(AppContext::getApp(),"JavaShaders/vertexShader.glsl","JavaShaders/fragmentShader.glsl");;
+  android_app *app=AppContext::getApp();
+    if(!app)
+  {
+        /*
+        * app is not running in ndk so there is no instance of app yet
+        */
+      Loge("JNIMETHOD create GLPROGRAM ERROR","cannot not proceed as there is no app instance (not running ndk app)");
+  }
+    return Shader::createShaderProgram(app,"JavaShaders/vertexShader.glsl","JavaShaders/fragmentShader.glsl");;
     // TODO: implement createGlProgram()
 }

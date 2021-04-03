@@ -20,6 +20,7 @@ private:
 
 public:
     /////////User Ssbos instead of fbos(arm doc compute shaders)ShaderImages
+    int32_t workGroupSizeX=1,workGroupSizeY=1;//in constructor set WorkGroupSizex to width also private?
     GLuint laplaceBuffer=0;//to store minimum value of laplace during sharpening
     bool bEqualized=false;
     Histogram inputHistogram,outputHistogram;
