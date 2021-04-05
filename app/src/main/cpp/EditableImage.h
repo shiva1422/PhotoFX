@@ -20,6 +20,7 @@ private:
 
 public:
     /////////User Ssbos instead of fbos(arm doc compute shaders)ShaderImages
+    int32_t threadSize[3]={16,8,1};//same as local workgroup size in shaders;
     int32_t workGroupSizeX=1,workGroupSizeY=1;//in constructor set WorkGroupSizex to width also private?
     GLuint laplaceBuffer=0;//to store minimum value of laplace during sharpening
     bool bEqualized=false;
@@ -39,6 +40,7 @@ public:
     int getImageHeight(){return image->height;}
 
     //editing
+    void smoothen(float centreX,float centreY,float innerRadius,float outerRadius,float strength);
     void equalize(int histogramFor);
     void createLaplaceBuffer();/////For sharpening;
     void toggleHistogramView();

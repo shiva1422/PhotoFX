@@ -40,7 +40,7 @@ void Editor::onInputValuesChanged(uint sliderNo, float newInputValue)
     }
     //Loge("OnInputChange","sds");
    // process();
-   editableImage->outputHistogram.reset();
+  // editableImage->outputHistogram.reset();
    isUpdatedNeeded=true;
 }
 void Editor::process()
@@ -49,9 +49,15 @@ void Editor::process()
     if(isUpdatedNeeded)
     {
         GlobalData::useGlProgram(activeShaderId);
+
         if(useGLCompute)
         {
             Loge("Editor","using GlCompute");
+            if(eActiveShader==SMOOTHEN_SHADER)
+            {
+                editableImage->smoothen(0,0,0,params[0],0);
+                return;
+            }
             setShaderInputs();
             computeProcess();///////sometimes slow as work is not diveided to use less more threads and less workgroups
         }
@@ -279,6 +285,11 @@ void Editor::setActiveFilter()
             EactiveFilter=SHARPEN;
             eActiveShader=SHARPEN_SHADER;
         }break;
+        case 5:
+        {
+            EactiveFilter=SMOOTHEN;
+            eActiveShader=SMOOTHEN_SHADER;
+        }
 
     }
 }
@@ -331,6 +342,10 @@ void Editor::manageShaders()
         case SHARPEN_SHADER:
         {
             fragmentSource+="sharpen.glsl";
+        }break;
+        case SMOOTHEN_SHADER:
+        {
+            fragmentSource+="smoothen.glsl";
         }break;
         default:
         {

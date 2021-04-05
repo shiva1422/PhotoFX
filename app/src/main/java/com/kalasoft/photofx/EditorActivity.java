@@ -1,46 +1,47 @@
 package com.kalasoft.photofx;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.app.ActivityCompat;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+import androidx.fragment.app.Fragment;
 
 import android.Manifest;
 import android.app.NativeActivity;
-import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.ColorDrawable;
+import android.graphics.Color;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.PopupWindow;
-import android.widget.TextView;
-
-import org.xmlpull.v1.XmlPullParser;
 
 public class EditorActivity extends NativeActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
     private PopupWindow popupWindow;
     static int i = 0;
-    float width, height;
+    float screenWidth, screenHeight;
     private int uiShaderProgId;
     private static final int PERMISSION_REQUEST_STORAGE = 0;///DO PERMISSION WHEN NEEDED
-
+    ConstraintLayout filePickerLayout;
+    ConstraintSet filePickerConstraintSet;
+    ChooserView chooserView ;
     // static {System.loadLibrary("main");}
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
     }
 
+
+    
     float[] getDisplayParams() {
         float[] displayParams = new float[8];
         DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -53,18 +54,19 @@ public class EditorActivity extends NativeActivity implements ActivityCompat.OnR
         displayParams[5] = displayMetrics.scaledDensity;
         displayParams[6] = displayMetrics.xdpi;
         displayParams[7] = displayMetrics.ydpi;
-        width = displayMetrics.widthPixels;//////////////////just for testing remove these;
-        height = displayMetrics.heightPixels;
+        screenWidth = displayMetrics.widthPixels;//////////////////just for testing remove these;
+        screenHeight = displayMetrics.heightPixels;
         return displayParams;
 
     }
+
 
     Bitmap getBitmap(int id) {
         int bitmapId = 0;
         Log.e("getBitmap", "the id is " + id);
         switch (id) {
             case 0:
-                bitmapId = R.drawable.boom;
+                bitmapId = R.drawable.nyc;
                 break;
             case 1:
                 // bitmapId=R.drawable.ssnare;
@@ -91,6 +93,7 @@ public class EditorActivity extends NativeActivity implements ActivityCompat.OnR
 
         return bitmap;
     }
+
 
     public void hideSystemUI() {
 
@@ -141,6 +144,36 @@ public class EditorActivity extends NativeActivity implements ActivityCompat.OnR
         }
 
     }
+    void createFilePickerLayout()
+    {
+        filePickerLayout=new ConstraintLayout(getApplicationContext());
+
+
+        try {
+
+
+            filePickerLayout.setSystemUiVisibility(View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        filePickerConstraintSet=new ConstraintSet();
+        chooserView=new ChooserView(getApplicationContext());
+        chooserView.setId(View.generateViewId());
+        chooserView.setStartLocation(0,(int)(screenHeight*0/100));
+        Button bSelected=new Button(getApplicationContext());
+        bSelected.setText("dsfasdfsadfs");
+        bSelected.setBackgroundColor(Color.BLACK);
+        bSelected.setId(ViewGroup.generateViewId());
+        filePickerLayout.addView(bSelected,(int)screenWidth/2,50);
+        filePickerLayout.addView(chooserView,(int)screenWidth,(int)screenHeight-bSelected.getHeight());
+        filePickerConstraintSet.clone(filePickerLayout);
+        filePickerConstraintSet.connect(chooserView.getId(), ConstraintSet.LEFT,filePickerLayout.getId(),ConstraintSet.LEFT,0);
+        filePickerConstraintSet.connect(bSelected.getId(),ConstraintSet.BOTTOM,chooserView.getId(),ConstraintSet.BOTTOM,0);
+        filePickerConstraintSet.applyTo(filePickerLayout);
+
+
+
+    }
 
     public void openFileExplorer() {
        // Log.e("FIleExplore", "DFDF");
@@ -150,20 +183,13 @@ public class EditorActivity extends NativeActivity implements ActivityCompat.OnR
             {
                 try {
                     requestStoragePermission();
-                    ChooserView b = new ChooserView(getApplicationContext());
-                    popupWindow = new PopupWindow(b, (int) width, (int) height, true);
+                    createFilePickerLayout();
+                    popupWindow = new PopupWindow(filePickerLayout, (int) screenWidth, (int) screenHeight, true);
                     popupWindow.setFocusable(false);//set true after full screen
                     //popupWindow.setBackgroundDrawable(new ColorDrawable());
-                    b.popupWindow = popupWindow;
+                    chooserView.popupWindow = popupWindow;
                     popupWindow.showAtLocation(getWindow().getDecorView(), Gravity.TOP, 0, 0);
-                    popupWindow.update(-1200, -1200, -1, -1, true);
-                    try {
-
-
-                        b.setSystemUiVisibility(View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                    popupWindow.update(100, 500, (int)screenWidth, (int)screenHeight, true);
                     popupWindow.setFocusable(true);//set true after full screen
                     popupWindow.update(-500, -300, -1, -1, true);
 
@@ -174,16 +200,6 @@ public class EditorActivity extends NativeActivity implements ActivityCompat.OnR
                             Log.e("FileChooser", "closed");
                         }
                     });
-                /*  b.setOnTouchListener(new View.OnTouchListener() {///set inside ChooserView
-                      @Override
-                      public boolean onTouch(View v, MotionEvent event) {
-                          Log.e("filechooserTouched","touched "+ " java progr id is" + uiShaderProgId);
-                      //    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-                        //  imm.showSoftInput(getWindow().getDecorView(), 0);
-                          return false;
-                      }
-                  });*/
-
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

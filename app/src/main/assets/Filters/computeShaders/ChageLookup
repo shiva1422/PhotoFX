@@ -1,0 +1,4 @@
+In shader to get the pixel coordinate:
+    pixel(x,y)=wokrgroupId(x,y)*workgroupSize(x,y)+threadId(x,y);//considering each thread access single pixel;
+
+    //if image size is such that the pixel connot be accessed in (workgroupSize)/imageSize,the add extra work group and if condition to access those extra pixel ;

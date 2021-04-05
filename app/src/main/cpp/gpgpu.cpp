@@ -1,10 +1,8 @@
 //
 // Created by Shiva Shankar patel psy on 3/20/21.
 //
-
-#include "gpgpu.h"
 #include "Graphics.h"
-
+#include "gpgpu.h"
 void Compute::getGlobalWorkGroupSize(int *x, int *y, int *z)
 {
     glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT,0,x);
@@ -38,4 +36,8 @@ void Compute::showGpuCapacity()
     Loge("maxLocalWorkGroup size in shaders", "theComputeGroupsize is %d and %d and %d", workGroupSize[0], workGroupSize[1], workGroupSize[2]);
     glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS,&maxInvocationSize);
     Loge("MaxThreads supported per workgroup(product of thre localworkgroup sizes","the max invocationsiz is %d",maxInvocationSize);
+}
+void Compute::dispatch(int workGroupSizeX,int workGroupSizeY,int workGroupSizeZ)
+{
+    glDispatchCompute(workGroupSizeX,workGroupSizeY,workGroupSizeZ);
 }

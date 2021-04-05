@@ -5,6 +5,7 @@
 #include <cstring>
 #include "EditableImage.h"
 #include "Main.h"
+#include "gpgpu.h"
 EditableImage::EditableImage(float startX, float startY, float Width, float height, Bitmap *image):ImageView(startX,startY,width,height,image)
 {/////set buffer to 0 or noise is draw or draw input to ouput firsttime.
     outputBuffer.setDims(image->width, image->height);
@@ -130,4 +131,28 @@ void EditableImage::computeLaplace()
 void EditableImage::onDestroy()
 {
     //clear buffers ,texture,hisograms
+}
+/*  Editing,Lookup in shader for particular function for the uniformLocation,bindingIndex,etc;
+ * 1.Smoothing:
+ *
+*/
+void EditableImage::smoothen(float centreX, float centreY, float innerRadius, float outerRadius, float strength)
+{
+    Loge("Smoothen:","Blurring");
+    //glUniform1i(FILTERTYPELOC,subOptionActive);//not needed for now;
+    glUniform1f(0,outerRadius);
+    //glUniform1f(PARAMSLOC+1,params[1]);
+    glBindImageTexture(0, getInputTexId(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8UI);///////texture should be set before this
+    glBindImageTexture(1,getOutputTexId(), 0, GL_FALSE, 0, GL_WRITE_ONLY,GL_RGBA8UI);//////should be moved to setshaderInputs?
+    glDispatchCompute(1+getImageWidth()/16,1+getImageHeight()/8,1);
+    //   printGlError("computing");
+    glMemoryBarrier(GL_ALL_BARRIER_BITS);
+    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER,2,0);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER,0);
+    glBindImageTexture(0, 0, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8UI);///////texture should be set before this
+    glBindImageTexture(1,0, 0, GL_FALSE, 0, GL_WRITE_ONLY,GL_RGBA8UI);
+    //  editableImage->showHistogramValues();
+    Loge("computeProcess","the dispacthc count is %d",getImageWidth()/16*getImageHeight()/16);
+   // glFinish();//glFlush
 }

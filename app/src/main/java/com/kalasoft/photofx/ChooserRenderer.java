@@ -25,20 +25,17 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 public class ChooserRenderer implements GLSurfaceView.Renderer {/////////Opengl updates should be done on the thread only for example onTouch caled from ChooserView so can do image uploads therer
-    static int width, height;
+    static int width, height,startX=0,startY=0;
     public int programId=0;
    // Image testImage;
     Image[] images;
 
     private int totalImagesToDraw,startImageNo=0;//to display
     static float red=0.0f;
-    static int test=0;
     static {
-        System.loadLibrary("main");
-    }
+        System.loadLibrary("main"); }
     Context context;
 
-    ///MEdiaCursor;
     //Media Cursor
     private boolean imageUpdateNeeded=true,rowupNeed=false,rowDownNeed=false;
     private Cursor mediaCursor;
@@ -71,9 +68,9 @@ public class ChooserRenderer implements GLSurfaceView.Renderer {/////////Opengl 
 
 ChooserRenderer(Context context) {
     this.context = context;
-    //no need as we get width and height on surface created;
-   // WindowManager windowManager=(WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
-    //windowManager.getDefaultDisplay().getRealMetrics(displayParams);//api dependent //windowManager.getCurrentWindowMetric
+        //no need as we get width and height on surface created;
+        // WindowManager windowManager=(WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
+        //windowManager.getDefaultDisplay().getRealMetrics(displayParams);//api dependent //windowManager.getCurrentWindowMetric
 
 
 }
@@ -169,7 +166,7 @@ public native int createGlProgram(String vertexShaderSource,String fragmentShade
     public void onSurfaceChanged(GL10 gl, int width, int height) {///////GL10?
         this.width=width;
         this.height=height;
-        GLES31.glViewport(0, 0, width, height);
+        GLES31.glViewport(0, 50, width, height-startY);/////needs to set right dims
         numRows=(height)/(width/numColoumns);//square image same height and width make is screenDensity Indendent;// division may give one row less sometimes
         maxImageWidth=(width-(numColoumns-1)*gap)/numColoumns;//d
         maxImageHeight=maxImageWidth;
@@ -178,7 +175,7 @@ public native int createGlProgram(String vertexShaderSource,String fragmentShade
         images=new Image[totalImagesToDraw];
         for(int i = 0; i< totalImagesToDraw; i++)
         {
-            images[i]=new Image();
+            images[i]=new Image();//////blank cauz images are not loaded to textures;
             images[i].setBounds(0,0,width/numColoumns,width/numColoumns);
 
         }
@@ -471,6 +468,10 @@ public native int createGlProgram(String vertexShaderSource,String fragmentShade
         }
         startImageNo=lastRowStartIndex;
     }
-
+    void setStartLocation(int x,int y)
+    {
+        startX=x;
+        startY=y;
+    }
 
 }

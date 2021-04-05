@@ -8,8 +8,6 @@ layout (std430, binding=2) buffer MinLaplace//sharpen requires two iteration to 
 {
     int minMax[7];//last is 0 before iteration (minumum not calculated) 1 after calculating minimum value;
 };
-const float PI=3.14159265358979311599796346854;
-const float RADIAN=PI/180.0;
 layout(location=0) uniform int filterType;
 layout(location=5) uniform float params[4];
 void main()
@@ -30,10 +28,10 @@ void main()
                 for(int j=-4;j<5;j++)
                 {
                     ivec2 tempPos=pos + ivec2(i,j);
-                    if(tempPos.x>=0 &&tempPos.y>=0 &&tempPos.x<imageDims.x&&tempPos.y<imageDims.y)
-                    {
+                   // if(tempPos.x>=0 &&tempPos.y>=0 &&tempPos.x<imageDims.x&&tempPos.y<imageDims.y)
+                  //  {
                         finalPixel+=imageLoad(imageIn,tempPos);
-                    }
+                   // }
                 }
             }
             //  finalPixel.r=uint(255*25);

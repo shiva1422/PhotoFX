@@ -15,9 +15,6 @@ public class ChooserView extends GLSurfaceView
     PopupWindow popupWindow;
     public int  uiProgramId;
     Context context;
-
-
-
 private ChooserRenderer renderer;
         public ChooserView(Context context)
         {
@@ -50,4 +47,8 @@ private ChooserRenderer renderer;
             return true;//return based on renderer touch;
         }
     };
+        void setStartLocation(int x,int y)
+        {
+            renderer.setStartLocation(x,y);
+        }
 }

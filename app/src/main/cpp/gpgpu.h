@@ -13,6 +13,7 @@ public:
     static void getGlobalWorkGroupSize(int *x,int *y,int *z);
     static void getMaxInvocationSize(int *invocationSize);
     static void showGpuCapacity();
+    static void dispatch(int workGroupSizeX,int workGroupSizeY,int workGroupSizeZ);
 
 };
 
