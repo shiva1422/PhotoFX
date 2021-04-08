@@ -117,18 +117,14 @@ ViewGroup viewGroup;
 //outputImage.setBounds(&MainImageView);
 //outputImage.setTextureId(outImgFrameBuf.getTexId());
 ////globalData.editor->editableImage=&outputImage;
-EditableImage MainImageView(0,displayParams.screenHeight*20/100,InputImage.width,InputImage.height,&InputImage);
+Loge("Editable create","dsfasdfadfasdfasdfasdfasdfsdfsdf");
+EditableImage MainImageView(0,displayParams.screenHeight*20/100,InputImage.width,InputImage.height,&InputImage,true);
 MainImageView.setBoundsDeviceIndependent(MainImageView.getStartX(),MainImageView.getStartY(),InputImage.width,InputImage.height);
 MainImageView.fitToCentre(frameBounds);
-globalData.frameBufId=MainImageView.outputBuffer.getId();
+//globalData.frameBufId=MainImageView->outputBuffer.getId();
 
 
 //
-ImageView test(100,100,500,500,&InputImage);
-PhotoFX photoFx;
-
-photoFx.inputTexId=MainImageView.getInputTexId();
-photoFx.inputImage=&InputImage;
 
 viewGroup.addView(&optionsStack);
 viewGroup.addView(&subOptionsStack);
@@ -179,13 +175,7 @@ TimeDiff frameTime;
                // UILogE("EVENT THERE PROCESSING");
                frameTime.start();
                 source->process(app, source);
-                if(source->id==LOOPER_ID_USER)
-                {
-                    Loge("LooperId ","UserId");
-                }
-                if(fdesc==CustomLooperEvents::readFd)
-                {Loge("LooperId ","UserId");}
-                editor.process();
+               // editor.process();
                 GlobalData::useGlProgram(GlobalData::UIProgram);
                 glUniform1i(glGetUniformLocation(globalData.UIProgram,"param3"),1);//active stackView;
                 glClearColor(0.0,0.0,0.0,1.0);
@@ -197,6 +187,19 @@ TimeDiff frameTime;
                     globalData.activeHistogram=false;
                 }
                 globalData.contentView->draw();
+              //  globalData.editor->editableImage->draw();
+              if(globalData.imageImportNeeded&&appContext.windowInitStatus)
+              {
+                  globalData.importImage();
+                  globalData.imageImportNeeded= false;
+              }
+                if(globalData.testImage)
+                {
+                   // GlobalData::useGlProgram(GlobalData::UIProgram);
+                    globalData.testImage->drawInput();
+                    Loge("testImage","draw");
+                }
+
                 glUniform1i(glGetUniformLocation(globalData.UIProgram,"frameBuf"),(int)0);
                 if(eglSwapBuffers(appContext.eglDisplay, appContext.eglSurface) == EGL_FALSE)
                 {

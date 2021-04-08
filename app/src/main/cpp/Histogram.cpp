@@ -23,15 +23,19 @@ Histogram::Histogram() ////Destructor
         if(glIsTexture(binsTexId))
             glDeleteTextures(1,&binsTexId);
 
-        glGenTextures(1,&binsTexId); //fails?
+
+    glGenTextures(1,&binsTexId); //fails?
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D,binsTexId);
-        glTexStorage2D(GL_TEXTURE_2D, 1,GL_R32I, binsSize,1);//wiki commonmistakes//use glTexImage for mutable textures.//glpixelstore for way to read(pack)and write(unpack) image using this fun.
-        glTexSubImage2D(GL_TEXTURE_2D,0,0,0,binsSize,1,GL_RGBA,GL_UNSIGNED_BYTE,0);//check if this need to be changed for both binbuffers;
-        glBindBuffer(GL_PIXEL_UNPACK_BUFFER,0);
+
+    glTexStorage2D(GL_TEXTURE_2D, 1,GL_R32I, binsSize,1);//wiki commonmistakes//use glTexImage for mutable textures.//glpixelstore for way to read(pack)and write(unpack) image using this fun.
+   // Graphics::printGlError("histogram check");
+    glTexSubImage2D(GL_TEXTURE_2D,0,0,0,binsSize,1,GL_RGBA,GL_UNSIGNED_BYTE,0);//check if this need to be changed for both binbuffers;
+
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER,0);
         glBindTexture(GL_TEXTURE_2D,0);
         ////check any effect of texture formats in sampler in shaders;
-    if(Graphics::printGlError("ImageView::ImageView(Bounds,Bitmap*)")==GL_NO_ERROR)
+    if(Graphics::printGlError("Histogram()")==GL_NO_ERROR)
     {
         Loge("HistogramTexture","created");
     }

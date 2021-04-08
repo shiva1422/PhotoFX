@@ -28,6 +28,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.PopupWindow;
 
+import java.io.FileDescriptor;
+
 public class EditorActivity extends NativeActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
     private PopupWindow popupWindow;
     static int i = 0;
@@ -97,6 +99,22 @@ public class EditorActivity extends NativeActivity implements ActivityCompat.OnR
 
         return bitmap;
     }
+    Bitmap importImage(int fd)
+    {
+        Bitmap image=null;
+        try {
+            ParcelFileDescriptor parcelFileDescriptor = ParcelFileDescriptor.adoptFd(fd);
+            FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+            image=BitmapFactory.decodeFileDescriptor(fileDescriptor);//check if image is scaled;
+            parcelFileDescriptor.close();
+        }
+        catch (Exception e)
+        {
+            Log.e("java importImage","error");
+            e.printStackTrace();
+        }
+        return image;
+    }
 
 
     public void hideSystemUI() {
@@ -157,14 +175,13 @@ public class EditorActivity extends NativeActivity implements ActivityCompat.OnR
         gallery.setAction(Intent.ACTION_GET_CONTENT);
         startActivityForResult(Intent.createChooser(gallery,"select image"),IMPORTIMAGE);
     }
-    public native void onImageImport();
+    public native void onImageImport(int fd);
     @Override
     protected void onActivityResult(int requestCode,int resultCode,Intent data)
     {
         Log.e("Activity Result","obtained");
         if(requestCode==IMPORTIMAGE && resultCode==RESULT_OK)
         {
-            onImageImport();
             Uri imageUri=data.getData();
             try{
                 String fileOpenMode = "r";
@@ -172,10 +189,11 @@ public class EditorActivity extends NativeActivity implements ActivityCompat.OnR
                         getContentResolver().openFileDescriptor(imageUri, fileOpenMode);
                 if (parcelFd != null) {
                     int fd = parcelFd.detachFd();
+                    onImageImport(fd);
                     // Pass the integer value "fd" into your native code. Remember to call
                     // close(2) on the file descriptor when you're done using it.
                 }
-                 selectedImage= MediaStore.Images.Media.getBitmap(getContentResolver(),imageUri);
+               //  selectedImage= MediaStore.Images.Media.getBitmap(getContentResolver(),imageUri);
                  Log.e("THe  selected uri is",imageUri.toString() + imageUri.getPath());
             }
             catch (Exception e)
@@ -186,6 +204,7 @@ public class EditorActivity extends NativeActivity implements ActivityCompat.OnR
         fileImported=true;
 
     }
+
 
     public void setUiShaderProgramId(int progId)
     {

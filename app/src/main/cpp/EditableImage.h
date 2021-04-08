@@ -27,9 +27,12 @@ public:
     Histogram inputHistogram,outputHistogram;
     int32_t equalizedValues[360];//size should be equal to binssize in histogram
     FrameBuffer outputBuffer;//stores output of image above after editing;//default const create id so just set dims and configure;
-    EditableImage();
+    ~EditableImage()
+    {
+        Loge("Editable","Destructor");
+    }
   //  EditableImage(ImageView *inputImage){}
-    EditableImage(float startX,float startY,float Width,float height,Bitmap *image);
+    EditableImage(float startX,float startY,float Width,float height,Bitmap *image,bool Visible);
     GLuint getActiveTexId(){return texId;}//could be input or outputtexid
     GLuint getInputTexId(){return inputTexId;}
     GLuint getOutputTexId(){return outputTexId;}

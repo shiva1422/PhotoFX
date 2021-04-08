@@ -40,6 +40,7 @@ void onCmd(android_app* app, int32_t cmd)
                 };
             }
 
+
         }
             break;
         case APP_CMD_TERM_WINDOW: {

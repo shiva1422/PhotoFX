@@ -96,6 +96,7 @@ public:
    // void setupBuffers();
     ImageView(Bitmap *image){}
     void setBounds(ImageView *image)  ;
+    void printVerts();
     void setTexture(Bitmap *image);
     GLuint getTextureId(){return this->texId;}
     void setTextureId(GLuint texId);

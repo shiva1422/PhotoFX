@@ -6,8 +6,9 @@
 #include "EditableImage.h"
 #include "Main.h"
 #include "gpgpu.h"
-EditableImage::EditableImage(float startX, float startY, float Width, float height, Bitmap *image):ImageView(startX,startY,width,height,image)
+EditableImage::EditableImage(float startX, float startY, float width, float height, Bitmap *image,bool visible):ImageView(startX,startY,width,height,image)
 {/////set buffer to 0 or noise is draw or draw input to ouput firsttime.
+
     outputBuffer.setDims(image->width, image->height);
     outputBuffer.configureColorBuffer();
     //outputBuffer.configureDepthBuffer();////optional remove if not needed
@@ -78,7 +79,11 @@ void EditableImage::onSaveEdit()
 }
 void EditableImage::draw()
 {
+  //  printVerts();
+   // Loge("bounds","%f,%f,%f,%f",startX,startY,width,height);
     ImageView::draw();//draw active image either input or output by default output
+    Graphics::printGlError("editableImage draw");
+    return;
    // inputHistogram.draw();
    if(inputHistogram.getVisibility())
    {
@@ -93,6 +98,12 @@ void EditableImage::draw()
        }
        outputHistogram.draw();
    }
+}
+void EditableImage::drawInput()
+{
+    texId=inputTexId;
+    Loge("EditableImage Input","draw");
+    draw();
 }
 void EditableImage::createLaplaceBuffer()
 {

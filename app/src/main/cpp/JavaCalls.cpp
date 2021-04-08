@@ -61,7 +61,8 @@ status openFileExplorer()
 
 }
 
-status getPhoto(android_app* app,Bitmap *pixaMap,int imageId) {
+status getPhoto(android_app* app,Bitmap *pixaMap,int imageId)
+{
     JavaVM* vm=app->activity->vm;
     JNIEnv *env ;
     vm->AttachCurrentThread(&env,NULL);
@@ -122,6 +123,58 @@ status getPhoto(android_app* app,Bitmap *pixaMap,int imageId) {
     JniLog("Image Obtained succesfully");
     return STATUS_OK;
 }
+status importImage(Bitmap *pixaMap,int fd) {
+    android_app *app = AppContext::getApp();
+    if (!app) {
+        JniLog("importImage jni", "cannot as there is no appInstance yet");
+        return STATUS_KO;
+    }
+    JavaVM *vm = app->activity->vm;
+    JNIEnv *env;
+    vm->AttachCurrentThread(&env, NULL);
+    if (env == NULL) {
+        JniLog("coulf not attach/obtain current thread/get java environment");
+        return STATUS_KO;
+    }
+
+    jclass cls = (env)->GetObjectClass(app->activity->clazz);
+    if (cls == NULL) {
+        JniLog("coulf not get java object class");
+        return STATUS_KO;
+    }
+    jmethodID mid = env->GetMethodID(cls, "importImage", "(I)Landroid/graphics/Bitmap;");
+    if (mid == 0) {
+        JniLog("error obtaining the method id");
+        return STATUS_KO;
+    }
+    jobject image = env->CallObjectMethod(app->activity->clazz, mid, fd);
+    if (image != NULL) {
+        JniLog("successfully obtained the bitmap");
+        AndroidBitmapInfo bitmapInfo;
+        if (AndroidBitmap_getInfo(env, reinterpret_cast<jobject>(image), &bitmapInfo) < 0) {
+            JniLog("coulnd not obtain bitmap info");
+            return STATUS_KO;
+        }
+        if (bitmapInfo.format != ANDROID_BITMAP_FORMAT_RGBA_8888) {
+            JniLog("THE BITMAP FORMATNOT NOT RGBA 8888");
+            return STATUS_KO;
+        }
+        pixaMap->width = bitmapInfo.width;
+        pixaMap->height = bitmapInfo.height;
+        pixaMap->stride = bitmapInfo.stride;
+        if (AndroidBitmap_lockPixels(env, image, (void **) &pixaMap->pixels) < 0) {
+            JniLog("the bitmap could not be locked");
+            return STATUS_KO;
+        }
+        AndroidBitmap_unlockPixels(env, image);
+        env->DeleteLocalRef(image);
+        vm->DetachCurrentThread();
+        JniLog("Image Obtained succesfully");
+        return STATUS_OK;
+
+    }
+}
+
 status hideSystemUI(android_app *app)
 {
     JavaVM* vm=app->activity->vm;

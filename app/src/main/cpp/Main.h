@@ -20,6 +20,11 @@ private:
     SliderSet *slider=nullptr;
   static  GLuint activeProgram,previousProgram;
 public:
+    EditableImage *testImage= nullptr;
+    Bitmap *importedImage= nullptr;
+    bool imageImportNeeded=false;
+    int fd;
+
     bool activeHistogram=false;//test only
     Editor *editor=nullptr;
     AppContext *appContext;
@@ -46,6 +51,8 @@ public:
         else
             Loge("ToggleProcessingType","cant as there is no valid editor");
     }
+    void onImportImage(int fd);
+    void importImage();
 
 
 };

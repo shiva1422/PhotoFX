@@ -7,22 +7,30 @@
 #include <cstring>
 #include "CustomLooperEvents.h"
 #include "Commons.h"
- int CustomLooperEvents::writeFd,CustomLooperEvents::readFd;
+#include "Main.h"
+
+int CustomLooperEvents::writeFd,CustomLooperEvents::readFd;
  android_poll_source CustomLooperEvents::customPollSource;
 void customPollProcess(struct android_app* app, struct android_poll_source* source)
  {
     Loge("Custom poll pRoces","input recieved on Custom Event");
-    int cmd;
-     if (read(CustomLooperEvents::readFd, &cmd, sizeof(cmd)) == sizeof(cmd))
+    CustomMsg msg;
+     if (read(CustomLooperEvents::readFd, &msg, sizeof(msg)) == sizeof(msg))
      {
-         Loge("the message is ","the %d",cmd);
-     }
- }
- int callback(int fd,int events,void *data)
- {
-     Loge("Custom poll pRoces","input recieved on Custom Event");
-     return 3;
+         switch (msg.eEventType)
+         {
+             case IMPORTIMAGE:
+             {
+                GlobalData *globalData= static_cast<GlobalData *>(app->userData);
+                globalData->onImportImage(msg.fd);
+             }break;
 
+         }
+     }
+     else
+     {
+         Loge("CustomPollProcess","cannot obtain msg");
+     }
  }
 void CustomLooperEvents::init()
 {
@@ -45,10 +53,10 @@ void CustomLooperEvents::init()
     ALooper_addFd(app->looper, readFd, LOOPER_ID_USER, ALOOPER_EVENT_INPUT, NULL,&customPollSource);
     Loge("CustomEvent init","success");
 }
-void CustomLooperEvents::addCustomEvent()
+void CustomLooperEvents::addCustomEvent(CustomMsg msg)
 {
-     int cmd=5;
-    if (write(writeFd, &cmd, sizeof(cmd)) != sizeof(cmd))
+
+    if (write(writeFd, &msg, sizeof(msg)) != sizeof(msg))
     {
         Loge("addCustomEvent","Failure writing android_app cmd: %s\n", strerror(errno));
         return;

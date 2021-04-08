@@ -36,6 +36,7 @@ void FrameBuffer::configureColorBuffer()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);//more filteres
     glBindTexture(GL_TEXTURE_2D,0);
+    Graphics::printGlError("configure FrameBuffer ColorBuffer");
 }
 void FrameBuffer::configureDepthBuffer()
 {

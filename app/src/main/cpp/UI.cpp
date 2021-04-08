@@ -147,7 +147,7 @@ void ImageViewStack::draw()
     glBindBuffer(GL_ARRAY_BUFFER,0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
     glBindTexture(GL_TEXTURE_2D,0);
-   // Graphics::printGlError("ImageViewStack::draw");
+  ///  Graphics::printGlError("ImageViewStack::draw");
 
 }
 uint ImageViewStack::getViewNoAtLoc(float x, float y)
@@ -238,9 +238,9 @@ ImageViewStack::ImageViewStack()
 void ImageView::draw()
 {
     //View::draw();//DrawsBackGroundColor//remove if not needed
+    //printVerts();
 
     glUniform1i(DRAWTYPELOC,IMAGEVIEWDRAWTYPE);
-
     glEnableVertexAttribArray(POSITIONATTRIBLOC);
     glEnableVertexAttribArray(TEXTCOODATTRIBLOC);
 
@@ -285,11 +285,12 @@ Texture ImageView::createTexture(Bitmap *image)
 ////CONSIDER ACTIVE TEXTURE UNITs
 ImageView::ImageView(float startX, float startY, float width, float height, Bitmap *image):ImageView( startX,  startY,  width,  height)
 {
-
+    Loge("ConstructorLast","3");
  setTexture(image);
 }
 ImageView::ImageView(float startX, float startY, float width, float height):ImageView()
 {
+    Loge("ConstructorLast","2");
     setBounds(startX,startY,width,height);
 }
 void ImageView::setTextureId(GLuint texId)
@@ -300,13 +301,15 @@ void ImageView::setTextureId(GLuint texId)
 void ImageView::setTexture(Bitmap *image)
 {
     ////////need to clear the preious texture;
+    if(!image->pixels)
+    {UILogE("image setTexture","no image pixels");}
     this->image=image;//if(image!=this->image)cheeck
     if(glIsBuffer(texBufId))
     {glDeleteBuffers(1,&texBufId);}
     glGenBuffers(1, &texBufId);
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, texBufId);//use right buffer or else slow
     glBufferData(GL_PIXEL_UNPACK_BUFFER, image->width * image->height * 4,image->pixels ,GL_STATIC_COPY);
-    if(Graphics::printGlError("ImageView::ImageView(Bounds,Bitmap *)")==GL_OUT_OF_MEMORY)
+    if(Graphics::printGlError("ImageView::setTex")==GL_OUT_OF_MEMORY)
         return;
     if(glIsTexture(texId))
         glDeleteTextures(1,&texId);
@@ -319,15 +322,36 @@ void ImageView::setTexture(Bitmap *image)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, image->width,image->height);//wiki commonmistakes//use glTexImage for mutable textures.//glpixelstore for way to read(pack)and write(unpack) image using this fun.
     glTexSubImage2D(GL_TEXTURE_2D,0,0,0,image->width,image->height,GL_RGBA,GL_UNSIGNED_BYTE,0);
-    Graphics::printGlError("ImageView::ImageView(Bounds,Bitmap *),glTextStorage");
+    Graphics::printGlError("ImageView::setTex,glTextStorage");
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER,0);
     glBindTexture(GL_TEXTURE_2D,0);
-    if(Graphics::printGlError("ImageView::ImageView(Bounds,Bitmap*)")==GL_NO_ERROR)
+    if(Graphics::printGlError("ImageView::setTex")==GL_NO_ERROR)
         isTextureSet=true;
+   Loge("SetTexture","done");
 }
 void ImageView::setBounds(ImageView *imageView)
 {
     setBounds(imageView->getStartX(),imageView->getStartY(),imageView->width,imageView->height);
+}
+void ImageView::printVerts()
+{
+    glBindBuffer(GL_ARRAY_BUFFER,vertexBufId);
+    float *vertices=(float *)glMapBufferRange(GL_ARRAY_BUFFER,0,sizeof(float)*8,GL_MAP_READ_BIT);
+    if(vertices)
+    {
+       for(int i=0;i<8;i++)
+       {
+           Loge("thevertn o","%d",i);
+           Loge("ImageVerts","verts[%d]- %f",i,vertices[i]);
+       }
+    }
+    else
+    {
+        UILogE("ImageView PrintVerts","could not map");
+        Graphics::printGlError("ImageView::setBouds()");
+    }
+    glUnmapBuffer(GL_ARRAY_BUFFER);//return GL_false if error
+    glBindBuffer(GL_ARRAY_BUFFER,0);
 }
 void ImageView::setBounds(float startX, float startY, float width, float height)
 {
@@ -360,6 +384,7 @@ void ImageView::setBounds(float startX, float startY, float width, float height)
 }
 ImageView::ImageView()
 {
+    Loge("ConstructorLast","1");
     glGenBuffers(1,&vertexBufId);
     glBindBuffer(GL_ARRAY_BUFFER,vertexBufId);
     glBufferData(GL_ARRAY_BUFFER,sizeof(float)*8,(void *)0,GL_STATIC_DRAW);///dimensions should be set before this or else reset dimesnion with same dims

@@ -28,12 +28,15 @@ Java_com_kalasoft_photofx_ChooserRenderer_createGlProgram(JNIEnv *env, jobject t
 }
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_kalasoft_photofx_EditorActivity_onImageImport(JNIEnv *env, jobject thiz) {
+Java_com_kalasoft_photofx_EditorActivity_onImageImport(JNIEnv *env, jobject thiz,jint fd) {
     // TODO: implement onImageImport()
     android_app *app=AppContext::getApp();
     if(app)
     {
-        CustomLooperEvents::addCustomEvent();
+        CustomMsg customMsg;
+        customMsg.eEventType=IMPORTIMAGE;
+        customMsg.fd=fd;
+        CustomLooperEvents::addCustomEvent(customMsg);
         Loge("CusotmEvent nativemethod","add Event import;");
     }
     else

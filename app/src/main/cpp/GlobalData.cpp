@@ -4,6 +4,8 @@
 #include "Main.h"
 #include "UI.h"
 #include "Commons.h"
+#include "JavaCalls.h"
+
 GLuint GlobalData::activeProgram=0,GlobalData::previousProgram=0;
 GLuint GlobalData::UIProgram=0;
 ////header Main.h for this .cpp change later;
@@ -70,4 +72,40 @@ void GlobalData::addInputComponent(SliderSet *sliderSet, EInputType inputType)
         {}
 
     }
+}
+void GlobalData::onImportImage(int fd)///previous Image Should be cleared
+{
+    this->fd=fd;
+    imageImportNeeded=true;
+
+
+}
+void GlobalData::importImage()
+{
+    importedImage=(Bitmap *)malloc(sizeof(Bitmap));/////all news check
+    ::importImage(importedImage,fd);
+    useGlProgram(UIProgram);
+    try {
+        testImage=new EditableImage(100,100,100,100,importedImage,true);
+    }
+    catch (std::bad_alloc& exc)
+    {
+        Loge("Catch error","bad alloc");
+    }
+    if(testImage)
+    {
+        Loge("oniMporg global data Success","sadfsdf width and height %d,%d",importedImage->width,importedImage->height);
+      //  ViewGroup *viewGroup= dynamic_cast<ViewGroup *>(contentView);
+        //viewGroup->addView(testImage);
+
+    }
+    glFinish();
+    glFlush();
+
+    //editor->editableImage=testImage;
+    // editor->editableImage->onDestroy();///////previous image manage;
+    // editor->editableImage=editableImage;
+    // ((ViewGroup *)contentView)->addView(editableImage);
+    usePreviousProgram();
+    Graphics::printGlError("import image");
 }
