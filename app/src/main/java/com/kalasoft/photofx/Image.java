@@ -19,6 +19,7 @@ public class Image
     long cursorPos=0;
     String imageTitle;
     Bitmap bitmap;
+    boolean bLoadableImage=false;
     //AppSpecific
     static Context context;
     //drawing

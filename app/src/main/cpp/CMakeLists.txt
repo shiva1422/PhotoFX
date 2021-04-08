@@ -17,7 +17,7 @@ include_directories(${FREETYPE}/include)
 #include_directories(${FIREBASE_CPP_SDK_DIR}/include ${FIREBASE_CPP_SDK_DIR}/libs/android/${CMAKE_ANDROID_ARCH_ABI}/C++)
 #set(firebase_libs firebase_analytics firebase_admob firebase_app)
 #
-add_library(main SHARED Main.cpp GlobalData.cpp Commons.cpp)
+add_library(main SHARED Main.cpp GlobalData.cpp Commons.cpp CustomLooperEvents.cpp)
 add_library(graphics STATIC Graphics.cpp UI.cpp gpgpu.cpp)
 add_library(offscreenrenders STATIC OffScreenRender.cpp OffScreenRender.h EditableImage.cpp Histogram.cpp)
 add_library(events STATIC Touch.cpp Callbacks.cpp)

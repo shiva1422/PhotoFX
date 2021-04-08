@@ -186,8 +186,9 @@ void ImageViewStack::setNoViews(uint numViews, int32_t imageWidth, int32_t image
 
     }
     glBindTexture(GL_TEXTURE_2D_ARRAY,0);
-    if(Graphics::printGlError("ImageViewSTACKE::SETNOVIEWS")==GL_NO_ERROR)
-        UILogE("succesfully created the image stack");
+    if(Graphics::printGlError("ImageViewSTACKE::SETNOVIEWS")==GL_NO_ERROR) {
+        //  UILogE("succesfully created the image stack");
+    }
 
 }
 ImageViewStack::ImageViewStack(uint numViews, int32_t imageWidth, int32_t imageHeight):ImageViewStack()
@@ -218,8 +219,8 @@ void ImageViewStack::setBounds(float startX, float startY, float width, float he
             vertices[7] = vertices[5];
         } else {////lazy draw on
             ///uploading vertices everydrawcall
-            UILogE("ImageView::setBouds-error uploading vertices");
-            Graphics::printGlError("ImageView::setBouds()");
+            //UILogE("ImageView::setBouds-error uploading vertices");
+           // Graphics::printGlError("ImageView::setBouds()");
         }
         glUnmapBuffer(GL_ARRAY_BUFFER);//return GL_false if error
         glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -264,8 +265,8 @@ Texture ImageView::createTexture(Bitmap *image)
     glGenBuffers(1, &texture.texBufId);
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, texture.texBufId);//use right buffer or else slow
     glBufferData(GL_PIXEL_UNPACK_BUFFER, image->width * image->height * 4,image->pixels ,GL_STATIC_COPY);
-    if(Graphics::printGlError("ImageView::ImageView(Bounds,Bitmap *)")==GL_OUT_OF_MEMORY)
-        return texture;
+    //if(Graphics::printGlError("ImageView::ImageView(Bounds,Bitmap *)")==GL_OUT_OF_MEMORY)//remvoe comment;
+       // return texture;
     glGenTextures(1, &texture.texId);
     glBindTexture(GL_TEXTURE_2D, texture.texId);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

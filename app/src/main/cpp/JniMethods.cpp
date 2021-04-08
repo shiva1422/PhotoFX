@@ -7,6 +7,7 @@
 #include "JniMethods.h"
 #include "Commons.h"
 #include "Graphics.h"
+#include "customLooperEvents.h"
 ///////This file is included in main.cpp in the end for correct linking purposes ignoore syncNow;dont add to cmakelists.
 extern "C"
 JNIEXPORT jint JNICALL
@@ -24,4 +25,19 @@ Java_com_kalasoft_photofx_ChooserRenderer_createGlProgram(JNIEnv *env, jobject t
   }
     return Shader::createShaderProgram(app,"JavaShaders/vertexShader.glsl","JavaShaders/fragmentShader.glsl");;
     // TODO: implement createGlProgram()
+}
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_kalasoft_photofx_EditorActivity_onImageImport(JNIEnv *env, jobject thiz) {
+    // TODO: implement onImageImport()
+    android_app *app=AppContext::getApp();
+    if(app)
+    {
+        CustomLooperEvents::addCustomEvent();
+        Loge("CusotmEvent nativemethod","add Event import;");
+    }
+    else
+        {
+        Loge("OnImportImage ","could not complete native method as app instance doesnot exist yet");
+        }
 }

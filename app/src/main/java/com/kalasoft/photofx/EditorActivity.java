@@ -10,12 +10,16 @@ import androidx.fragment.app.Fragment;
 
 import android.Manifest;
 import android.app.NativeActivity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.AudioManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
+import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
@@ -27,13 +31,13 @@ import android.widget.PopupWindow;
 public class EditorActivity extends NativeActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
     private PopupWindow popupWindow;
     static int i = 0;
+    final int IMPORTIMAGE=1422;
     float screenWidth, screenHeight;
     private int uiShaderProgId;
     private static final int PERMISSION_REQUEST_STORAGE = 0;///DO PERMISSION WHEN NEEDED
-    ConstraintLayout filePickerLayout;
-    ConstraintSet filePickerConstraintSet;
-    ChooserView chooserView ;
-    // static {System.loadLibrary("main");}
+    static boolean fileImported=false;
+    static Bitmap selectedImage;
+     static {System.loadLibrary("main");}
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -144,68 +148,43 @@ public class EditorActivity extends NativeActivity implements ActivityCompat.OnR
         }
 
     }
-    void createFilePickerLayout()
-    {
-        filePickerLayout=new ConstraintLayout(getApplicationContext());
 
-
-        try {
-
-
-            filePickerLayout.setSystemUiVisibility(View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        filePickerConstraintSet=new ConstraintSet();
-        chooserView=new ChooserView(getApplicationContext());
-        chooserView.setId(View.generateViewId());
-        chooserView.setStartLocation(0,(int)(screenHeight*0/100));
-        Button bSelected=new Button(getApplicationContext());
-        bSelected.setText("dsfasdfsadfs");
-        bSelected.setBackgroundColor(Color.BLACK);
-        bSelected.setId(ViewGroup.generateViewId());
-        filePickerLayout.addView(bSelected,(int)screenWidth/2,50);
-        filePickerLayout.addView(chooserView,(int)screenWidth,(int)screenHeight-bSelected.getHeight());
-        filePickerConstraintSet.clone(filePickerLayout);
-        filePickerConstraintSet.connect(chooserView.getId(), ConstraintSet.LEFT,filePickerLayout.getId(),ConstraintSet.LEFT,0);
-        filePickerConstraintSet.connect(bSelected.getId(),ConstraintSet.BOTTOM,chooserView.getId(),ConstraintSet.BOTTOM,0);
-        filePickerConstraintSet.applyTo(filePickerLayout);
-
-
-
-    }
 
     public void openFileExplorer() {
-       // Log.e("FIleExplore", "DFDF");
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run()
-            {
-                try {
-                    requestStoragePermission();
-                    createFilePickerLayout();
-                    popupWindow = new PopupWindow(filePickerLayout, (int) screenWidth, (int) screenHeight, true);
-                    popupWindow.setFocusable(false);//set true after full screen
-                    //popupWindow.setBackgroundDrawable(new ColorDrawable());
-                    chooserView.popupWindow = popupWindow;
-                    popupWindow.showAtLocation(getWindow().getDecorView(), Gravity.TOP, 0, 0);
-                    popupWindow.update(100, 500, (int)screenWidth, (int)screenHeight, true);
-                    popupWindow.setFocusable(true);//set true after full screen
-                    popupWindow.update(-500, -300, -1, -1, true);
-
-                    popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
-                        @Override
-                        public void onDismiss() {
-                            hideSystemUI();
-                            Log.e("FileChooser", "closed");
-                        }
-                    });
-                } catch (Exception e) {
-                    e.printStackTrace();
+       // Log.e("FIleExplore", "DFDF");//Use popwindow if using chooserView;
+        Intent gallery=new Intent();
+        gallery.setType("image/*");
+        gallery.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(gallery,"select image"),IMPORTIMAGE);
+    }
+    public native void onImageImport();
+    @Override
+    protected void onActivityResult(int requestCode,int resultCode,Intent data)
+    {
+        Log.e("Activity Result","obtained");
+        if(requestCode==IMPORTIMAGE && resultCode==RESULT_OK)
+        {
+            onImageImport();
+            Uri imageUri=data.getData();
+            try{
+                String fileOpenMode = "r";
+                ParcelFileDescriptor parcelFd =
+                        getContentResolver().openFileDescriptor(imageUri, fileOpenMode);
+                if (parcelFd != null) {
+                    int fd = parcelFd.detachFd();
+                    // Pass the integer value "fd" into your native code. Remember to call
+                    // close(2) on the file descriptor when you're done using it.
                 }
-
+                 selectedImage= MediaStore.Images.Media.getBitmap(getContentResolver(),imageUri);
+                 Log.e("THe  selected uri is",imageUri.toString() + imageUri.getPath());
             }
-        });
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+        fileImported=true;
+
     }
 
     public void setUiShaderProgramId(int progId)

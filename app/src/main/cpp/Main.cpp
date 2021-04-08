@@ -15,6 +15,7 @@
 #include "Text.h"
 #include "Time.h"
 #include "gpgpu.h"
+#include "CustomLooperEvents.h"
 
 
 void android_main(android_app *app)
@@ -41,7 +42,8 @@ void android_main(android_app *app)
 
     int32_t eventId, events, fdesc;
     android_poll_source *source;
-
+    CustomLooperEvents customLooperEvents;
+    CustomLooperEvents::init();
 
     while (true)
     {
@@ -168,15 +170,21 @@ outputImage.setOnTouchListener(new myListener());*/
 TimeDiff frameTime;
     while(true)
     {
-        //UILogE("OUTERLOOP");
+       // UILogE("OUTERLOOP");
         while ((eventId = ALooper_pollAll(0, &fdesc, &events, (void **) &source)) >= 0)
         {
-            //UILogE("INNERLOOP");
+           // UILogE("INNERLOOP");
             if (source)
             {
                // UILogE("EVENT THERE PROCESSING");
                frameTime.start();
                 source->process(app, source);
+                if(source->id==LOOPER_ID_USER)
+                {
+                    Loge("LooperId ","UserId");
+                }
+                if(fdesc==CustomLooperEvents::readFd)
+                {Loge("LooperId ","UserId");}
                 editor.process();
                 GlobalData::useGlProgram(GlobalData::UIProgram);
                 glUniform1i(glGetUniformLocation(globalData.UIProgram,"param3"),1);//active stackView;
