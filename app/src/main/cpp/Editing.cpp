@@ -7,6 +7,7 @@
 #include "Main.h"
 const int PARAMSLOC=5,FILTERTYPELOC=0;
 std::string Editor::shadersFolder="Filters";
+
 void Editor::onInputValuesChanged(uint sliderNo, float newInputValue)
 {
     ////////make sliderNo (equal) or attahed to a certain shader input param nad newInputValue to that params value;
@@ -46,7 +47,8 @@ void Editor::onInputValuesChanged(uint sliderNo, float newInputValue)
 void Editor::process()
 {
   //  Loge("process","sds");
-    if(isUpdatedNeeded)
+  editableImage=layers->getEditableImages();/////temporary move processing to layers;
+    if(isUpdatedNeeded&&editableImage)
     {
         GlobalData::useGlProgram(activeShaderId);
 
@@ -366,6 +368,24 @@ void Editor::manageShaders()
     if(activeShaderId==0)
     {
         Loge("ERROR:EditingonOptionSet","could not create shader program");
+    }
+}
+void Editor::addEditableImage(EditableImage *editableImage)
+{
+    if(this->layers)//later find layer and add to that layer appropriately;
+    {
+        this->layers->addEditableImage(editableImage);
+    }
+}
+void Editor::addLayer(Layer *layer)
+{
+    this->layers=layer;//for now only one;
+}
+void Editor::draw()
+{
+    if(layers)
+    {
+        layers->draw();
     }
 }
 

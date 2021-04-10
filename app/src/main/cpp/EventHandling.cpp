@@ -16,6 +16,19 @@ bool touchFunct(float touchX, float touchY, TouchAction touchAction)
    // Loge("EVentH","in touch function external");
     return true;
 }
+bool SaveButtonHandler::onTouch(float touchX, float touchY, int pointerId, TouchAction touchAction)
+{
+    return true;
+}
+bool SaveButtonHandler::onTouch(float touchX, float touchY, int pointerId, TouchAction touchAction,View *view)
+{
+    if(touchAction==ACTION_DOWN)
+    {
+        GlobalData *globalData=(GlobalData *)app->userData;
+        globalData->onSaveImage();//returns ?
+    }
+    return true;
+}
 bool ToggleHistogramTL::onTouch(float touchX, float touchY, int pointerId, TouchAction touchAction) {return true;}
 bool ToggleHistogramTL::onTouch(float touchX, float touchY, int pointerId, TouchAction touchAction, View *view)
 {

@@ -9,6 +9,8 @@
 #include "Editing.h"
 #include "android/log.h"
 #include "JniMethods.h"
+#include "AppUI.h"
+
 enum EMenuType{OPTIONS_MENU,SUBOPTIONS_MENU};
 enum EInputType{R_INPUT};
 class View;
@@ -24,6 +26,7 @@ public:
     Bitmap *importedImage= nullptr;
     bool imageImportNeeded=false;
     int fd;
+    AppUI appUI;
 
     bool activeHistogram=false;//test only
     Editor *editor=nullptr;
@@ -53,6 +56,7 @@ public:
     }
     void onImportImage(int fd);
     void importImage();
+    void onSaveImage();
 
 
 };

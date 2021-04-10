@@ -31,6 +31,7 @@ public:
     {
         Loge("Editable","Destructor");
     }
+     EditableImage(Bitmap *bitmap,const View &boundsToFitIn);
   //  EditableImage(ImageView *inputImage){}
     EditableImage(float startX,float startY,float Width,float height,Bitmap *image,bool Visible);
     GLuint getActiveTexId(){return texId;}//could be input or outputtexid

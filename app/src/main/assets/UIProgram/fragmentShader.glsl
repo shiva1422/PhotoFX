@@ -30,6 +30,10 @@ void main()
         {
             finalColor=texture(images,vec3(finalTexCoods,2.0));
         }
+        case 3:
+        {
+            finalColor=colorOut;
+        }
         break;
         default:
         {

@@ -5,6 +5,35 @@
 #include "JavaCalls.h"
 #include "Commons.h"
 #include "android/bitmap.h"
+status saveImage()
+{
+    android_app *app=AppContext::getApp();
+    JavaVM* vm=app->activity->vm;
+    JNIEnv *env ;
+    vm->AttachCurrentThread(&env,NULL);
+    if(env==NULL)
+    {
+        JniLog("coulf not attach/obtain current thread/get java environment");
+        return STATUS_KO;
+    }
+    jclass cls = (env)->GetObjectClass(app->activity->clazz);
+    if(cls==NULL)
+    {
+        JniLog("coulf not get java object class");
+        return STATUS_KO;
+    }
+    jmethodID mid = env->GetMethodID(cls, "saveImage", "()V");
+    if (mid == 0)
+    {
+        JniLog("error obtaining the method id");
+        return STATUS_KO;
+    }
+    env->CallVoidMethod(app->activity->clazz,mid);
+    vm->DetachCurrentThread();
+    return STATUS_OK;
+
+
+}
 status setUiShaderId()
 {
     android_app *app=AppContext::getApp();
@@ -156,7 +185,7 @@ status importImage(Bitmap *pixaMap,int fd) {
             return STATUS_KO;
         }
         if (bitmapInfo.format != ANDROID_BITMAP_FORMAT_RGBA_8888) {
-            JniLog("THE BITMAP FORMATNOT NOT RGBA 8888");
+            JniLog("THE BITMAP FORMATNOT NOT RGBA 8888");/////?improve to support others
             return STATUS_KO;
         }
         pixaMap->width = bitmapInfo.width;
@@ -166,7 +195,7 @@ status importImage(Bitmap *pixaMap,int fd) {
             JniLog("the bitmap could not be locked");
             return STATUS_KO;
         }
-        AndroidBitmap_unlockPixels(env, image);
+        AndroidBitmap_unlockPixels(env, image);/////is unlock necessary ?
         env->DeleteLocalRef(image);
         vm->DetachCurrentThread();
         JniLog("Image Obtained succesfully");

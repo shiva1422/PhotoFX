@@ -17,7 +17,9 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
@@ -28,12 +30,15 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.PopupWindow;
 
+import java.io.File;
 import java.io.FileDescriptor;
+import java.io.FileOutputStream;
+import java.util.Random;
 
 public class EditorActivity extends NativeActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
     private PopupWindow popupWindow;
     static int i = 0;
-    final int IMPORTIMAGE=1422;
+    final int IMPORTIMAGE=1422,SAVEIMAGE=1423;
     float screenWidth, screenHeight;
     private int uiShaderProgId;
     private static final int PERMISSION_REQUEST_STORAGE = 0;///DO PERMISSION WHEN NEEDED
@@ -43,6 +48,7 @@ public class EditorActivity extends NativeActivity implements ActivityCompat.OnR
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestStoragePermission();
 
     }
 
@@ -72,7 +78,7 @@ public class EditorActivity extends NativeActivity implements ActivityCompat.OnR
         Log.e("getBitmap", "the id is " + id);
         switch (id) {
             case 0:
-                bitmapId = R.drawable.nyc;
+                bitmapId = R.drawable.image;
                 break;
             case 1:
                 // bitmapId=R.drawable.ssnare;
@@ -100,12 +106,12 @@ public class EditorActivity extends NativeActivity implements ActivityCompat.OnR
         return bitmap;
     }
     Bitmap importImage(int fd)
-    {
-        Bitmap image=null;
+    {                                                               ////close the file descriptor in native code?
+
         try {
             ParcelFileDescriptor parcelFileDescriptor = ParcelFileDescriptor.adoptFd(fd);
             FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
-            image=BitmapFactory.decodeFileDescriptor(fileDescriptor);//check if image is scaled;
+            selectedImage=BitmapFactory.decodeFileDescriptor(fileDescriptor);//check if image is scaled;
             parcelFileDescriptor.close();
         }
         catch (Exception e)
@@ -113,7 +119,7 @@ public class EditorActivity extends NativeActivity implements ActivityCompat.OnR
             Log.e("java importImage","error");
             e.printStackTrace();
         }
-        return image;
+        return selectedImage;
     }
 
 
@@ -176,6 +182,54 @@ public class EditorActivity extends NativeActivity implements ActivityCompat.OnR
         startActivityForResult(Intent.createChooser(gallery,"select image"),IMPORTIMAGE);
     }
     public native void onImageImport(int fd);
+    void saveImage()
+    {                                                                               //////Check Api Dependencies;internal/external sd
+        requestStoragePermission();
+        String albumName="boom";
+        String fileName="booms.jpeg";
+        File folder=Environment.getExternalStorageDirectory();
+        File file=new File(folder,fileName);
+      /*  if(!file.mkdirs())//if to make a folder
+        {
+            Log.e("Save Image","Director couldnot be created");
+
+        }*/
+        try{
+            FileOutputStream fout=new FileOutputStream(file);
+            selectedImage.compress(Bitmap.CompressFormat.JPEG,90,fout);
+            fout.flush();;
+            fout.close();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+       // sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,Uri.parse("file://" + getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES))));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            final Intent scanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+            final Uri contentUri = Uri.fromFile(file);
+            scanIntent.setData(contentUri);
+            sendBroadcast(scanIntent);
+        } else {
+            final Intent intent = new Intent(Intent.ACTION_MEDIA_MOUNTED, Uri.parse("file://" + getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES)));
+            sendBroadcast(intent);
+        }
+
+
+        ////
+   /*     Intent saveIntent=new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        saveIntent.addCategory(Intent.CATEGORY_OPENABLE);
+        saveIntent.setType("application/pdf");
+        saveIntent.putExtra(Intent.EXTRA_TITLE,"test.pdf");
+        // Optionally, specify a URI for the directory that should be opened in
+        // the system file picker when your app creates the document.
+        //intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, pickerInitialUri);
+
+        startActivityForResult(saveIntent, SAVEIMAGE);////////can crash if there is no activy for intent so use resolve Activity to check first;
+    */
+        Log.e("Save image","Wrote file" +file.toString());
+    }
+
     @Override
     protected void onActivityResult(int requestCode,int resultCode,Intent data)
     {
@@ -200,6 +254,10 @@ public class EditorActivity extends NativeActivity implements ActivityCompat.OnR
             {
                 e.printStackTrace();
             }
+        }
+        else if(requestCode==SAVEIMAGE&&requestCode==RESULT_OK)
+        {
+            Log.e("image ","intent result on save");
         }
         fileImported=true;
 
@@ -234,7 +292,7 @@ public class EditorActivity extends NativeActivity implements ActivityCompat.OnR
     public void requestStoragePermission()
     {
         // Check if the  permission has been granted
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED&&ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
         {
             // Permission is already available, start work else rquest
         }
@@ -242,7 +300,7 @@ public class EditorActivity extends NativeActivity implements ActivityCompat.OnR
             {
                 //request permision
                 // Permission has not been granted and must be requested.
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE))
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)&&ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.WRITE_EXTERNAL_STORAGE))
                 {
                       // Provide an additional rationale to the user if the permission was not granted
                      // and the user would benefit from additional context for the use of the permission.
@@ -264,7 +322,7 @@ public class EditorActivity extends NativeActivity implements ActivityCompat.OnR
                     {
                      // Snackbar.make(mLayout, R.string.camera_unavailable, Snackbar.LENGTH_SHORT).show();
                     // Request the permission. The result will be received in onRequestPermissionResult().
-                    ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_STORAGE);
+                    ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_STORAGE);
                     }
             }
     }

@@ -5,6 +5,7 @@
 #include "UI.h"
 #include "Commons.h"
 #include "JavaCalls.h"
+#include "AppUI.h"
 
 GLuint GlobalData::activeProgram=0,GlobalData::previousProgram=0;
 GLuint GlobalData::UIProgram=0;
@@ -85,12 +86,18 @@ void GlobalData::importImage()
     importedImage=(Bitmap *)malloc(sizeof(Bitmap));/////all news check
     ::importImage(importedImage,fd);
     useGlProgram(UIProgram);
+    EditableImage *importedEditableImage= NULL;
     try {
-        testImage=new EditableImage(100,100,100,100,importedImage,true);
+            importedEditableImage=new EditableImage(importedImage,appUI.frameBounds);
     }
     catch (std::bad_alloc& exc)
     {
         Loge("Catch error","bad alloc");
+        importedEditableImage= NULL;
+    }
+    if(importedEditableImage)
+    {
+        editor->addEditableImage(importedEditableImage);
     }
     if(testImage)
     {
@@ -108,4 +115,9 @@ void GlobalData::importImage()
     // ((ViewGroup *)contentView)->addView(editableImage);
     usePreviousProgram();
     Graphics::printGlError("import image");
+}
+void GlobalData::onSaveImage()
+{
+    Loge("on Save Image()","image saved");
+    saveImage();
 }

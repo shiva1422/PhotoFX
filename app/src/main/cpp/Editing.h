@@ -10,6 +10,8 @@
 #include "Graphics.h"
 #include "EditableImage.h"
 #include "FilterProperties.h"
+#include "Layers.h"
+
 enum EActiveShader{ENHANCE_SHADER=0,EQ_SHADER,HSI_SHADER,BLUR_SHADER,SHARPEN_SHADER,SMOOTHEN_SHADER};///FOR SHADER LOCATIONNS DIFFERENT FX MIGHT HAVE SAME SHADER(tracking glsl files)
 enum EActiveFilter{LIGHT=0,SATURATION,HUE,GAMMA,CONTRAST,HISTOGRAM,HSI,BLUR,SHARPEN,SMOOTHEN};//should mathc in setActiveFilter and Shaders //BELOW ALSO SAME;
 //enum EditOptions{ENHANCE=0,CHROMA,AUTO,GRAY,BLUR,TRANSFORM,THREED};
@@ -25,11 +27,16 @@ private:
     EActiveShader eActiveShader=ENHANCE_SHADER,ePreviouShader=ENHANCE_SHADER;//deault;
     bool useGLCompute=false;
     static std::string shadersFolder;
+    Layer *layers= NULL;
     void computeProcess();
     void vfShaderProcess();//vertex and Fragment shaders;
 public:
-    EditableImage *editableImage=nullptr;///first//make private just for tes
+    EditableImage *editableImage=NULL;///first//make private just for tes
     bool isUpdatedNeeded=false;
+
+    void addLayer(Layer *layer);
+    void addEditableImage(EditableImage *editableImage);
+
 public:
     Editor()
     {
@@ -44,10 +51,8 @@ public:
     void process();
     void toggleProcessingType();
     void manageShaders();
+    void draw();
 
-};
-class Layer{
-    //Layer has similar functionality of ImageGroup with its own editing fearures; add its own draw functions to draw layers
 };
 
 

@@ -384,7 +384,6 @@ void ImageView::setBounds(float startX, float startY, float width, float height)
 }
 ImageView::ImageView()
 {
-    Loge("ConstructorLast","1");
     glGenBuffers(1,&vertexBufId);
     glBindBuffer(GL_ARRAY_BUFFER,vertexBufId);
     glBufferData(GL_ARRAY_BUFFER,sizeof(float)*8,(void *)0,GL_STATIC_DRAW);///dimensions should be set before this or else reset dimesnion with same dims

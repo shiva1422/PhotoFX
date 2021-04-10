@@ -16,6 +16,7 @@
 #include "Time.h"
 #include "gpgpu.h"
 #include "CustomLooperEvents.h"
+#include "Shapes.h"
 
 
 void android_main(android_app *app)
@@ -42,6 +43,7 @@ void android_main(android_app *app)
 
     int32_t eventId, events, fdesc;
     android_poll_source *source;
+    globalData.appUI.init();//move to construcor?
     CustomLooperEvents customLooperEvents;
     CustomLooperEvents::init();
 
@@ -75,10 +77,7 @@ void android_main(android_app *app)
   getPhoto(app,&ImageView::defaultImage,12121);
 
 ViewGroup viewGroup;
-    Bitmap InputImage;
-    getPhoto(app,&InputImage,0);
-    View frameBounds(0,displayParams.screenHeight*15/100,displayParams.screenWidth,displayParams.screenHeight*60/100);
-    frameBounds.setBackgroundColor(0.1,0.1,0.1,0.1);
+    globalData.appUI.frameBounds.setBackgroundColor(0.05,0.05,0.05,1.0);
 
 
     //globalData.contentView=&MainImageView;
@@ -87,15 +86,13 @@ ViewGroup viewGroup;
     optionsStack.setBounds(0,displayParams.screenHeight*95/100,displayParams.screenWidth,displayParams.screenHeight*6/100);
     subOptionsStack.setBounds(0,displayParams.screenHeight*90/100,displayParams.screenWidth,displayParams.screenHeight*4/100);
     subOptionsStack.setNoViewsVisible(11);
-    ImageView TestImage(100,100,50,50);
     SliderSet sliderSet[4];
     for(int i=0;i<4;i++)
     {
-        sliderSet[i].setBounds(0,frameBounds.endY()+(i+1)*(displayParams.screenHeight*2/100+10),displayParams.screenWidth,displayParams.screenHeight*2/100);
+        sliderSet[i].setBounds(0,globalData.appUI.frameBounds.endY()+(i+1)*(displayParams.screenHeight*2/100+10),displayParams.screenWidth,displayParams.screenHeight*2/100);
 
     }
 
-    ImageView fbImage(0,0,displayParams.screenWidth,displayParams.screenHeight);
     Bitmap showFilesImage;
     textEngine.getImageFromString("  openImage",&showFilesImage);
     ImageView fileExplorer(0,0,showFilesImage.width,showFilesImage.height);
@@ -106,25 +103,12 @@ ViewGroup viewGroup;
     toggleComputeView.setOnTouchListener(new ToggleProcessingTypeTouchListener());//delete when done;
     ImageView toggleHistogram(displayParams.screenWidth*90/100,150,100,100);
     toggleHistogram.setOnTouchListener(new ToggleHistogramTL());//need clearing check
+    Bitmap saveImage;
+    textEngine.getImageFromString("save",&saveImage);
+    ImageView saveButton(fileExplorer.endX(),0,saveImage.width,saveImage.height);
+    saveButton.setTexture(&saveImage);
+    saveButton.setOnTouchListener(new SaveButtonHandler());
 
-
-
-
-    // MainImageView.setBoundsDeviceIndependent(0,displayParams.screenHeight*20/100,InputImage.width,InputImage.height);
-
-
-////outputImage.outputBuffer=outImgFrameBuf;
-//outputImage.setBounds(&MainImageView);
-//outputImage.setTextureId(outImgFrameBuf.getTexId());
-////globalData.editor->editableImage=&outputImage;
-Loge("Editable create","dsfasdfadfasdfasdfasdfasdfsdfsdf");
-EditableImage MainImageView(0,displayParams.screenHeight*20/100,InputImage.width,InputImage.height,&InputImage,true);
-MainImageView.setBoundsDeviceIndependent(MainImageView.getStartX(),MainImageView.getStartY(),InputImage.width,InputImage.height);
-MainImageView.fitToCentre(frameBounds);
-//globalData.frameBufId=MainImageView->outputBuffer.getId();
-
-
-//
 
 viewGroup.addView(&optionsStack);
 viewGroup.addView(&subOptionsStack);
@@ -132,19 +116,21 @@ viewGroup.addView(&subOptionsStack);
 viewGroup.setBounds(0,0,displayParams.screenWidth,displayParams.screenHeight);
 for(int i=0;i<4;i++)
 viewGroup.addView(&sliderSet[i]);
-viewGroup.addView(&MainImageView);
 viewGroup.addView(&fileExplorer);
 viewGroup.addView(&toggleComputeView);
 viewGroup.addView(&toggleHistogram);
+viewGroup.addView(&saveButton);
 globalData.contentView=&viewGroup;
 
 Editor editor;
+Layer layer(&globalData.appUI.frameBounds);
+layer.setBackgroundColor(1.0,1.0,0.0,1.0);
+editor.addLayer(&layer);
 editor.setOptions(&optionsStack, &subOptionsStack);
 globalData.setEditingContext(&editor);
 globalData.setMenu(&subOptionsStack,SUBOPTIONS_MENU);
 globalData.setMenu(&optionsStack,OPTIONS_MENU);
 globalData.addInputComponent(&sliderSet[0],R_INPUT);
-editor.editableImage=&MainImageView;
 
 
 /*class myListener: public OnTouchListener{
@@ -163,6 +149,10 @@ public:
     }
 };
 outputImage.setOnTouchListener(new myListener());*/
+Rect rect;
+rect.setBounds(0,0,100,100);
+rect.setBackgroundColor(1.0,0.0,0.0,1.0);
+
 TimeDiff frameTime;
     while(true)
     {
@@ -175,20 +165,25 @@ TimeDiff frameTime;
                // UILogE("EVENT THERE PROCESSING");
                frameTime.start();
                 source->process(app, source);
-               // editor.process();
+                editor.process();
                 GlobalData::useGlProgram(GlobalData::UIProgram);
                 glUniform1i(glGetUniformLocation(globalData.UIProgram,"param3"),1);//active stackView;
                 glClearColor(0.0,0.0,0.0,1.0);
                 glClear(GL_COLOR_BUFFER_BIT);
-                frameBounds.clearRect();
+                globalData.appUI.topSection.clearRect();
+                globalData.appUI.frameBounds.clearRect();
+                globalData.appUI.slidersSection.clearRect();
+                globalData.appUI.subOptionsSection.clearRect();
+                globalData.appUI.optionsSection.clearRect();
+                editor.draw();
                 if(globalData.activeHistogram)
                 {
-                    MainImageView.toggleHistogramView();
+                    //MainImageView.toggleHistogramView();//editableImage.toggleHistogramView();
                     globalData.activeHistogram=false;
                 }
                 globalData.contentView->draw();
               //  globalData.editor->editableImage->draw();
-              if(globalData.imageImportNeeded&&appContext.windowInitStatus)
+              if(globalData.imageImportNeeded&&appContext.windowInitStatus)/////////do this onWindowInit in callbacks; or here
               {
                   globalData.importImage();
                   globalData.imageImportNeeded= false;
@@ -199,7 +194,7 @@ TimeDiff frameTime;
                     globalData.testImage->drawInput();
                     Loge("testImage","draw");
                 }
-
+                rect.draw();
                 glUniform1i(glGetUniformLocation(globalData.UIProgram,"frameBuf"),(int)0);
                 if(eglSwapBuffers(appContext.eglDisplay, appContext.eglSurface) == EGL_FALSE)
                 {
@@ -207,6 +202,7 @@ TimeDiff frameTime;
                     Graphics::printGlError("EGLSWAP DRAW LOOP");
 
                 };
+
                 frameTime.end();
                 frameTime.getTimeDiff();
                 //Compute::showGpuCapacity();

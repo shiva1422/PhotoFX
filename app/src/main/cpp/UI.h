@@ -34,6 +34,10 @@ public:
 
     static DisplayParams displayParams;////move this to Graphics
     View();
+    View(const View *view)
+    {
+        setBounds(view);
+    }
     ~View(){}///////clear buffers if there
     View(float startX,float startY,float width,float height)
     {
@@ -63,9 +67,12 @@ public:
     static void setDisplayParams(DisplayParams displayParams1){displayParams=displayParams1;};
     void setBackgroundColor(float red,float green,float blue,float alpha){r=red,g=green,b=blue,a=alpha;};
    // void setBackgroundColor(float *pixel);
-
+    virtual void setBounds(const View *view)
+   {
+        setBounds(view->startX,view->startY,view->width,view->height);
+   }
     virtual void setBounds(float startX, float startY, float width, float height);
-    virtual void draw(){clearRect();};////change ClearRect
+    virtual void draw(){clearRect();};////change ClearRect////shoud draw be protected?
     void clearRect();
 
     //Touch:
@@ -90,9 +97,10 @@ public:
     static GLuint texCoodBufId,indexBufId;///remove static in if these vary for each image
     static Bitmap defaultImage;
     ImageView();
+
     ImageView(float startX,float startY,float width,float height);
     ImageView(float startX,float startY,float width,float height,Bitmap *image);
-    void setBounds(float startX, float startY, float width, float height) override ;
+    virtual void setBounds(float startX, float startY, float width, float height) override ;
    // void setupBuffers();
     ImageView(Bitmap *image){}
     void setBounds(ImageView *image)  ;

@@ -6,6 +6,12 @@
 #include "EditableImage.h"
 #include "Main.h"
 #include "gpgpu.h"
+EditableImage::EditableImage(Bitmap *bitmap, const View &boundsToFitIn) : EditableImage(0.0f,0.0f,bitmap->width,bitmap->height,bitmap,true)
+{
+    Loge("Constructed","EditableImage");
+    setBoundsDeviceIndependent(this->startX, this->startY,this->width,this->height);
+    fitToCentre(boundsToFitIn);
+}
 EditableImage::EditableImage(float startX, float startY, float width, float height, Bitmap *image,bool visible):ImageView(startX,startY,width,height,image)
 {/////set buffer to 0 or noise is draw or draw input to ouput firsttime.
 
@@ -82,8 +88,7 @@ void EditableImage::draw()
   //  printVerts();
    // Loge("bounds","%f,%f,%f,%f",startX,startY,width,height);
     ImageView::draw();//draw active image either input or output by default output
-    Graphics::printGlError("editableImage draw");
-    return;
+   // Graphics::printGlError("editableImage draw");
    // inputHistogram.draw();
    if(inputHistogram.getVisibility())
    {

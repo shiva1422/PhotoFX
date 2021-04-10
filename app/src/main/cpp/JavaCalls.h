@@ -15,4 +15,5 @@ status hideSystemUI(android_app *app);
 status changeVolume(android_app *app,bool increase);
 status openFileExplorer();
 status setUiShaderId();
+status saveImage();
 #endif //PHOTOFX_JAVACALLS_H
