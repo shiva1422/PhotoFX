@@ -1,3 +1,6 @@
+
+wtf is rect2.Layer::setBounds(&globalData.appUI.frameBounds);rect and layer are both sub class of view;but method is not overriden in rec
+
 check if depth ,alpha,etc testing in opengl disabled
 getPhoto() method get as newImage copy
 DISPLAY PARAMS OF BOUND SHould be set before using anything from UI.h

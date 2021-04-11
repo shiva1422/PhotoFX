@@ -450,6 +450,7 @@ void View::setBounds(float startX, float startY, float width, float height)
     this->startY=startY;
     this->width=width;
     this->height=height;
+    /* no need as the following is done in subclasses accordingly;
     ///X's ///////below can be removed along with vertices as they are directly store on gpuside..buffer.
     //   if(startX<=screenWidth/2)
     vertices[0] =-1.0+ (startX * 2.0) /(float)displayParams.screenWidth;//*2 so that-1 to 1 else we get 0 to 1 after conversion  leftX

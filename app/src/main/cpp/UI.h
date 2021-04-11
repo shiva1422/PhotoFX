@@ -24,7 +24,7 @@ protected:
     float startX,startY,width,height;
     float r=0.5,g=0.5,b=0.5,a=1.0;
     float backgroundColor[4];
-    float vertices[8];///check can be removed as its stored on gpuside in View.
+    //float vertices[8];///check can be removed as its stored on gpuside in View.
     bool visible=true;
  //Touch:
       OnTouchListener *onTouchListener=new ViewTouchListener() ;//free in destructor;
@@ -58,7 +58,7 @@ public:
     float endY(){return startY+height;};
     float centerX(){return (startX+width/2);}
     float centreY(){return (startY+height/2);}
-    float* getVertexAddr(){return vertices;}
+    //float* getVertexAddr(){return vertices;}
     void setVisibility(bool shouldBeVisible){visible=shouldBeVisible;}
     bool getVisibility(){return visible;}
     void setBoundsDeviceIndependent(float startX,float startY,float width,float height);//just width and height in dp

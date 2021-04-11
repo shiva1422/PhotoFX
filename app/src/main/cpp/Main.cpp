@@ -9,7 +9,6 @@
 #include "Main.h"
 #include "JavaCalls.h"
 #include "OffScreenRender.h"
-#include "ImageProcessing.h"
 #include "Editing.h"
 #include "UI.h"
 #include "Text.h"
@@ -34,7 +33,6 @@ void android_main(android_app *app)
     globalData.appContext=&appContext;
     app->userData=(void *)&globalData;
     appContext.app=app;
-    PhotoFX::app=app;
     OnTouchListener::setApp(app);
 
     TextEngine textEngine;
@@ -132,26 +130,21 @@ globalData.setMenu(&subOptionsStack,SUBOPTIONS_MENU);
 globalData.setMenu(&optionsStack,OPTIONS_MENU);
 globalData.addInputComponent(&sliderSet[0],R_INPUT);
 
-
-/*class myListener: public OnTouchListener{
-public:
-    virtual bool defaultOnTouch(float touchX,float touchY,TouchAction touchAction)
-    {
-        Loge("eventHandling","the touch is from my My Listener in Main %f and %f",touchX,touchY);
-        onTouch(touchX,touchY,touchAction);
-        (*touchFunc)(touchX,touchY,ACTION_DOWN);
-        return true;
-    }
-    virtual bool onTouch(float touchX,float touchY,int pointerId,TouchAction touchAction)
-    {
-
-        return false;
-    }
-};
-outputImage.setOnTouchListener(new myListener());*/
-Rect rect;
+Rect rect,rect2;
+rect2.setFillType(FILLTYPE_EDGE);
+Polygon circle(4),circle2(4);
+circle.Layer::setBounds(&sliderSet[0]);
+circle2.Layer::setBounds(&sliderSet[0]);
+circle2.setBackgroundColor(1.0,1.0,1.0,1.0);
+circle.setBackgroundColor(1.0,0.0,1.0,1.0);
 rect.setBounds(0,0,100,100);
 rect.setBackgroundColor(1.0,0.0,0.0,1.0);
+rect2.setBounds(20,500,1000,20);
+rect2.setBackgroundColor(1.0,0.0,1.0,0.0);
+Capsule capsule(8);
+//capsule.setFillType(FILLTYPE_EDGE);
+capsule.setBounds(20,500,900,10);
+capsule.setBackgroundColor(1.0,1.0,1.0,1.0);
 
 TimeDiff frameTime;
     while(true)
@@ -195,6 +188,14 @@ TimeDiff frameTime;
                     Loge("testImage","draw");
                 }
                 rect.draw();
+                rect2.draw();
+                capsule.draw();
+                static float rot=0.0f;
+                rot-=180;
+                circle2.setFillType(FILLTYPE_EDGE);
+                circle2.draw();
+                circle.draw();
+                circle.setRotation(rot);
                 glUniform1i(glGetUniformLocation(globalData.UIProgram,"frameBuf"),(int)0);
                 if(eglSwapBuffers(appContext.eglDisplay, appContext.eglSurface) == EGL_FALSE)
                 {
@@ -206,9 +207,7 @@ TimeDiff frameTime;
                 frameTime.end();
                 frameTime.getTimeDiff();
                 //Compute::showGpuCapacity();
-
             }
-
         }
         if(app->destroyed)
         {
