@@ -6,6 +6,7 @@
 #define PHOTOFX_UI_H
 #include "Graphics.h"
 #include "EventHandling.h"
+
 #define UILogE(...)((void)__android_log_print(ANDROID_LOG_ERROR,"UILOG",__VA_ARGS__))
 #define UILogI(...)((void)__android_log_print(ANDROID_LOG_INFO,"UILOG",__VA_ARGS__))
 typedef struct Color{
@@ -14,6 +15,7 @@ typedef struct Color{
 typedef struct Texture{
     GLuint texBufId=0,texId=0;
 }Texture;
+
 class View;
 class OnTouchListener;
 typedef bool (View::*OnTouch)(float x,float y,TouchAction touchAction);//func nam Ontouch;
@@ -50,14 +52,14 @@ public:
         else
             setBounds(startX,startY,width,height);
     }
-    float getStartX(){return startX;};
-    float getStartY(){return startY;};
-    float getWidth(){return width;};
-    float getHeight(){return height;};
-    float endX(){return startX+width;};
-    float endY(){return startY+height;};
-    float centerX(){return (startX+width/2);}
-    float centreY(){return (startY+height/2);}
+    kforceinline float getStartX(){return startX;};
+    kforceinline float getStartY(){return startY;};
+    kforceinline float getWidth(){return width;};
+    kforceinline float getHeight(){return height;};
+    kforceinline float endX(){return startX+width;};
+    kforceinline float endY(){return startY+height;};
+    kforceinline float centerX(){return (startX+width/2);}
+    kforceinline float centreY(){return (startY+height/2);}
     //float* getVertexAddr(){return vertices;}
     void setVisibility(bool shouldBeVisible){visible=shouldBeVisible;}
     bool getVisibility(){return visible;}
@@ -66,6 +68,13 @@ public:
     void fitToCentre(const View &view);
     static void setDisplayParams(DisplayParams displayParams1){displayParams=displayParams1;};
     void setBackgroundColor(float red,float green,float blue,float alpha){r=red,g=green,b=blue,a=alpha;};
+    bool isPointInside(float x,float y);
+    bool isPointYInside(float y);
+    bool isPointXInside(float x);
+    bool isPointToTheRight(float x);
+    bool isPointToTheLeft(float x);
+    bool isPointAbove(float y);
+    bool isPointBelow(float y);
    // void setBackgroundColor(float *pixel);
     virtual void setBounds(const View *view)
    {
@@ -138,24 +147,16 @@ public:
     uint getActiveViewNo(){return activeViewNo;}
     virtual void draw() override ;
 };
-
+class Shape;
 class SliderSet : public View{
 private:
-    Bitmap *baseImage= nullptr,*pointerImage= nullptr;
-    GLuint vertexBufId=0,baseTexId=0,pointerTexId=0;
-    ImageView baseImageView,pointerImageView;
+    Shape *baseLineView,*pointerView;
     float value=0.0f;//0.0 to 1.0
-
-    bool isVisible=true;
-
-
-
 public:
     static uint sliderCounter;
     uint sliderNo=sliderCounter++;////////increment in constructor
     SliderSet();
-    void setBounds(float startX, float startY, float width, float height) override ;
-    void setTexture(Bitmap *image);
+    virtual void setBounds(float startX, float startY, float width, float height) override ;
     float getVaule(){return value;}
     void setPointerLoc(float x,float y);
     void reset();

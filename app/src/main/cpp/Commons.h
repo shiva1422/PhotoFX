@@ -18,6 +18,7 @@
 #include "android_native_app_glue.h"
 #define Loge(...)((void)__android_log_print(ANDROID_LOG_ERROR,__VA_ARGS__))
 #define Logi(...)((void)__android_log_print(ANDROID_LOG_INFO,__VA_ARGS__))
+#define kforceinline  __attribute__((always_inline))
 enum TouchAction{ACTION_DOWN,ACTION_POINTER_DOWN,ACTION_MOVE,ACTION_POINTER_UP,ACTION_UP};
 enum status{STATUS_OK,STATUS_KO,STATUS_EXTRA,STATUS_KO_FATAL};
 class Bitmap{

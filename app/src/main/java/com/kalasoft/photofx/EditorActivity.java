@@ -33,6 +33,7 @@ import android.widget.PopupWindow;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.Random;
 
 public class EditorActivity extends NativeActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
@@ -120,6 +121,22 @@ public class EditorActivity extends NativeActivity implements ActivityCompat.OnR
             e.printStackTrace();
         }
         return selectedImage;
+    }
+    Bitmap importImageFromAssets(String fileName)
+    {
+        Bitmap bitmap=null;
+        try
+        {
+            InputStream is=getAssets().open(fileName);
+            bitmap=BitmapFactory.decodeStream(is);//////checked if scaled to density;
+
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return bitmap;
+
     }
 
 

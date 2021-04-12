@@ -133,10 +133,12 @@ void Editor::setActiveSubOption(uint ActiveSubOption)
     if(optionActive==1)
     {//equalize should work on cliking the suboption so no need for sliders
         isUpdatedNeeded=true;
+        if(editableImage)
       editableImage->inputHistogram.reset();//just setting isCalculateToFalse in enoug;
         //editableImage->resetHistogram();
 
     }
+    if(editableImage)
     editableImage->outputHistogram.reset();
 
 }

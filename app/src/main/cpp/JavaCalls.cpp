@@ -5,6 +5,10 @@
 #include "JavaCalls.h"
 #include "Commons.h"
 #include "android/bitmap.h"
+JavaVM* JavaCalls::vm=nullptr;
+JNIEnv* JavaCalls::env= nullptr;
+jclass JavaCalls::cls=nullptr;
+android_app* JavaCalls::app= nullptr;
 status saveImage()
 {
     android_app *app=AppContext::getApp();
@@ -303,4 +307,78 @@ void getDisplayParams(android_app *app, DisplayParams *displayParams)
     displayParams->ydpi=params[7];
     env->ReleaseFloatArrayElements(displayParamsArray,params,0);
     vm->DetachCurrentThread();/////dssdfsdfs
+}
+status JavaCalls::importImageFromAssets(const char * fileName,Bitmap *pixaMap)
+{
+    if(attachThreadAndFindClass()==STATUS_OK)
+    {
+        jmethodID mid = env->GetMethodID(cls, "importImageFromAssets", "(Ljava/lang/String;)Landroid/graphics/Bitmap;");
+        if (mid == 0)
+        {
+            JniLog("error obtaining the method id");
+            return STATUS_KO;
+        }
+        jstring fileNameJava=env->NewStringUTF(fileName);
+        jobject image = env->CallObjectMethod(app->activity->clazz, mid, fileNameJava);
+        if (image != NULL)
+        {
+            JniLog("successfully obtained the bitmap");
+            AndroidBitmapInfo bitmapInfo;
+            if (AndroidBitmap_getInfo(env, reinterpret_cast<jobject>(image), &bitmapInfo) < 0) {
+                JniLog("coulnd not obtain bitmap info");
+                return STATUS_KO;
+            }
+            if (bitmapInfo.format != ANDROID_BITMAP_FORMAT_RGBA_8888) {
+                JniLog("THE BITMAP FORMATNOT NOT RGBA 8888");/////?improve to support others
+                return STATUS_KO;
+            }
+            pixaMap->width = bitmapInfo.width;
+            pixaMap->height = bitmapInfo.height;
+            pixaMap->stride = bitmapInfo.stride;
+            Loge(fileName,"image width-%d and height -%d",pixaMap->width,pixaMap->height);
+            if (AndroidBitmap_lockPixels(env, image, (void **) &pixaMap->pixels) < 0) {
+                JniLog("the bitmap could not be locked");
+                return STATUS_KO;
+            }
+            //setTexture of imageView or do anything with image and then unlock as this might be garbage collectore after return;
+            AndroidBitmap_unlockPixels(env, image);/////is unlock necessary ?
+            env->DeleteLocalRef(image);
+            vm->DetachCurrentThread();
+            JniLog("Image Obtained succesfully");
+            return STATUS_OK;
+        }
+    }
+    else
+    {
+        return STATUS_KO;
+    }
+}
+status JavaCalls::attachThreadAndFindClass()
+{
+    if(!app)
+    {
+        app=AppContext::getApp();
+    }
+    if(app)
+    {
+        vm = app->activity->vm;
+        vm->AttachCurrentThread(&env, NULL);
+        if (env == NULL)
+        {
+            JniLog("coulf not attach/obtain current thread/get java environment");
+            return STATUS_KO;
+        }
+        cls = (env)->GetObjectClass(app->activity->clazz);
+        if(cls==NULL)
+        {
+            JniLog("coulf not get java object class");
+            return STATUS_KO;
+        }
+        return STATUS_OK ;
+    }
+    else
+    {
+        JniLog("attachThreadAndFindClass","could not get app*");
+        return STATUS_KO;
+    }
 }

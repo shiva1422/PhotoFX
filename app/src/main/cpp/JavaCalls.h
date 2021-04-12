@@ -8,6 +8,15 @@
 #include "android/log.h"
 #include "Commons.h"
 #define JniLog(...)((void)__android_log_print(ANDROID_LOG_ERROR,"JNILOG",__VA_ARGS__))
+class JavaCalls{
+    static android_app * app;
+    static jclass cls;
+    static JavaVM *vm;
+    static JNIEnv *env;
+    static status attachThreadAndFindClass();
+public:
+    static status importImageFromAssets(const char*,Bitmap *pixaMap);
+};
 void getDisplayParams(android_app *app, DisplayParams *displayParams);
 status getPhoto(android_app* app,Bitmap *bitmap,int imageId);
 status importImage(Bitmap *bitmap,int fd);

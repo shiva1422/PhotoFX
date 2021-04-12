@@ -72,7 +72,7 @@ void android_main(android_app *app)
     InitializeUI();
     //Bitmap defaultKalaImage;//move most of the setup things to seperate function;
   //  getPhoto(app,&defaultKalaI,3);
-  getPhoto(app,&ImageView::defaultImage,12121);
+JavaCalls::importImageFromAssets("icons/hue.png",&ImageView::defaultImage);
 
 ViewGroup viewGroup;
     globalData.appUI.frameBounds.setBackgroundColor(0.05,0.05,0.05,1.0);
@@ -87,7 +87,7 @@ ViewGroup viewGroup;
     SliderSet sliderSet[4];
     for(int i=0;i<4;i++)
     {
-        sliderSet[i].setBounds(0,globalData.appUI.frameBounds.endY()+(i+1)*(displayParams.screenHeight*2/100+10),displayParams.screenWidth,displayParams.screenHeight*2/100);
+        sliderSet[i].setBounds(Graphics::displayParams.screenWidth*5.0/100.0,globalData.appUI.frameBounds.endY()+(i+1)*(displayParams.screenHeight*2/100+10),(float)displayParams.screenWidth-(displayParams.screenWidth*10.0/100),displayParams.screenHeight*2/100);
 
     }
 
@@ -122,7 +122,7 @@ globalData.contentView=&viewGroup;
 
 Editor editor;
 Layer layer(&globalData.appUI.frameBounds);
-layer.setBackgroundColor(1.0,1.0,0.0,1.0);
+layer.setBackgroundColor(0.0,0.0,0.0,1.0);
 editor.addLayer(&layer);
 editor.setOptions(&optionsStack, &subOptionsStack);
 globalData.setEditingContext(&editor);
@@ -130,21 +130,7 @@ globalData.setMenu(&subOptionsStack,SUBOPTIONS_MENU);
 globalData.setMenu(&optionsStack,OPTIONS_MENU);
 globalData.addInputComponent(&sliderSet[0],R_INPUT);
 
-Rect rect,rect2;
-rect2.setFillType(FILLTYPE_EDGE);
-Polygon circle(4),circle2(4);
-circle.Layer::setBounds(&sliderSet[0]);
-circle2.Layer::setBounds(&sliderSet[0]);
-circle2.setBackgroundColor(1.0,1.0,1.0,1.0);
-circle.setBackgroundColor(1.0,0.0,1.0,1.0);
-rect.setBounds(0,0,100,100);
-rect.setBackgroundColor(1.0,0.0,0.0,1.0);
-rect2.setBounds(20,500,1000,20);
-rect2.setBackgroundColor(1.0,0.0,1.0,0.0);
-Capsule capsule(8);
-//capsule.setFillType(FILLTYPE_EDGE);
-capsule.setBounds(20,500,900,10);
-capsule.setBackgroundColor(1.0,1.0,1.0,1.0);
+
 
 TimeDiff frameTime;
     while(true)
@@ -187,15 +173,6 @@ TimeDiff frameTime;
                     globalData.testImage->drawInput();
                     Loge("testImage","draw");
                 }
-                rect.draw();
-                rect2.draw();
-                capsule.draw();
-                static float rot=0.0f;
-                rot-=180;
-                circle2.setFillType(FILLTYPE_EDGE);
-                circle2.draw();
-                circle.draw();
-                circle.setRotation(rot);
                 glUniform1i(glGetUniformLocation(globalData.UIProgram,"frameBuf"),(int)0);
                 if(eglSwapBuffers(appContext.eglDisplay, appContext.eglSurface) == EGL_FALSE)
                 {

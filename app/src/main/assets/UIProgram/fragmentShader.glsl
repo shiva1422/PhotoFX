@@ -24,11 +24,20 @@ void main()
         case 0:
         {
             finalColor= texture(image,finalTexCoods);
+            if(finalColor.a<0.8)//circular images;
+            {
+                discard;
+            }
         }
         break;
         case 1:
         {
-            finalColor=texture(images,vec3(finalTexCoods,2.0));
+            finalColor=texture(images,vec3(finalTexCoods,1.0));
+
+            if(finalColor.a<0.8)//circular images;
+            {
+                discard;
+            }
         }
         break;
         case 3:

@@ -4,6 +4,7 @@
 
 #include "UI.h"
 #include "UIShaderConstants.h"
+#include "Shapes.h"
 DisplayParams View::displayParams;
 Bitmap ImageView::defaultImage;
 uint SliderSet::sliderCounter=0;
@@ -58,69 +59,41 @@ void SliderSet::draw()
 {
   //  View::draw();
   if(visible){
-      baseImageView.clearRect();
-      pointerImageView.clearRect();//.draw() for images
+     baseLineView->draw();
+     pointerView->draw();
   }
-
-
-
 }
-void SliderSet::setTexture(Bitmap *image)
-{
-   /* this->baseImage=image;
-    if(glIsBuffer(texBufId))
-    {glDeleteBuffers(1,&texBufId);}
-    glGenBuffers(1, &texBufId);
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, texBufId);//use right buffer or else slow
-    glBufferData(GL_PIXEL_UNPACK_BUFFER, image->width * image->height * 4,image->pixels ,GL_STATIC_COPY);
-    if(Graphics::printGlError("ImageView::ImageView(Bounds,Bitmap *)")==GL_OUT_OF_MEMORY)
-        return;
-    if(glIsTexture(texId))
-        glDeleteTextures(1,&texId);
-    glGenTextures(1, &texId);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texId);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, image->width,image->height);//wiki commonmistakes//use glTexImage for mutable textures.//glpixelstore for way to read(pack)and write(unpack) image using this fun.
-    glTexSubImage2D(GL_TEXTURE_2D,0,0,0,image->width,image->height,GL_RGBA,GL_UNSIGNED_BYTE,0);
-    Graphics::printGlError("ImageView::ImageView(Bounds,Bitmap *),glTextStorage");
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER,0);
-    glBindTexture(GL_TEXTURE_2D,0);
-    if(Graphics::printGlError("ImageView::ImageView(Bounds,Bitmap*)")==GL_NO_ERROR)
-        isTextureSet=true;*/
-}
+
 void SliderSet::reset()
 {
-    pointerImageView.setBounds(startX+(width/2),startY,50,height);
+    pointerView->setBounds(startX + (width / 2), startY, 50, height);
     value=0.0f;
     UILogE("the slider is reset");
 
 }
 void SliderSet::setPointerLoc(float x, float y)
 {
-    pointerImageView.setBounds(x,pointerImageView.getStartY(),pointerImageView.getWidth(),pointerImageView.getHeight());//only x changes for horizontal orientation y for verticals
-    value=(x-startX)/width;//0.0 to 1.0
+    pointerView->setBounds(x-pointerView->getHeight()/2.0,pointerView->getStartY(),pointerView->getWidth(),pointerView->getHeight());
+    if(isPointToTheLeft(pointerView->centerX()))
+        pointerView->setBounds(startX-pointerView->getHeight()/2.0,pointerView->getStartY(),pointerView->getWidth(),pointerView->getHeight());
+    if(isPointToTheRight(pointerView->centerX()))
+         pointerView->setBounds(endX()-pointerView->getHeight()/2.0,pointerView->getStartY(),pointerView->getWidth(),pointerView->getHeight());
+
+    value=(pointerView->centerX()-startX)/width;//0.0 to 1.0
   //  UILogE("the slider value is %f",value);
 }
-void SliderSet::setBounds(float startX, float startY, float width, float height)
+void SliderSet::setBounds(float startX,float startY, float width, float height)
 {
     View::setBounds(startX,startY,width,height);
-    baseImageView.setBounds(startX,startY+height/3,width,height/3);
-    pointerImageView.setBounds(startX+(width/2),startY,50,height);
+    pointerView->setBounds(centerX()-height/2.0, startY, height, height);
+    baseLineView->setBounds(startX,startY+height/3.0, width, height/3.0);
 
 }
 SliderSet::SliderSet()
 {
-
-    baseImageView.setTexture(&ImageView::defaultImage);
-    pointerImageView.setTexture(&ImageView::defaultImage);
+    baseLineView=new Capsule(8);///////delete destructor;
+    pointerView=new Polygon(8);///delete
     onTouchListener=new SliderTouchListener();//clear previous
-
-
-
 }
 
 void ImageViewStack::draw()
@@ -208,12 +181,14 @@ void ImageViewStack::setBounds(float startX, float startY, float width, float he
             ///X's
             vertices[0] = -1.0 + (startX * 2.0) /(float) displayParams.screenWidth;//*2 so that-1 to 1 else we get 0 to 1 after conversion  leftX
             singleImageWidth=(width-(numViews+1)*viewGap)/numViews;
+            if(singleImageWidth>height)
+                singleImageWidth=height;
             vertices[2] = -1.0 + ((startX + singleImageWidth) * 2.0) /(float) displayParams.screenWidth;//rightX
             vertices[4] = vertices[2];
             vertices[6] = vertices[0];
             ///Y's
             vertices[1] =
-                    1.0 - ((startY + height) * 2.0) / (float) displayParams.screenHeight;//bottomy
+                    1.0 - ((startY + singleImageWidth) * 2.0) / (float) displayParams.screenHeight;//bottomy//single ImageHeight;
             vertices[3] = vertices[1];//topy
             vertices[5] = 1.0 - ((startY) * 2.0) / (float) displayParams.screenHeight;
             vertices[7] = vertices[5];
@@ -467,6 +442,35 @@ void View::setBounds(float startX, float startY, float width, float height)
           UILOG("the vertex %d is %f",i,vertices[i]);
       }*/
 
+}
+kforceinline bool View::isPointInside(float x, float y)
+{
+    return (x>=startX&&x<=(startX+width)&&y>=startY&&y<=(startY+height));
+
+}
+kforceinline bool View::isPointXInside(float x)
+{
+    return(x>=startX&&x<=(startX+width));
+}
+kforceinline bool View::isPointYInside(float y)
+{
+    return (y>=startY&&y<=(startY+height));
+}
+kforceinline bool View::isPointToTheRight(float x)
+{
+    return (x>(startX+width));
+}
+kforceinline bool View::isPointToTheLeft(float x)
+{
+    return (x<startX);
+}
+kforceinline bool View::isPointAbove(float y)
+{
+    return(y<startY);
+}
+kforceinline bool View::isPointBelow(float y)
+{
+    return(y>(startY+width));
 }
 View::View()
 {
