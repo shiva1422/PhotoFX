@@ -123,12 +123,12 @@ void ImageViewStack::draw()
   ///  Graphics::printGlError("ImageViewStack::draw");
 
 }
-uint ImageViewStack::getViewNoAtLoc(float x, float y)
-{//use x for horizontal orientation ,y for vertical orientation
+int ImageViewStack::getViewNoAtLoc(float x, float y)
+{//use x for horizontal orientation ,y for vertical orientation///needs some improvesment as afiter fit view to bounds chnages in dimensions;
     float length=x-startX;
-    if(x<0.0f)
+    if(!isPointInside(x,y))
     {
-        return UINT_MAX;
+        return INT32_MAX;
     }
     else
     {
@@ -138,7 +138,62 @@ uint ImageViewStack::getViewNoAtLoc(float x, float y)
     }
 
 }
-void ImageViewStack::setNoViews(uint numViews, int32_t imageWidth, int32_t imageHeight)
+void ImageViewStack::fitViewsInBounds()
+{
+    //convert bitmap width & height to dp here;
+    singleImageWidth=bitmapWidth,singleImageHeight=bitmapHeight;//mostly these two would be same;
+    float aspectRatio=bitmapWidth/bitmapHeight;
+    if(bitmapHeight>height)
+    {
+        singleImageHeight=height;
+        singleImageWidth=singleImageHeight*aspectRatio;
+    }
+    float totalWidthRequired=(numViews+1)*viewGap+numViews*singleImageWidth;
+    if(totalWidthRequired>width)
+    {
+         singleImageWidth=(width-(numViews+1)*viewGap)/numViews;
+         singleImageHeight=singleImageWidth/aspectRatio;
+
+    }
+    else if(totalWidthRequired<width)
+    {
+        viewGap=(width-numViews*singleImageWidth)/(numViews+1);
+    }
+    setSingleViewBounds();
+}
+void ImageViewStack::setSingleViewBounds()
+{
+    glBindBuffer(GL_ARRAY_BUFFER,vertexBufId);
+    if(numViews!=0)
+    {
+        float *vertices = (float *) glMapBufferRange(GL_ARRAY_BUFFER, 0, sizeof(float) * 8,GL_MAP_WRITE_BIT | GL_MAP_READ_BIT);
+        if (vertices)//vertices of first View;
+        {
+            float tempStartX=startX,tempyStartY=startY;
+            if(singleImageHeight<height)
+            {
+                tempyStartY = startY + (height - singleImageHeight) / 2.0;
+            }
+            ///X's
+            vertices[0] = -1.0 + (tempStartX* 2.0) /(float) displayParams.screenWidth;//*2 so that-1 to 1 else we get 0 to 1 after conversion  leftX
+            vertices[2] = -1.0 + ((tempStartX + singleImageWidth) * 2.0) /(float) displayParams.screenWidth;//rightX
+            vertices[4] = vertices[2];
+            vertices[6] = vertices[0];
+            ///Y's
+            vertices[1] =1.0 - ((tempyStartY+ singleImageHeight) * 2.0) / (float) displayParams.screenHeight;//bottomy//single ImageHeight;
+            vertices[3] = vertices[1];//topy
+            vertices[5] = 1.0 - ((tempyStartY) * 2.0) / (float) displayParams.screenHeight;
+            vertices[7] = vertices[5];
+        } else {////lazy draw on
+            ///uploading vertices everydrawcall
+            //UILogE("ImageView::setBouds-error uploading vertices");
+            // Graphics::printGlError("ImageView::setBouds()");
+        }
+        glUnmapBuffer(GL_ARRAY_BUFFER);//return GL_false if error
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+}
+void ImageViewStack::setNoViews(int numViews, int32_t imageWidth, int32_t imageHeight)
 {
     this->numViews=numViews;
     this->numViewsToDraw=numViews;
@@ -151,7 +206,7 @@ void ImageViewStack::setNoViews(uint numViews, int32_t imageWidth, int32_t image
     glTexParameteri(GL_TEXTURE_2D_ARRAY,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D_ARRAY,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D_ARRAY,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-    glTexStorage3D(GL_TEXTURE_2D_ARRAY,1,GL_RGBA8,imageWidth,imageHeight,numViews);
+    glTexStorage3D(GL_TEXTURE_2D_ARRAY,1,GL_RGBA8,imageWidth,imageHeight,numViews);///errorcheccing////if this function is public the previous texture array should be deleted;
     for(int i=0;i<numViews;i++)
     {
         glTexSubImage3D(GL_TEXTURE_2D_ARRAY,0,0,0,i,imageWidth,imageHeight,1,GL_RGBA,GL_UNSIGNED_BYTE,ImageView::defaultImage.pixels);
@@ -162,9 +217,11 @@ void ImageViewStack::setNoViews(uint numViews, int32_t imageWidth, int32_t image
     if(Graphics::printGlError("ImageViewSTACKE::SETNOVIEWS")==GL_NO_ERROR) {
         //  UILogE("succesfully created the image stack");
     }
+    bitmapHeight=imageHeight;
+    bitmapWidth=imageWidth;
 
 }
-ImageViewStack::ImageViewStack(uint numViews, int32_t imageWidth, int32_t imageHeight):ImageViewStack()
+ImageViewStack::ImageViewStack(int numViews, int32_t imageWidth, int32_t imageHeight):ImageViewStack()
 {
 
     setNoViews(numViews,imageWidth,imageHeight);
@@ -173,33 +230,9 @@ void ImageViewStack::setBounds(float startX, float startY, float width, float he
 {
     View::setBounds(startX,startY,width,height);
     glBindBuffer(GL_ARRAY_BUFFER,vertexBufId);
-    if(numViews!=0)
-    {
-        float *vertices = (float *) glMapBufferRange(GL_ARRAY_BUFFER, 0, sizeof(float) * 8,GL_MAP_WRITE_BIT | GL_MAP_READ_BIT);
-        if (vertices)//vertices of first View;
-        {
-            ///X's
-            vertices[0] = -1.0 + (startX * 2.0) /(float) displayParams.screenWidth;//*2 so that-1 to 1 else we get 0 to 1 after conversion  leftX
-            singleImageWidth=(width-(numViews+1)*viewGap)/numViews;
-            if(singleImageWidth>height)
-                singleImageWidth=height;
-            vertices[2] = -1.0 + ((startX + singleImageWidth) * 2.0) /(float) displayParams.screenWidth;//rightX
-            vertices[4] = vertices[2];
-            vertices[6] = vertices[0];
-            ///Y's
-            vertices[1] =
-                    1.0 - ((startY + singleImageWidth) * 2.0) / (float) displayParams.screenHeight;//bottomy//single ImageHeight;
-            vertices[3] = vertices[1];//topy
-            vertices[5] = 1.0 - ((startY) * 2.0) / (float) displayParams.screenHeight;
-            vertices[7] = vertices[5];
-        } else {////lazy draw on
-            ///uploading vertices everydrawcall
-            //UILogE("ImageView::setBouds-error uploading vertices");
-           // Graphics::printGlError("ImageView::setBouds()");
-        }
-        glUnmapBuffer(GL_ARRAY_BUFFER);//return GL_false if error
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-    }
+    singleImageWidth=(width-(numViews+1)*viewGap)/numViews;
+    singleImageHeight=height;
+    setSingleViewBounds();
 }
 ImageViewStack::ImageViewStack()
 {

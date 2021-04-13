@@ -127,24 +127,28 @@ class ImageViewStack : public View{//only one view is active (highlighetd at a t
 //ALL IMAGES SHOULD BE SAME SIZE BEFORE UPLOADING TO THE TEXTUREARRAY.
 private:
     GLuint texId=0,vertexBufId=0;
-    uint numViews=0;
-    uint startViewNo=0;
+    int numViews=0;
+    int startViewNo=0;
     int numViewsToDraw=0.0;
-    float viewGap=10.0f;//in pixels
-    float singleImageWidth=0.0f;
-    uint activeViewNo=0;
+    float viewGap=2.0f;//in pixels
+    float singleImageWidth=0.0f,singleImageHeight;//for draw and touch final dims
+    float bitmapWidth=0.0f,bitmapHeight=0.0f;
+    int activeViewNo=0;
 
+    void setSingleViewBounds();
 
 
 public:
     ImageViewStack();
-    ImageViewStack(uint numViews,int32_t imageWidth,int32_t imageHeight);
+    ImageViewStack(int numViews,int32_t imageWidth,int32_t imageHeight);
     void setBounds(float startX, float startY, float width, float height) override ;
-    void setNoViews(uint numViews,int32_t imageWidth,int32_t imageHeight);//make private accordtly with default Constructor.
-    void setNoViewsVisible(uint drawCount){this->numViewsToDraw=drawCount;}
-    uint getViewNoAtLoc(float x,float y);
-    void setActiveViewNo(uint viewNo){this->activeViewNo=viewNo;}
-    uint getActiveViewNo(){return activeViewNo;}
+    void setNoViews(int numViews,int32_t imageWidth,int32_t imageHeight);//make private accordtly with default Constructor.
+    void setNoViewsVisible(int drawCount){this->numViewsToDraw=drawCount;}
+    void fitViewsInBounds();
+    void fitViewsInBoundsDP();
+    int getViewNoAtLoc(float x,float y);
+    void setActiveViewNo(int viewNo){this->activeViewNo=viewNo;}
+    int getActiveViewNo(){return activeViewNo;}
     virtual void draw() override ;
 };
 class Shape;

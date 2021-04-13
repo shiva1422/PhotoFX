@@ -72,22 +72,23 @@ void android_main(android_app *app)
     InitializeUI();
     //Bitmap defaultKalaImage;//move most of the setup things to seperate function;
   //  getPhoto(app,&defaultKalaI,3);
-JavaCalls::importImageFromAssets("icons/hue.png",&ImageView::defaultImage);
-
-ViewGroup viewGroup;
+    JavaCalls::importImageFromAssets("icons/hue.png",&ImageView::defaultImage);
+    ViewGroup viewGroup;
     globalData.appUI.frameBounds.setBackgroundColor(0.05,0.05,0.05,1.0);
 
 
     //globalData.contentView=&MainImageView;
     ImageViewStack optionsStack(6,ImageView::defaultImage.width,ImageView::defaultImage.height);
-    ImageViewStack subOptionsStack(11,ImageView::defaultImage.width,ImageView::defaultImage.height);
-    optionsStack.setBounds(0,displayParams.screenHeight*95/100,displayParams.screenWidth,displayParams.screenHeight*6/100);
-    subOptionsStack.setBounds(0,displayParams.screenHeight*90/100,displayParams.screenWidth,displayParams.screenHeight*4/100);
-    subOptionsStack.setNoViewsVisible(11);
+    ImageViewStack subOptionsStack(6,ImageView::defaultImage.width,ImageView::defaultImage.height);
+    optionsStack.ViewGroup::setBounds(&globalData.appUI.optionsSection);
+    optionsStack.fitViewsInBounds();
+    subOptionsStack.setNoViewsVisible(6);
+    subOptionsStack.ViewGroup::setBounds(&globalData.appUI.subOptionsSection);
+    subOptionsStack.fitViewsInBounds();
     SliderSet sliderSet[4];
     for(int i=0;i<4;i++)
     {
-        sliderSet[i].setBounds(Graphics::displayParams.screenWidth*5.0/100.0,globalData.appUI.frameBounds.endY()+(i+1)*(displayParams.screenHeight*2/100+10),(float)displayParams.screenWidth-(displayParams.screenWidth*10.0/100),displayParams.screenHeight*2/100);
+        sliderSet[i].setBounds(Graphics::displayParams.screenWidth*5.0/100.0,globalData.appUI.frameBounds.endY()+(i)*(displayParams.screenHeight*2/100+10),(float)displayParams.screenWidth-(displayParams.screenWidth*10.0/100),displayParams.screenHeight*2/100);
 
     }
 
