@@ -21,7 +21,7 @@ layout(std140,binding=2) uniform binsData
 out vec2 textCoodsOut;
 out vec4 colorOut;
 out float texZ;
-out int index;
+flat out int index;
 vec2 finalVerts;
 float instanceId;
 void main()
@@ -42,10 +42,6 @@ void main()
 
             finalVerts.x=verts.x+(instanceId+1.0)*param1+instanceId*param2;
             finalVerts.y=verts.y;
-            if(gl_InstanceID==param3)//just for highlighting the selected View;
-            {
-                finalVerts.y=finalVerts.y+0.01;
-            }
 
 
         }
@@ -84,7 +80,7 @@ void main()
    // }
 
     texZ=texZValue;
-
+    index=gl_InstanceID;
     gl_Position=vec4(finalVerts.x, finalVerts.y, 1.0, 1.0);
 
 

@@ -64,14 +64,14 @@ void android_main(android_app *app)
 
 
 
-    //OPENGL AND WINDOW SHOULD BE INITIALIZED BY NOW;
+       //OPENGL AND WINDOW SHOULD BE INITIALIZED BY NOW;
 
     GlobalData::UIProgram=Shader::createShaderProgram(app,"UIProgram/vertexShader.glsl","UIProgram/fragmentShader.glsl");
     GlobalData::useGlProgram(GlobalData::UIProgram);
     AppContext::UIProgram=globalData.UIProgram;
     InitializeUI();
-    //Bitmap defaultKalaImage;//move most of the setup things to seperate function;
-  //  getPhoto(app,&defaultKalaI,3);
+     //Bitmap defaultKalaImage;//move most of the setup things to seperate function;
+    //getPhoto(app,&defaultKalaI,3);
     JavaCalls::importImageFromAssets("icons/hue.png",&ImageView::defaultImage);
     ViewGroup viewGroup;
     globalData.appUI.frameBounds.setBackgroundColor(0.05,0.05,0.05,1.0);
@@ -81,6 +81,8 @@ void android_main(android_app *app)
     ImageViewStack optionsStack(6,ImageView::defaultImage.width,ImageView::defaultImage.height);
     ImageViewStack subOptionsStack(6,ImageView::defaultImage.width,ImageView::defaultImage.height);
     optionsStack.ViewGroup::setBounds(&globalData.appUI.optionsSection);
+    optionsStack.setTextureForViewNo(0,"icons/auto.png");
+    optionsStack.setTextureForViewNo(1,"icons/hue.png");
     optionsStack.fitViewsInBounds();
     subOptionsStack.setNoViewsVisible(6);
     subOptionsStack.ViewGroup::setBounds(&globalData.appUI.subOptionsSection);
@@ -89,11 +91,12 @@ void android_main(android_app *app)
     for(int i=0;i<4;i++)
     {
         sliderSet[i].setBounds(Graphics::displayParams.screenWidth*5.0/100.0,globalData.appUI.frameBounds.endY()+(i)*(displayParams.screenHeight*2/100+10),(float)displayParams.screenWidth-(displayParams.screenWidth*10.0/100),displayParams.screenHeight*2/100);
+        sliderSet[i].setBackgroundColor(1.0,0.0,1.0,1.0);
 
     }
 
     Bitmap showFilesImage;
-    textEngine.getImageFromString("  openImage",&showFilesImage);
+    textEngine.getImageFromString("openImage",&showFilesImage);
     ImageView fileExplorer(0,0,showFilesImage.width,showFilesImage.height);
     fileExplorer.setBoundsDeviceIndependent(0,0,showFilesImage.width,showFilesImage.height);
     fileExplorer.setTexture(&showFilesImage);
@@ -106,7 +109,7 @@ void android_main(android_app *app)
     textEngine.getImageFromString("save",&saveImage);
     ImageView saveButton(fileExplorer.endX(),0,saveImage.width,saveImage.height);
     saveButton.setTexture(&saveImage);
-    saveButton.setOnTouchListener(new SaveButtonHandler());
+    saveButton.setOnTouchListener(new SaveButtonClickListener());
 
 
 viewGroup.addView(&optionsStack);

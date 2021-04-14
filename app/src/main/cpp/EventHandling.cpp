@@ -16,20 +16,7 @@ bool touchFunct(float touchX, float touchY, TouchAction touchAction)
    // Loge("EVentH","in touch function external");
     return true;
 }
-bool SaveButtonHandler::onTouch(float touchX, float touchY, int pointerId, TouchAction touchAction)
-{
-    return true;
-}
-bool SaveButtonHandler::onTouch(float touchX, float touchY, int pointerId, TouchAction touchAction,View *view)
-{
-    if(touchAction==ACTION_DOWN)
-    {
-        GlobalData *globalData=(GlobalData *)app->userData;
-        globalData->onSaveImage();//returns ?
-    }
-    return true;
-}
-bool ToggleHistogramTL::onTouch(float touchX, float touchY, int pointerId, TouchAction touchAction) {return true;}
+
 bool ToggleHistogramTL::onTouch(float touchX, float touchY, int pointerId, TouchAction touchAction, View *view)
 {
     if(touchAction==ACTION_DOWN)
@@ -39,7 +26,6 @@ bool ToggleHistogramTL::onTouch(float touchX, float touchY, int pointerId, Touch
     }
     return true;
 }
-bool ToggleProcessingTypeTouchListener::onTouch(float touchX, float touchY, int pointerId, TouchAction touchAction) {return true;}
 bool ToggleProcessingTypeTouchListener::onTouch(float touchX, float touchY, int pointerId, TouchAction touchAction, View *view)
 {
     if(touchAction==ACTION_DOWN)
@@ -49,45 +35,17 @@ bool ToggleProcessingTypeTouchListener::onTouch(float touchX, float touchY, int 
     }
     return true;
 }
-bool FilesTouchListener::onTouch(float touchX, float touchY, int pointerId, TouchAction touchAction) {return true;}
-bool FilesTouchListener::onTouch(float touchX, float touchY, int pointerId, TouchAction touchAction, View *view)
+bool FilesTouchListener::onClick(View *view)
 {
-
-    switch (touchAction)
-    {
-        case ACTION_DOWN:
-        {
-           // view->setBounds(0,0,Graphics::displayParams.screenWidth,view->getHeight());
-            Loge("filesTouch","Uishae id in c is %d",AppContext::UIProgram);
-            setUiShaderId();
-           openFileExplorer();///////get error handle
-
-           Loge("FILESLISTENER","RETURNEd");
-
-        }break;
-        case ACTION_POINTER_DOWN:
-        {}break;
-        case ACTION_MOVE:
-        {
-
-
-        }break;
-        case ACTION_POINTER_UP:
-        {
-        }
-            break;
-        case ACTION_UP:
-        {
-
-        }break;
-        default:
-        {}
-
-    }
-
+    // view->setBounds(0,0,Graphics::displayParams.screenWidth,view->getHeight());
+    Loge("filesTouch","Uishae id in c is %d",AppContext::UIProgram);
+    setUiShaderId();
+    openFileExplorer();///////get error handle
+    Loge("FIleToouchListern OnClick","done");
     return true;
+
 }
-bool SliderTouchListener::onTouch(float touchX, float touchY, int pointerId, TouchAction touchAction) {return true;}
+
 bool SliderTouchListener::onTouch(float touchX, float touchY, int pointerId, TouchAction touchAction, View *view)
 {
     SliderSet *slider=(SliderSet *)view;
@@ -183,16 +141,51 @@ bool ImageViewStackTouchListener::onTouch(float touchX, float touchY, int pointe
 
     return true;
 }
-bool ImageViewStackTouchListener::onTouch(float touchX, float touchY, int pointerId, TouchAction touchAction)
-{
-
-    return true;
-}
-
 bool ViewTouchListener::onTouch(float touchX, float touchY, int pointerId, TouchAction touchAction,View *view)
 {
     (*touchFunc)(touchX,touchY,ACTION_DOWN);
 
+    return true;
+}
+bool OnClickListener::onTouch(float touchX, float touchY, int pointerId, TouchAction touchAction, View *view)
+{
+    switch (touchAction)
+    {
+        case ACTION_DOWN:
+        {
+            previousPointerId=pointerId;
+
+        }break;
+        case ACTION_POINTER_DOWN:
+        {
+            previousPointerId=INT32_MAX;//calcel the action;
+        }break;
+        case ACTION_MOVE:
+        {
+           if(previousPointerId==pointerId)
+           {
+               if(!view->isPointInside(touchX,touchY))
+               {
+                   previousPointerId=INT32_MAX;//cancel the touch as moved out
+               }
+           }
+        }break;
+        case ACTION_POINTER_UP:
+        {
+
+        }
+            break;
+        case ACTION_UP:
+        {
+            if(pointerId==previousPointerId)
+            {
+                return onClick(view);
+            }
+        }break;
+        default:
+        {}
+
+    }
     return true;
 }
 

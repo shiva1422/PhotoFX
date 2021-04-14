@@ -16,6 +16,10 @@ public:
     static View& getFrameBounds();
     void init();
 };
-
+///Click and Touch Handlers Below;
+class SaveButtonClickListener : public OnClickListener{
+public:
+    virtual bool onClick(View *view) override;
+};
 
 #endif //PHOTOFX_APPUI_H

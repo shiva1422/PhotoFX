@@ -5,6 +5,7 @@
 #include "UI.h"
 #include "UIShaderConstants.h"
 #include "Shapes.h"
+#include "JavaCalls.h"
 DisplayParams View::displayParams;
 Bitmap ImageView::defaultImage;
 uint SliderSet::sliderCounter=0;
@@ -193,6 +194,21 @@ void ImageViewStack::setSingleViewBounds()
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 }
+void ImageViewStack::fillTexture(int viewNo, Bitmap *bitmap)
+{
+    glBindTexture(GL_TEXTURE_2D_ARRAY,texId);
+    glTexSubImage3D(GL_TEXTURE_2D_ARRAY,0,0,0,viewNo,bitmapWidth,bitmapHeight,1,GL_RGBA,GL_UNSIGNED_BYTE,bitmap->pixels);//bitmapWIdth,height should be set;
+    glBindTexture(GL_TEXTURE_2D_ARRAY,0);
+    if(Graphics::printGlError("ImageViewSTACKE::fillTexture")==GL_NO_ERROR) {
+        //  UILogE("succesfully created the image stack");
+    }
+
+
+}
+void ImageViewStack::setTextureForViewNo(int viewNo,const char *assetLoc)
+{
+    JavaCalls::setImageViewStackTexture(this,viewNo,assetLoc);//check return for errs
+}
 void ImageViewStack::setNoViews(int numViews, int32_t imageWidth, int32_t imageHeight)
 {
     this->numViews=numViews;
@@ -207,12 +223,12 @@ void ImageViewStack::setNoViews(int numViews, int32_t imageWidth, int32_t imageH
     glTexParameteri(GL_TEXTURE_2D_ARRAY,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D_ARRAY,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
     glTexStorage3D(GL_TEXTURE_2D_ARRAY,1,GL_RGBA8,imageWidth,imageHeight,numViews);///errorcheccing////if this function is public the previous texture array should be deleted;
-    for(int i=0;i<numViews;i++)
+  /*  for(int i=0;i<numViews;i++)//not filling default image
     {
         glTexSubImage3D(GL_TEXTURE_2D_ARRAY,0,0,0,i,imageWidth,imageHeight,1,GL_RGBA,GL_UNSIGNED_BYTE,ImageView::defaultImage.pixels);
         ///MAKE LAST PARAMETER IN ABOUve FUNC TO NULL FOR  speedup initializeing(upload image when required).
 
-    }
+    }*/
     glBindTexture(GL_TEXTURE_2D_ARRAY,0);
     if(Graphics::printGlError("ImageViewSTACKE::SETNOVIEWS")==GL_NO_ERROR) {
         //  UILogE("succesfully created the image stack");

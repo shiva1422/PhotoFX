@@ -4,6 +4,7 @@ precision highp float;
 precision highp sampler2DArray;
 in vec4 colorOut;
 in vec2 textCoodsOut;
+flat in int index;
 out vec4 Fragcolor; 
 in float texZ;
 uniform sampler2D image;
@@ -32,10 +33,15 @@ void main()
         break;
         case 1:
         {
-            finalColor=texture(images,vec3(finalTexCoods,1.0));
+            finalColor=texture(images,vec3(finalTexCoods,float(index)));
 
             if(finalColor.a<0.8)//circular images;
             {
+                if(index==param3)
+                {
+                    finalColor=vec4(0.5,0.5,0.5,1.0);
+                }
+                else
                 discard;
             }
         }

@@ -90,6 +90,10 @@ public:
    {
        this->onTouchListener=touchListener;///freeing the old one and current parameter check
    }
+   virtual void setOnClickListener(OnClickListener *clickListener)
+   {
+       this->onTouchListener=clickListener;
+   }
    //virtual void setTouchFunction(bool (*touchFunction)(float touchX,float touchY,TouchAction));
 };
 ////////Destructors
@@ -133,7 +137,7 @@ private:
     float viewGap=2.0f;//in pixels
     float singleImageWidth=0.0f,singleImageHeight;//for draw and touch final dims
     float bitmapWidth=0.0f,bitmapHeight=0.0f;
-    int activeViewNo=0;
+    int activeViewNo=INT32_MAX;//problem?
 
     void setSingleViewBounds();
 
@@ -148,6 +152,8 @@ public:
     void fitViewsInBoundsDP();
     int getViewNoAtLoc(float x,float y);
     void setActiveViewNo(int viewNo){this->activeViewNo=viewNo;}
+    void setTextureForViewNo(int viewNo,const  char* assetLoc);
+    void fillTexture(int viewNo,Bitmap *bitmap);
     int getActiveViewNo(){return activeViewNo;}
     virtual void draw() override ;
 };

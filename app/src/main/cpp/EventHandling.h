@@ -26,8 +26,16 @@ public:
     }*/
     static void setApp(android_app *app);
     int32_t getPreviousPointerId(){return previousPointerId;}
-    virtual bool onTouch(float touchX,float touchY,int pointerId,TouchAction touchAction)=0;//multiple onTOuch can be used(overloading)
+    virtual bool onTouch(float touchX,float touchY,int pointerId,TouchAction touchAction){return true;}//multiple onTOuch can be used(overloading)
     virtual bool onTouch(float touchX,float touchY,int pointerId,TouchAction touchAction,View *view);
+
+};
+class OnClickListener: public OnTouchListener{
+public:
+    virtual bool onTouch(float touchX,float touchY,int pointerId,TouchAction touchAction){return true;}//multiple onTOuch can be used(overloading)
+    virtual bool onTouch(float touchX,float touchY,int pointerId,TouchAction touchAction,View *view);
+    virtual bool onClick(View *view) = 0;
+
 
 };
 class ViewTouchListener: public OnTouchListener{
@@ -51,14 +59,12 @@ public:
 class ImageViewStackTouchListener: public OnTouchListener
 {
 public:
-    virtual bool onTouch(float touchX,float touchY,int pointerId,TouchAction touchAction) override ;
     virtual bool onTouch(float touchX,float touchY,int pointerId,TouchAction touchAction,View *view) override ;
 
 
 };
 class SliderTouchListener : public OnTouchListener{
 public:
-    virtual bool onTouch(float touchX,float touchY,int pointerId,TouchAction touchAction) override ;
     virtual bool onTouch(float touchX,float touchY,int pointerId,TouchAction touchAction,View *view) override ;
 
 };
@@ -70,27 +76,21 @@ public:
 
 };*/
 
-class FilesTouchListener : public OnTouchListener{
+class FilesTouchListener : public OnClickListener{
 public:
-    virtual bool onTouch(float touchX,float touchY,int pointerId,TouchAction touchAction) override ;
-    virtual bool onTouch(float touchX,float touchY,int pointerId,TouchAction touchAction,View *view) override ;
+    virtual bool onClick(View *view) override ;
+
 
 };
-class SaveButtonHandler : public OnTouchListener{
-public:
-    virtual bool onTouch(float touchX,float touchY,int pointerId,TouchAction touchAction) override ;
-    virtual bool onTouch(float touchX,float touchY,int pointerId,TouchAction touchAction,View *view) override ;
-};
+
 class ToggleProcessingTypeTouchListener : public OnTouchListener{
 public:
-    virtual bool onTouch(float touchX,float touchY,int pointerId,TouchAction touchAction) override ;
     virtual bool onTouch(float touchX,float touchY,int pointerId,TouchAction touchAction,View *view) override ;
 
 };
 
 class ToggleHistogramTL : public OnTouchListener{
 public:
-    virtual bool onTouch(float touchX,float touchY,int pointerId,TouchAction touchAction) override ;
     virtual bool onTouch(float touchX,float touchY,int pointerId,TouchAction touchAction,View *view) override ;
 
 };

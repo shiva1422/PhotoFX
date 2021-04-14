@@ -8,6 +8,7 @@
 #include "android/log.h"
 #include "Commons.h"
 #define JniLog(...)((void)__android_log_print(ANDROID_LOG_ERROR,"JNILOG",__VA_ARGS__))
+class ImageViewStack;
 class JavaCalls{
     static android_app * app;
     static jclass cls;
@@ -16,6 +17,7 @@ class JavaCalls{
     static status attachThreadAndFindClass();
 public:
     static status importImageFromAssets(const char*,Bitmap *pixaMap);
+    static status setImageViewStackTexture(ImageViewStack *,int viewNo,const char* assetLoc);
 };
 void getDisplayParams(android_app *app, DisplayParams *displayParams);
 status getPhoto(android_app* app,Bitmap *bitmap,int imageId);

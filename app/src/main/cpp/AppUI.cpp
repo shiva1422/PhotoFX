@@ -3,6 +3,7 @@
 //
 
 #include "AppUI.h"
+#include "Main.h"
 
 void AppUI::init()
 {
@@ -15,5 +16,16 @@ void AppUI::init()
    subOptionsSection.setBackgroundColor(0.2,0.2,0.3,1.0);
    optionsSection.setBounds(0,subOptionsSection.endY(),Graphics::displayParams.screenWidth,Graphics::displayParams.screenHeight*6.0/100.0);
    optionsSection.setBackgroundColor(0.3,0.3,0.2,1.0);
+
+}
+
+
+//Touch & Click Listeners
+bool SaveButtonClickListener::onClick(View *view)
+{
+
+      GlobalData *globalData=(GlobalData *)app->userData;
+      globalData->onSaveImage();//returns ?
+      return true;
 
 }
