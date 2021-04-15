@@ -309,6 +309,53 @@ void getDisplayParams(android_app *app, DisplayParams *displayParams)
     env->ReleaseFloatArrayElements(displayParamsArray,params,0);
     vm->DetachCurrentThread();/////dssdfsdfs
 }
+status JavaCalls::setImageViewTexture(ImageView *imageView, const char *assetLoc)
+{
+    Bitmap pixaMap;
+    if(attachThreadAndFindClass()==STATUS_OK)
+    {
+        jmethodID mid = env->GetMethodID(cls, "importImageFromAssets", "(Ljava/lang/String;)Landroid/graphics/Bitmap;");
+        if (mid == 0)
+        {
+            JniLog("error obtaining the method id");
+            return STATUS_KO;
+        }
+        jstring fileNameJava=env->NewStringUTF(assetLoc);
+        jobject image = env->CallObjectMethod(app->activity->clazz, mid, fileNameJava);
+        if (image != NULL)
+        {
+            JniLog("successfully obtained the bitmap");
+            AndroidBitmapInfo bitmapInfo;
+            if (AndroidBitmap_getInfo(env, reinterpret_cast<jobject>(image), &bitmapInfo) < 0) {
+                JniLog("coulnd not obtain bitmap info");
+                return STATUS_KO;
+            }
+            if (bitmapInfo.format != ANDROID_BITMAP_FORMAT_RGBA_8888) {
+                JniLog("THE BITMAP FORMATNOT NOT RGBA 8888");/////?improve to support others
+                return STATUS_KO;
+            }
+            pixaMap.width = bitmapInfo.width;
+            pixaMap.height = bitmapInfo.height;
+            pixaMap.stride = bitmapInfo.stride;
+            Loge(assetLoc,"image width-%d and height -%d",pixaMap.width,pixaMap.height);
+            if (AndroidBitmap_lockPixels(env, image, (void **) &pixaMap.pixels) < 0) {
+                JniLog("the bitmap could not be locked");
+                return STATUS_KO;
+            }
+            imageView->setTexture(&pixaMap);
+            //setTexture of imageView or do anything with image and then unlock as this might be garbage collectore after return;
+            AndroidBitmap_unlockPixels(env, image);/////is unlock necessary ?
+            env->DeleteLocalRef(image);
+            vm->DetachCurrentThread();
+            JniLog("Image Obtained succesfully");
+            return STATUS_OK;
+        }
+    }
+    else
+    {
+        return STATUS_KO;
+    }
+}
 status JavaCalls::setImageViewStackTexture(ImageViewStack *imageViewStack, int viewNo, const char *assetLoc)
 {
     Bitmap pixaMap;///clear

@@ -18,7 +18,7 @@ include_directories(${FREETYPE}/include)
 #set(firebase_libs firebase_analytics firebase_admob firebase_app)
 #
 add_library(main SHARED Main.cpp GlobalData.cpp Commons.cpp CustomLooperEvents.cpp AppUI.cpp)
-add_library(graphics STATIC Graphics.cpp UI.cpp gpgpu.cpp Shapes.cpp )
+add_library(graphics STATIC Graphics.cpp UI.cpp  RecyclerView.cpp gpgpu.cpp Shapes.cpp )
 add_library(offscreenrenders STATIC OffScreenRender.cpp OffScreenRender.h )
 add_library(events STATIC Touch.cpp Callbacks.cpp)
 add_library(javacalls STATIC JavaCalls.cpp JavaCalls.h)
@@ -28,10 +28,13 @@ add_library(eventhandling STATIC EventHandling.cpp)
 add_library(text STATIC Text.cpp)
 add_library(time STATIC Time.cpp)
 
+#Image Processing
+add_library(auto STATIC Auto.cpp)
+
 #text
 add_library(ft2 STATIC IMPORTED)
 set_target_properties(ft2 PROPERTIES IMPORTED_LOCATION ${FREETYPE}/${CMAKE_ANDROID_ARCH_ABI}/libft.a)
 #
-target_link_libraries(main events glue text javacalls graphics  eventhandling editing offscreenrenders ft2 jnigraphics GLESv3 EGL android ${log-lib})
+target_link_libraries(main events glue text javacalls graphics  eventhandling editing offscreenrenders auto ft2 jnigraphics GLESv3 EGL android ${log-lib})
 #add_library(jnilib SHARED JniMethods.cpp Commons.cpp)
 #target_link_libraries(jnilib ${log-lib} graphics GLESv3 EGL glue android)

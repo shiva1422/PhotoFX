@@ -33,6 +33,7 @@ EditableImage::EditableImage(float startX, float startY, float width, float heig
    outputHistogram.setBackgroundColor(0.0f,0.0f,1.0f,1.0);
    createLaplaceBuffer();/////check if needed in contructor or just using while Sharpening;
    workGroupSizeX=getImageWidth();
+   copyInputToOuput();
   // workGroupSizeY=getImageHeight();
 }
 void EditableImage::equalize(int histogramFor)
@@ -49,6 +50,40 @@ void EditableImage::equalize(int histogramFor)
     {
         Loge("Equalize","Failed");
     }
+}
+void EditableImage::copyInputToOuput()
+{
+   //using vertex and fragment shaders
+    GLuint copyProgram=Shader::createComputeProgram(AppContext::getApp(),"Filters/computeShaders/copy.glsl");
+    if(!copyProgram)
+    {
+        Loge("CopyInput to output failes","could not create program");
+        return;
+    }
+    GlobalData::useGlProgram(copyProgram);
+    glBindImageTexture(0,getInputTexId(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8UI);
+    glBindImageTexture(1,getOutputTexId(), 0, GL_FALSE, 0, GL_WRITE_ONLY,GL_RGBA8UI);
+    glDispatchCompute(getImageWidth(),getImageHeight(),1);
+    glDeleteProgram(copyProgram);
+    GlobalData::usePreviousProgram();
+
+}
+void EditableImage::copyOutputToInput()
+{
+    //using vertex and fragment shaders
+    GLuint copyProgram=Shader::createComputeProgram(AppContext::getApp(),"Filters/computeShaders/copy.glsl");
+    if(!copyProgram)
+    {
+        Loge("CopyInput to output failes","could not create program");
+        return;
+    }
+    GlobalData::useGlProgram(copyProgram);
+    glBindImageTexture(1,getInputTexId(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8UI);
+    glBindImageTexture(0,getOutputTexId(), 0, GL_FALSE, 0, GL_WRITE_ONLY,GL_RGBA8UI);
+    glDispatchCompute(getImageWidth(),getImageHeight(),1);
+    glDeleteProgram(copyProgram);
+    GlobalData::usePreviousProgram();
+
 }
 void EditableImage::toggleHistogramView()
 {
@@ -171,4 +206,15 @@ void EditableImage::smoothen(float centreX, float centreY, float innerRadius, fl
     //  editableImage->showHistogramValues();
     Loge("computeProcess","the dispacthc count is %d",getImageWidth()/16*getImageHeight()/16);
    // glFinish();//glFlush
+}
+kforceinline void EditableImage::bindTexturesToShaderImages()
+{
+    //should be using the right program
+    glBindImageTexture(0, getInputTexId(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8UI);
+    glBindImageTexture(1,getOutputTexId(), 0, GL_FALSE, 0, GL_WRITE_ONLY,GL_RGBA8UI);
+}
+kforceinline void EditableImage::unbindTexturesToShaderImages()
+{
+    glBindImageTexture(0, 0, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8UI);
+    glBindImageTexture(1,0, 0, GL_FALSE, 0, GL_WRITE_ONLY,GL_RGBA8UI);
 }

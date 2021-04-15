@@ -16,7 +16,8 @@
 #include "gpgpu.h"
 #include "CustomLooperEvents.h"
 #include "Shapes.h"
-
+#include "Auto.h"
+#include "RecyclerView.h"
 
 void android_main(android_app *app)
 {
@@ -87,6 +88,10 @@ void android_main(android_app *app)
     subOptionsStack.setNoViewsVisible(6);
     subOptionsStack.ViewGroup::setBounds(&globalData.appUI.subOptionsSection);
     subOptionsStack.fitViewsInBounds();
+    RecyclerView *recyclerView=new RecyclerView(8);
+    recyclerView->setBounds(&globalData.appUI.subOptionsSection);
+    viewGroup.addView(recyclerView);
+
     SliderSet sliderSet[4];
     for(int i=0;i<4;i++)
     {
@@ -94,22 +99,19 @@ void android_main(android_app *app)
         sliderSet[i].setBackgroundColor(1.0,0.0,1.0,1.0);
 
     }
-
-    Bitmap showFilesImage;
-    textEngine.getImageFromString("openImage",&showFilesImage);
-    ImageView fileExplorer(0,0,showFilesImage.width,showFilesImage.height);
-    fileExplorer.setBoundsDeviceIndependent(0,0,showFilesImage.width,showFilesImage.height);
-    fileExplorer.setTexture(&showFilesImage);
-    fileExplorer.setOnTouchListener(new FilesTouchListener());
-    ImageView toggleComputeView(displayParams.screenWidth*90/100,0,100,100);
-    toggleComputeView.setOnTouchListener(new ToggleProcessingTypeTouchListener());//delete when done;
-    ImageView toggleHistogram(displayParams.screenWidth*90/100,150,100,100);
-    toggleHistogram.setOnTouchListener(new ToggleHistogramTL());//need clearing check
-    Bitmap saveImage;
-    textEngine.getImageFromString("save",&saveImage);
-    ImageView saveButton(fileExplorer.endX(),0,saveImage.width,saveImage.height);
-    saveButton.setTexture(&saveImage);
+    ImageView saveButton;
+    saveButton.setBoundsDeviceIndependent(displayParams.screenWidth*80/100,0,displayParams.screenWidth*20.0/100,globalData.appUI.topSection.getHeight());
+    saveButton.setTexture("icons/save.png",true);
     saveButton.setOnTouchListener(new SaveButtonClickListener());
+    ImageView fileExplorer;
+    fileExplorer.setBounds(0,0,displayParams.screenWidth*20.0/100,globalData.appUI.topSection.getHeight());
+    fileExplorer.setTexture("icons/files.png",true);
+    fileExplorer.setOnTouchListener(new FilesTouchListener());
+    ImageView toggleComputeView(displayParams.screenWidth*90/100,400,100,100);
+    toggleComputeView.setOnTouchListener(new ToggleProcessingTypeTouchListener());//delete when done;
+    ImageView toggleHistogram(displayParams.screenWidth*90/100,500,100,100);
+    toggleHistogram.setOnTouchListener(new ToggleHistogramTL());//need clearing check
+
 
 
 viewGroup.addView(&optionsStack);

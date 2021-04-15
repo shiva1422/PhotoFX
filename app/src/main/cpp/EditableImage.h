@@ -25,11 +25,11 @@ public:
     GLuint laplaceBuffer=0;//to store minimum value of laplace during sharpening
     bool bEqualized=false;
     Histogram inputHistogram,outputHistogram;
-    int32_t equalizedValues[360];//size should be equal to binssize in histogram
+    int32_t equalizedValues[256];//size should be equal to binssize in histogram
     FrameBuffer outputBuffer;//stores output of image above after editing;//default const create id so just set dims and configure;
     ~EditableImage()
     {
-        Loge("Editable","Destructor");
+        Loge("Editable","Destructor");//delete outputbuffer frameBuffer
     }
      EditableImage(Bitmap *bitmap,const View &boundsToFitIn);
   //  EditableImage(ImageView *inputImage){}
@@ -40,10 +40,15 @@ public:
     virtual void draw() override;
     void drawInput() ;
     void drawOuput() ;
-    int getImageWidth(){ return image->width;}
-    int getImageHeight(){return image->height;}
+    int getImageWidth(){ return image.width;}
+    int getImageHeight(){return image.height;}
 
     //editing
+    void copyInputToOuput();
+    void copyOutputToInput();
+    kforceinline void bindTexturesToShaderImages();
+    kforceinline void unbindTexturesToShaderImages();
+
     void smoothen(float centreX,float centreY,float innerRadius,float outerRadius,float strength);
     void equalize(int histogramFor);
     void createLaplaceBuffer();/////For sharpening;

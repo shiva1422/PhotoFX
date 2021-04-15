@@ -3,14 +3,7 @@
 //
 
 #include "Layers.h"
-void Layer::add(EditableImage *editableImage)
-{
-    if(this->editableImages)///////clear previous image(ond destroy destructors clear buffers images);
-    {
-        delete this->editableImages;
-    }
-    this->editableImages=editableImage;//for now only one;
-}
+
 void Layer::draw()
 {
     clearRect();
@@ -24,5 +17,14 @@ void Layer::draw()
 
 void Layer::addEditableImage(EditableImage *editableImage)
 {
-    this->editableImages=editableImage;//later add to this editable image array rather than equating;
+    if(this->editableImages)///////clear previous image(ond destroy destructors clear buffers images);
+    {
+        delete this->editableImages;
+        Loge("Layer ","delete old editableImage");
+    }
+    this->editableImages=editableImage;//for now only one;
+}
+void Layer::process()
+{
+
 }

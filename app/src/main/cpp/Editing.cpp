@@ -5,6 +5,8 @@
 #include <string>
 #include "Editing.h"
 #include "Main.h"
+#include "Auto.h"
+
 const int PARAMSLOC=5,FILTERTYPELOC=0;
 std::string Editor::shadersFolder="Filters";
 
@@ -48,12 +50,24 @@ void Editor::process()
 {
   //  Loge("process","sds");
   editableImage=layers->getEditableImages();/////temporary move processing to layers;
+
     if(isUpdatedNeeded&&editableImage)
     {
         GlobalData::useGlProgram(activeShaderId);
 
         if(useGLCompute)
         {
+            //
+            switch (optionActive)
+            {
+                case 0:
+                {
+                    Auto::apply(editableImage,(AutoType)subOptionActive);
+                }break;
+            }
+            return;
+
+            //
             Loge("Editor","using GlCompute");
             if(eActiveShader==SMOOTHEN_SHADER)
             {
@@ -69,7 +83,7 @@ void Editor::process()
             vfShaderProcess();
         }
            isUpdatedNeeded= false;
-        GlobalData *globalData = (GlobalData *) ((AppContext::getApp())->userData);
+        GlobalData *globalData = (GlobalData *) ((AppContext::getApp())->userData);//GlobalData::use Previous Program is enough;
         GlobalData::useGlProgram(globalData->UIProgram);
     }
 
@@ -130,7 +144,7 @@ void Editor::setActiveSubOption(uint ActiveSubOption)
     this->subOptionActive=ActiveSubOption;
     setActiveFilter();
     manageShaders();
-    if(optionActive==1)
+    if(optionActive==0)
     {//equalize should work on cliking the suboption so no need for sliders
         isUpdatedNeeded=true;
         if(editableImage)
@@ -229,7 +243,9 @@ void Editor::setActiveFilter()
     {
         case 0:
         {
-            switch (subOptionActive)
+            eActiveShader=AUTO_SHADER;
+            EactiveFilter=AUTO_FILTER;
+          /*  switch (subOptionActive)
             {
                 case 0:
                 {
@@ -264,7 +280,7 @@ void Editor::setActiveFilter()
                     eActiveShader=ENHANCE_SHADER;/////but computeShader;/////remmovet his
                 }break;
 
-            }
+            }*/
         }
         break;
         case 1:
@@ -324,6 +340,10 @@ void Editor::manageShaders()
     Loge("ShaderManager::createShaderPro","%d option",optionActive);
     switch (eActiveShader)
     {
+        case AUTO_SHADER:
+        {
+            fragmentSource+="auto.glsl";
+        }break;
         case ENHANCE_SHADER:
         {
             fragmentSource+="enhance.glsl";
@@ -377,6 +397,7 @@ void Editor::addEditableImage(EditableImage *editableImage)
     if(this->layers)//later find layer and add to that layer appropriately;
     {
         this->layers->addEditableImage(editableImage);
+        Loge("editor ","ADD IMAGE");
     }
 }
 void Editor::addLayer(Layer *layer)

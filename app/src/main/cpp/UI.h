@@ -40,7 +40,7 @@ public:
     {
         setBounds(view);
     }
-    ~View(){}///////clear buffers if there
+    ~View();///////clear buffers if there
     View(float startX,float startY,float width,float height)
     {
         setBounds(startX,startY,width,height);
@@ -80,7 +80,12 @@ public:
    {
         setBounds(view->startX,view->startY,view->width,view->height);
    }
+    void setStartX(float startX);
+    void setEndX(float endX);
+    void setStartY(float startY);
+    void setEndY(float endY);
     virtual void setBounds(float startX, float startY, float width, float height);
+    virtual void moveHorizontalByDistance(float moveDistanceX);
     virtual void draw(){clearRect();};////change ClearRect////shoud draw be protected?
     void clearRect();
 
@@ -102,7 +107,7 @@ private:
 
     bool isTextureSet=false;
 protected:
-    Bitmap *image= nullptr;
+    Bitmap image;
     GLuint texId=0,texBufId=0,vertexBufId=0;///View class also needs vertexBufID(check moving there)
 
 
@@ -119,6 +124,7 @@ public:
     void setBounds(ImageView *image)  ;
     void printVerts();
     void setTexture(Bitmap *image);
+    void setTexture(const char *assetLoc,bool shouldFitToPreviousBounds);
     GLuint getTextureId(){return this->texId;}
     void setTextureId(GLuint texId);
     static Texture createTexture(Bitmap *image);
@@ -175,7 +181,7 @@ public:
 class ViewGroup : public View{
 private:
     uint noViews=0;
-    uint defaultSize=10;//default no ints;
+    uint defaultSize=15;//default no ints;
     View **views=nullptr;
 protected:
 public:
@@ -186,6 +192,7 @@ public:
 
 
 };
+
 
 
 

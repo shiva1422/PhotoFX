@@ -37,7 +37,7 @@ void Compute::showGpuCapacity()
     glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS,&maxInvocationSize);
     Loge("MaxThreads supported per workgroup(product of thre localworkgroup sizes","the max invocationsiz is %d",maxInvocationSize);
 }
-void Compute::dispatch(int workGroupSizeX,int workGroupSizeY,int workGroupSizeZ)
+kforceinline void Compute::dispatch(int workGroupSizeX,int workGroupSizeY,int workGroupSizeZ)
 {
     glDispatchCompute(workGroupSizeX,workGroupSizeY,workGroupSizeZ);
 }

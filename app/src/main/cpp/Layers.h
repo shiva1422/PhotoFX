@@ -12,10 +12,11 @@
 class Layer : public View{
 private:
     EditableImage *editableImages= NULL;
-    void add(EditableImage *editableImage);//// Later Can add other Views as well (use View * instead);
+   // void add(EditableImage *editableImage);//// Later Can add other Views as well (use View * instead);
 public:
     virtual void draw() override ;
     void addEditableImage(EditableImage *editableImage);
+    void process();
     EditableImage* getEditableImages(){return editableImages;}
     Layer(View *pView):View(pView)
     {

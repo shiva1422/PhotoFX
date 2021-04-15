@@ -4,29 +4,25 @@ vec3 rgbToHsi(vec3 rgb);
 vec3 hsiToRgb(vec3 hsi);
 layout(std430) buffer;
 layout (rgba8ui,binding=0) uniform readonly highp uimage2D imageIn;//image//image unifroms are supported in fragment shaders so try equalize in fragemnt shader;
-layout(rgba8ui,binding=1) uniform writeonly highp uimage2D imageOut;/////readonly or write only not needed;
+layout(rgba8ui,binding=1) uniform writeonly highp uimage2D imageOut;
 layout (std430,binding=2) buffer binsData
 {
- int eqVals[360];//values after equalization not bins;//actually 8 bit uint is enough for this;
+ int eqVals[256];//values after equalization not bins;
 };
 const float PI=3.14159265358979311599796346854;
 const float RADIAN=PI/180.0;
-layout(location=0) uniform int filterType;
+layout(location=0) uniform int autoType;
 layout(location=1) uniform int paramInt;
 layout(location=2) uniform int inOrOut;//to determina if bins for input or output image;
 layout(location=5) uniform float params[4];///no need for eq has it has no sliders
 void main()
 {
-    int finalPixel;
     ivec2 pos=ivec2(gl_GlobalInvocationID.xy);
-    uint lid=gl_LocalInvocationIndex;
-    uvec4 inPix= imageLoad(imageIn,pos);//////.rgba cool fx
-    // pixel = removeGreen(pixel);
-    // finalPixel=RgbaToInt(pixel);
+    uvec4 inPix= imageLoad(imageIn,pos);
     vec3 rgb=vec3(inPix.xyz);
     vec3 hsi=rgbToHsi(rgb);////Thes covertion no need for rgb histograms
     uvec4 outPix;
-    switch(filterType)//first 6 for histogramequ;//////reduce duplicated code;
+    switch(autoType)//first 6 for histogramequ;//////reduce duplicated code;
     {
 
             case 0:///cases should correspond to in histogram.glsl

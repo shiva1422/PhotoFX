@@ -14,8 +14,8 @@ enum EHistogramType{R=0,G,B,I,H,S};//order should match with shader implemented 
 class Histogram : public ImageView{
 private:
     GLuint binsTexId=0,ownerTexture=0;//think if threee texids needed Combine into 1;
-    int32_t binsSize=360;//256 would be enough but for hue eq 360 required;
-    int32_t outBins[360];
+    static const int32 binsSize;
+    int32_t outBins[256];
     static GLuint programId;
     int activeHistogram=0;//0 for input 1 for output used for drawing;
     bool bCalculated=false,boutBinsCalculated=false;

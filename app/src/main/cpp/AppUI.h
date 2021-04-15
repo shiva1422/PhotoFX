@@ -22,4 +22,5 @@ public:
     virtual bool onClick(View *view) override;
 };
 
+
 #endif //PHOTOFX_APPUI_H

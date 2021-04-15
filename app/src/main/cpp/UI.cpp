@@ -13,6 +13,7 @@ uint SliderSet::sliderCounter=0;
 //GLushort drawElementIndices[6]={0,1,2,2,3,0};
 GLuint ImageView::texCoodBufId=0,ImageView::indexBufId=0;
 
+
 void ViewGroup::draw()
 {
     for(int i=0;i<noViews;i++)
@@ -321,13 +322,27 @@ void ImageView::setTextureId(GLuint texId)
 {
     this->texId=texId;/////////////check other thing need to change if changed textureId like clear previous texture;
 }
-
+void ImageView::setTexture(const char *assetLoc,bool shouldFitToPreviousBounds)
+{
+    if(JavaCalls::setImageViewTexture(this,assetLoc)==STATUS_KO)
+    {
+        UILogE("could not set texture %s",assetLoc);
+    }
+    float previousWidth=width;
+    float previousHeight=height;
+    setBoundsDeviceIndependent(this->startX,this->startY,image.width,image.height);
+    if(shouldFitToPreviousBounds)
+    fitToCentre(startX,startY,previousWidth,previousHeight);
+}
 void ImageView::setTexture(Bitmap *image)
 {
     ////////need to clear the preious texture;
     if(!image->pixels)
     {UILogE("image setTexture","no image pixels");}
-    this->image=image;//if(image!=this->image)cheeck
+    this->image.height=image->height;//if(image!=this->image)
+    this->image.width=image->width;
+    this->image.stride=image->stride;
+    this->image.pixels=image->pixels;///remove reference to image as it might be GC after Jni call;
     if(glIsBuffer(texBufId))
     {glDeleteBuffers(1,&texBufId);}
     glGenBuffers(1, &texBufId);
@@ -468,6 +483,26 @@ void View:: setBoundsDeviceIndependent(float xStart,float yStart,float width, fl
     setBounds(xStart,yStart,newWidth,newHeight);
 
 }
+void View::setEndY(float endY)
+{
+    setBounds(startX,endY-height,width,height);
+}
+void View::setStartY(float startY)
+{
+    setBounds(startX,startY,width,height);
+}
+void View::setEndX(float endX)
+{
+    setBounds(endX-width,startY,width,height);
+}
+void View::setStartX(float startX)
+{
+    setBounds(startX,startY,width,height);
+}
+void View ::moveHorizontalByDistance(float moveDistanceX)
+{
+    setBounds(startX+moveDistanceX,startY,width,height);
+}
 void View::setBounds(float startX, float startY, float width, float height)
 {
     this->startX=startX;
@@ -520,6 +555,10 @@ kforceinline bool View::isPointAbove(float y)
 kforceinline bool View::isPointBelow(float y)
 {
     return(y>(startY+width));
+}
+View::~View()
+{
+    delete onTouchListener;
 }
 View::View()
 {

@@ -12,6 +12,7 @@ import android.Manifest;
 import android.app.NativeActivity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -22,6 +23,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
@@ -254,6 +256,10 @@ public class EditorActivity extends NativeActivity implements ActivityCompat.OnR
         if(requestCode==IMPORTIMAGE && resultCode==RESULT_OK)
         {
             Uri imageUri=data.getData();
+            Cursor returnCursor=getContentResolver().query(imageUri,null,null,null,null);
+            int nameIndex=returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+            returnCursor.moveToFirst();
+            Log.e("filename is ", returnCursor.getString(nameIndex));
             try{
                 String fileOpenMode = "r";
                 ParcelFileDescriptor parcelFd =

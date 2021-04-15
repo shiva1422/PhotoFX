@@ -19,11 +19,12 @@
 #define Loge(...)((void)__android_log_print(ANDROID_LOG_ERROR,__VA_ARGS__))
 #define Logi(...)((void)__android_log_print(ANDROID_LOG_INFO,__VA_ARGS__))
 #define kforceinline  __attribute__((always_inline))
+typedef int32_t int32;
 enum TouchAction{ACTION_DOWN,ACTION_POINTER_DOWN,ACTION_MOVE,ACTION_POINTER_UP,ACTION_UP};
 enum status{STATUS_OK,STATUS_KO,STATUS_EXTRA,STATUS_KO_FATAL};
 class Bitmap{
 public:
-    int width,height,stride;
+    int width=0,height=0,stride=0;
     uint8_t * pixels=NULL;
 };
 typedef struct DisplayParams{

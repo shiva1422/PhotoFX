@@ -11,6 +11,7 @@
  input histogram should be reset recacluated when the inpute image changes.
  */
 GLuint Histogram::programId=0;
+const int32 Histogram::binsSize=256;
 Histogram::Histogram() ////Destructor
 {
 

@@ -3,8 +3,8 @@ layout(local_size_x = 1,local_size_y=1,local_size_z=1) in;
 vec3 rgbToHsi(vec3 rgb);
 vec3 hsiToRgb(vec3 hsi);
 layout(std430) buffer;
-layout (rgba8ui,binding=0) uniform readonly highp uimage2D image;//image//image unifroms are supported in fragment shaders so try equalize in fragemnt shader;
-layout (std430, binding=1) buffer binsDat//binsBuffer//check binding point can be same as image vars
+layout (rgba8ui,binding=0) uniform readonly highp uimage2D image;
+layout (std430, binding=1) buffer binsDat
 {
     int bins[360];
 };

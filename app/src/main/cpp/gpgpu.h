@@ -5,7 +5,7 @@
 #ifndef PHOTOFX_GPGPU_H
 #define PHOTOFX_GPGPU_H
 
-
+#include "Commons.h"
 class Compute{
 
 public:
@@ -13,7 +13,7 @@ public:
     static void getGlobalWorkGroupSize(int *x,int *y,int *z);
     static void getMaxInvocationSize(int *invocationSize);
     static void showGpuCapacity();
-    static void dispatch(int workGroupSizeX,int workGroupSizeY,int workGroupSizeZ);
+    kforceinline static void dispatch(int workGroupSizeX,int workGroupSizeY,int workGroupSizeZ);
 
 };
 
