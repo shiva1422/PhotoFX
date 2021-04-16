@@ -5,7 +5,7 @@ include_directories(${ANDROID_NDK}/sources/android/native_app_glue)
 find_library(log-lib log)
 set(CMAKE_SHARED_LINKER_FLAGS  "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
 #freetype
-set(FREETYPE /Users/shivashankarpatelpsy/Desktop/exlib.nosync/androidlibs/mac/ft)
+set(FREETYPE E:/androidlibs/freetype)
 include_directories(${FREETYPE}/include)
 #oboe
 #set(OBOE  F:/androidlibs/oboe)
