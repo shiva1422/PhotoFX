@@ -4,6 +4,7 @@
 
 #include "AppUI.h"
 #include "Main.h"
+#include "Shapes.h"
 
 void AppUI::init()
 {
@@ -18,6 +19,25 @@ void AppUI::init()
    optionsSection.setBackgroundColor(0.2,0.2,0.2,1.0);
 
 }
+//AutoOptionsRecyler view
+AutoOptions::AutoOptions(int numViews) : RecyclerView(numViews) {
+    onInit();
+}
+AutoOptions::AutoOptions(int numViews, int maxListCount) : AutoOptions(numViews)
+{
+    maxLastListIndex=maxListCount-1;
+}
+void AutoOptions::onInit()
+{
+    for(int i=0;i<numViews;i++)
+    {
+        views[i]=new Polygon(8);
+        views[i]->setBackgroundColor(1.0,0.2*i,0.1*i,1.0);
+        Loge("autooptions","oniit()");
+    }
+}
+
+
 
 
 //Touch & Click Listeners

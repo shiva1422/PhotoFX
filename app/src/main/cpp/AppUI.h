@@ -7,6 +7,7 @@
 
 
 #include "UI.h"
+#include "RecyclerView.h"
 
 class AppUI{
 
@@ -15,6 +16,15 @@ public:
     View topSection,optionsSection,subOptionsSection,slidersSection;
     static View& getFrameBounds();
     void init();
+};
+//suboptions recylcer views;
+class AutoOptions:public RecyclerView
+{
+protected:
+    virtual void onInit() override ;
+public:
+    AutoOptions(int numViews);
+    AutoOptions(int numViews,int maxListCount);
 };
 ///Click and Touch Handlers Below;
 class SaveButtonClickListener : public OnClickListener{

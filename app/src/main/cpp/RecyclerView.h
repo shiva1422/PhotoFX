@@ -9,12 +9,11 @@
 #include "UI.h"
 
 class RecyclerView : public View{
-private:
+protected:
     int32 numViews=0,startViewIndex=0,lastViewIndex=0,listStartIndex=0,maxLastListIndex=10;//maxLastListIndex =listCount-1;where the list is ouside data;
     float viewGap=5.0,viewWidth=0.0;
     View **views= nullptr;
     kforceinline int32 getListLastIndex(){return listStartIndex+numViews-1;}
-protected:
     virtual void onInit();//to create views on custructions;
     virtual void onRecycle(bool right);
     void setViewsBounds(float startX, float startY, float width, float height);

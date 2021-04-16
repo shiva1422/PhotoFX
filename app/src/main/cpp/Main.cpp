@@ -88,7 +88,7 @@ void android_main(android_app *app)
     subOptionsStack.setNoViewsVisible(6);
     subOptionsStack.ViewGroup::setBounds(&globalData.appUI.subOptionsSection);
     subOptionsStack.fitViewsInBounds();
-    RecyclerView *recyclerView=new RecyclerView(8);
+    RecyclerView *recyclerView=new AutoOptions(7,13);
     recyclerView->setBounds(&globalData.appUI.subOptionsSection);
     viewGroup.addView(recyclerView);
 

@@ -24,11 +24,19 @@ RecyclerView::RecyclerView(int32 numViews):RecyclerView()
 
     this->numViews=numViews;
     views=new View*[numViews];
+    for(int i=0;i<numViews;i++)
+    {
+        views[i]= nullptr;
+    }
     if(views)
     {
         lastViewIndex=numViews-1;
         onInit();
     }
+}
+void RecyclerView::onInit()
+{
+    //default aac
 }
 RecyclerView::~RecyclerView()
 {
@@ -46,14 +54,7 @@ RecyclerView::~RecyclerView()
 
 
 }
-void RecyclerView::onInit() //just test;
-{
-    for(int i=0;i<numViews;i++)
-    {
-        views[i]=new Polygon(8);
-        views[i]->setBackgroundColor(1.0,i*0.15,0.0,1.0);
-    }
-}
+
 void RecyclerView::setBounds(View *view)
 {
     View::setBounds(view);
@@ -62,7 +63,7 @@ void RecyclerView::setBounds(View *view)
 void RecyclerView::setBounds(float startX, float startY, float width, float height)
 {
     View::setBounds(startX,startY,width,height);
-    viewWidth=(width-(numViews+1)*viewGap)/(numViews-1);// /0 if numView=1;////crashes;
+    viewWidth=(width-(numViews)*viewGap)/(numViews-1);// /0 if numView=1;////crashes;
     setViewsBounds(startX,startY,width,height);//this functin not needed, inline
 
 }
@@ -150,7 +151,13 @@ void RecyclerView::draw()
     for(int i=0;i<numViews;i++)
     {//doest draw from start index
         if(views[i])
+        {
+            views[i]->clearRect();
+            views[i]->setBackgroundColor(0.2*i,1.0,0.1*i,1.0);
             views[i]->draw();
+
+
+        }
     }
 
 }
