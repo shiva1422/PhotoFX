@@ -22,6 +22,7 @@ class AutoOptions:public RecyclerView
 {
 protected:
     virtual void onInit() override ;
+    virtual void reportActiveViewChanged() override ;
 public:
     AutoOptions(int numViews);
     AutoOptions(int numViews,int maxListCount);

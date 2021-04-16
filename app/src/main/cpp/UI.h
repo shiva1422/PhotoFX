@@ -88,6 +88,7 @@ public:
     virtual void moveHorizontalByDistance(float moveDistanceX);
     virtual void draw(){clearRect();};////change ClearRect////shoud draw be protected?
     void clearRect();
+    void clearRect(float r,float g,float b,float a);
 
     //Touch:
    virtual bool isTouched(float touchX,float touchY,int pointerId,TouchAction touchAction);

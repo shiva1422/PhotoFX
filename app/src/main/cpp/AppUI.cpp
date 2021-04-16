@@ -36,6 +36,10 @@ void AutoOptions::onInit()
         Loge("autooptions","oniit()");
     }
 }
+void AutoOptions::reportActiveViewChanged()
+{
+    Loge("AutoOptions::", "reporting change in active view %d and list first index %d and list last index %d and active listIndex is %d", activeListIndex, listStartIndex, getListLastIndex(),activeListIndex);
+}
 
 
 

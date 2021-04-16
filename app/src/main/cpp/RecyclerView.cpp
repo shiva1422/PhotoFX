@@ -13,9 +13,9 @@ RecyclerView::RecyclerView(int32 numViews):RecyclerView()
 {
     if(views)
     {
-        for(int i=0;i<this->numViews;i++)
+        for(int i=0;i<this->numViews;i++)//instead of loop delete as array
         {
-            delete[] views[i];
+            delete views[i];
             views[i]= nullptr;
         }
         delete [] views;
@@ -44,7 +44,7 @@ RecyclerView::~RecyclerView()
     {
         for(int i=0;i<this->numViews;i++)
         {
-            delete[] views[i];
+            delete views[i];
             views[i]= nullptr;
 
         }
@@ -112,6 +112,7 @@ void RecyclerView::onRecycle(bool right)
 }
 void RecyclerView::onMove(float moveDistanceX)/////careful startViewIndexAndListStartIndex;
 {
+    Loge("recycler","the activeList Index is %d",activeListIndex);
     if((listStartIndex==0&&moveDistanceX>0))//no moving right if first view is at start;
     {
         if(views[startViewIndex]->getStartX()>=(startX+viewGap-moveDistanceX))
@@ -148,15 +149,27 @@ void RecyclerView::onMove(float moveDistanceX)/////careful startViewIndexAndList
 void RecyclerView::draw()
 {
     View::draw();
+    int activeViewOffset=INT32_MAX;
+    if(activeListIndex>=listStartIndex&&activeListIndex<=getListLastIndex())                                //highlight the bacground of active index in
+    {
+        activeViewOffset=activeListIndex-listStartIndex;
+    }
+    int viewIndex=0;
     for(int i=0;i<numViews;i++)
     {//doest draw from start index
-        if(views[i])
+        viewIndex=startViewIndex+i;
+        if(viewIndex>=numViews)
         {
-            views[i]->clearRect();
-            views[i]->setBackgroundColor(0.2*i,1.0,0.1*i,1.0);
-            views[i]->draw();
-
-
+            viewIndex-=numViews;
+        }
+        if(views[viewIndex])
+        {
+            if(!(i==activeViewOffset))
+                views[viewIndex]->clearRect(0.0,0.0,0.0,1.0);
+            else
+                views[viewIndex]->clearRect(1.0,1.0,1.0,1.0);                                 //background color to highlight of the activeListIndex;
+            views[viewIndex]->setBackgroundColor(0.2*i,1.0,0.1*i,1.0);
+            views[viewIndex]->draw();
         }
     }
 
@@ -164,6 +177,27 @@ void RecyclerView::draw()
 
 
 ///touch
+
+int32 RecyclerView::setActiveListIndex(float x, float y)
+{
+   float xDisBetStartViewAndLoc=x-views[startViewIndex]->getStartX();
+   int32 tempActiveViewIndex=INT32_MAX;
+           if(xDisBetStartViewAndLoc>=0)
+           {
+               tempActiveViewIndex= (xDisBetStartViewAndLoc) / (viewGap + viewWidth);///////needs improve as view gaps here also acount for (which should not be )/also this is not actual index but an offset from startView;
+               activeListIndex=getListIndexAtOffset(tempActiveViewIndex);
+           }
+           else
+           {
+               activeListIndex=INT32_MAX;
+           }
+           Loge("Recylcer View ", "The active view is %d", activeListIndex);
+           reportActiveViewChanged();
+    return activeListIndex;
+}
+
+
+//touch Listener;
 bool RecyclerTouchListener::onTouch(float touchX, float touchY, int pointerId, TouchAction touchAction, View *view)
 {
     RecyclerView *recyclerView=(RecyclerView*)view;
@@ -173,6 +207,8 @@ bool RecyclerTouchListener::onTouch(float touchX, float touchY, int pointerId, T
         {
             previousPointerId=pointerId;
             previousTouchX=touchX;
+            initialTouchX=touchX;
+            totalMoveDisX=0.0f;
             return true;
 
         }break;
@@ -182,16 +218,26 @@ bool RecyclerTouchListener::onTouch(float touchX, float touchY, int pointerId, T
         {
             if(pointerId==previousPointerId)
             {
-                recyclerView->onMove(touchX-previousTouchX);
+                float tempMoveDisX=touchX-previousTouchX;
+                recyclerView->onMove(tempMoveDisX);
+                if(tempMoveDisX<0)
+                {
+                    tempMoveDisX*=-1;
+                }
+                totalMoveDisX+=tempMoveDisX;
             }
             previousTouchX=touchX;
             return true;
 
         }break;
-        case ACTION_POINTER_UP:
+        case ACTION_POINTER_UP://actually this is not needed as pointerDown is not counted for;
         {
             if(pointerId==previousPointerId)
             {
+                if(totalMoveDisX<=10)//allowed 10 pixel for click
+                {
+                    recyclerView->setActiveListIndex(touchX, touchY);
+                }
                 previousPointerId=INT32_MAX;
                 return false;
             }
@@ -201,6 +247,10 @@ bool RecyclerTouchListener::onTouch(float touchX, float touchY, int pointerId, T
         {
             if(pointerId==previousPointerId)
             {
+                if(totalMoveDisX<=10)//allowed 10 pixel for click
+                {
+                    recyclerView->setActiveListIndex(touchX, touchY);
+                }
                 previousPointerId=INT32_MAX;
                 return false;
             }

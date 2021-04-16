@@ -429,11 +429,19 @@ ImageView::ImageView()
     glBindBuffer(GL_ARRAY_BUFFER,0);
     setTexture(&defaultImage);
 }
+void View::clearRect(float r,float g,float b,float a)
+{
+    glEnable(GL_SCISSOR_TEST);
+    glScissor(startX,displayParams.screenHeight-startY-height,width,height);
+    glClearColor(r,g,b,a);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glDisable(GL_SCISSOR_TEST);
+}
 void View::clearRect()
 {
 
     glEnable(GL_SCISSOR_TEST);
-    glScissor(startX,displayParams.screenHeight-startY-height,width,height);
+    glScissor(startX,displayParams.screenHeight-startY-height,width,height);//if glScissor enable after this then scissor bounds should bes same as viewport bounds;
     glClearColor(r,g,b,a);
     glClear(GL_COLOR_BUFFER_BIT);
     glDisable(GL_SCISSOR_TEST);
