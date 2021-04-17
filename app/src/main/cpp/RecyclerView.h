@@ -21,10 +21,10 @@ protected:
     virtual void onInit();//to create views on custructions;
     virtual void onRecycle(bool right);
     void setViewsBounds(float startX, float startY, float width, float height);
-    virtual void reportActiveViewChanged()=0;
+    virtual void reportChangeOfActiveListIndex()=0;
 public:
     RecyclerView();
-    RecyclerView(int32 numViews);
+    RecyclerView(int32 numViewsToDraw);
     ~RecyclerView();
     virtual void setBounds(float startX, float startY, float width, float height) override ;
     virtual void draw() override ;

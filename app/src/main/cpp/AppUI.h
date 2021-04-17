@@ -22,10 +22,10 @@ class AutoOptions:public RecyclerView
 {
 protected:
     virtual void onInit() override ;
-    virtual void reportActiveViewChanged() override ;
+    virtual void reportChangeOfActiveListIndex() override ;
 public:
     AutoOptions(int numViews);
-    AutoOptions(int numViews,int maxListCount);
+    AutoOptions(int numViews,int maxListCount);//maxListCount>=numViews;
 };
 ///Click and Touch Handlers Below;
 class SaveButtonClickListener : public OnClickListener{

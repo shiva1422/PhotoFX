@@ -18,6 +18,7 @@
 #include "Shapes.h"
 #include "Auto.h"
 #include "RecyclerView.h"
+#include "TextView.h"
 
 void android_main(android_app *app)
 {
@@ -80,15 +81,15 @@ void android_main(android_app *app)
 
     //globalData.contentView=&MainImageView;
     ImageViewStack optionsStack(6,ImageView::defaultImage.width,ImageView::defaultImage.height);
-    ImageViewStack subOptionsStack(6,ImageView::defaultImage.width,ImageView::defaultImage.height);
+  //  ImageViewStack subOptionsStack(6,ImageView::defaultImage.width,ImageView::defaultImage.height);
     optionsStack.ViewGroup::setBounds(&globalData.appUI.optionsSection);
     optionsStack.setTextureForViewNo(0,"icons/auto.png");
     optionsStack.setTextureForViewNo(1,"icons/hue.png");
     optionsStack.fitViewsInBounds();
-    subOptionsStack.setNoViewsVisible(6);
-    subOptionsStack.ViewGroup::setBounds(&globalData.appUI.subOptionsSection);
-    subOptionsStack.fitViewsInBounds();
-    RecyclerView *recyclerView=new AutoOptions(7,13);
+   // subOptionsStack.setNoViewsVisible(6);
+   // subOptionsStack.ViewGroup::setBounds(&globalData.appUI.subOptionsSection);
+   // subOptionsStack.fitViewsInBounds();
+    RecyclerView *recyclerView=new AutoOptions(7,7);
     recyclerView->setBounds(&globalData.appUI.subOptionsSection);
     viewGroup.addView(recyclerView);
 
@@ -103,10 +104,12 @@ void android_main(android_app *app)
     saveButton.setBoundsDeviceIndependent(displayParams.screenWidth*80/100,0,displayParams.screenWidth*20.0/100,globalData.appUI.topSection.getHeight());
     saveButton.setTexture("icons/save.png",true);
     saveButton.setOnTouchListener(new SaveButtonClickListener());
+    saveButton.setEndX(displayParams.screenWidth);
     ImageView fileExplorer;
     fileExplorer.setBounds(0,0,displayParams.screenWidth*20.0/100,globalData.appUI.topSection.getHeight());
     fileExplorer.setTexture("icons/files.png",true);
     fileExplorer.setOnTouchListener(new FilesTouchListener());
+    fileExplorer.setStartX(0);
     ImageView toggleComputeView(displayParams.screenWidth*90/100,400,100,100);
     toggleComputeView.setOnTouchListener(new ToggleProcessingTypeTouchListener());//delete when done;
     ImageView toggleHistogram(displayParams.screenWidth*90/100,500,100,100);
@@ -115,7 +118,7 @@ void android_main(android_app *app)
 
 
 viewGroup.addView(&optionsStack);
-viewGroup.addView(&subOptionsStack);
+//viewGroup.addView(&subOptionsStack);
 //viewGroup.addView(&MainImageView);
 viewGroup.setBounds(0,0,displayParams.screenWidth,displayParams.screenHeight);
 for(int i=0;i<4;i++)
@@ -130,13 +133,14 @@ Editor editor;
 Layer layer(&globalData.appUI.frameBounds);
 layer.setBackgroundColor(0.0,0.0,0.0,1.0);
 editor.addLayer(&layer);
-editor.setOptions(&optionsStack, &subOptionsStack);
+//editor.setOptions(&optionsStack, &subOptionsStack);
 globalData.setEditingContext(&editor);
-globalData.setMenu(&subOptionsStack,SUBOPTIONS_MENU);
+//globalData.setMenu(&subOptionsStack,SUBOPTIONS_MENU);
 globalData.setMenu(&optionsStack,OPTIONS_MENU);
 globalData.addInputComponent(&sliderSet[0],R_INPUT);
 
-
+TextView testTextView;
+testTextView.setBounds(0,100,400,400);
 
 TimeDiff frameTime;
     while(true)
@@ -161,6 +165,7 @@ TimeDiff frameTime;
                 globalData.appUI.subOptionsSection.clearRect();
                 globalData.appUI.optionsSection.clearRect();
                 editor.draw();
+                testTextView.draw();
                 if(globalData.activeHistogram)
                 {
                     //MainImageView.toggleHistogramView();//editableImage.toggleHistogramView();

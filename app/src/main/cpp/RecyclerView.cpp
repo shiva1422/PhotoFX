@@ -7,9 +7,9 @@
 
 RecyclerView::RecyclerView() :View()
 {
-    onTouchListener=new RecyclerTouchListener();
+    setOnTouchListener(new RecyclerTouchListener());
 }
-RecyclerView::RecyclerView(int32 numViews):RecyclerView()
+RecyclerView::RecyclerView(int32 numViewsToDraw): RecyclerView()
 {
     if(views)
     {
@@ -22,15 +22,16 @@ RecyclerView::RecyclerView(int32 numViews):RecyclerView()
         views=nullptr;
     }
 
-    this->numViews=numViews;
-    views=new View*[numViews];
-    for(int i=0;i<numViews;i++)
+    this->numViews=numViewsToDraw;
+    views=new View*[numViewsToDraw];
+    for(int i=0; i < numViewsToDraw; i++)
     {
         views[i]= nullptr;
     }
     if(views)
     {
-        lastViewIndex=numViews-1;
+        lastViewIndex= numViewsToDraw - 1;
+        maxLastListIndex=lastViewIndex;//should be based on the outside databased(for example max number of options-1)//should change in subclass;(using other construcntor;
         onInit();
     }
 }
@@ -63,7 +64,7 @@ void RecyclerView::setBounds(View *view)
 void RecyclerView::setBounds(float startX, float startY, float width, float height)
 {
     View::setBounds(startX,startY,width,height);
-    viewWidth=(width-(numViews)*viewGap)/(numViews-1);// /0 if numView=1;////crashes;
+    viewWidth=(width-(numViews)*viewGap)/(numViews-1);                                                          /// /0 if numView=1;////crashes;
     setViewsBounds(startX,startY,width,height);//this functin not needed, inline
 
 }
@@ -147,7 +148,7 @@ void RecyclerView::onMove(float moveDistanceX)/////careful startViewIndexAndList
 }
 
 void RecyclerView::draw()
-{
+{                                                                                                        ////   use scissorTest for not drawing inside views out of the recyler view bounds
     View::draw();
     int activeViewOffset=INT32_MAX;
     if(activeListIndex>=listStartIndex&&activeListIndex<=getListLastIndex())                                //highlight the bacground of active index in
@@ -181,6 +182,7 @@ void RecyclerView::draw()
 int32 RecyclerView::setActiveListIndex(float x, float y)
 {
    float xDisBetStartViewAndLoc=x-views[startViewIndex]->getStartX();
+   int32 previousActiveListIndex=activeListIndex;
    int32 tempActiveViewIndex=INT32_MAX;
            if(xDisBetStartViewAndLoc>=0)
            {
@@ -192,7 +194,8 @@ int32 RecyclerView::setActiveListIndex(float x, float y)
                activeListIndex=INT32_MAX;
            }
            Loge("Recylcer View ", "The active view is %d", activeListIndex);
-           reportActiveViewChanged();
+           if(previousActiveListIndex!=activeListIndex)
+               reportChangeOfActiveListIndex();
     return activeListIndex;
 }
 
@@ -247,7 +250,7 @@ bool RecyclerTouchListener::onTouch(float touchX, float touchY, int pointerId, T
         {
             if(pointerId==previousPointerId)
             {
-                if(totalMoveDisX<=10)//allowed 10 pixel for click
+                if(totalMoveDisX<=10)//allowed 10 pixel move for click
                 {
                     recyclerView->setActiveListIndex(touchX, touchY);
                 }

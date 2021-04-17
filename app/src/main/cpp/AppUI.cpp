@@ -26,17 +26,22 @@ AutoOptions::AutoOptions(int numViews) : RecyclerView(numViews) {
 AutoOptions::AutoOptions(int numViews, int maxListCount) : AutoOptions(numViews)
 {
     maxLastListIndex=maxListCount-1;
+    if(numViews<maxListCount)                                                                           //ideally this shouldnt happen as numView should be less than maxListCount;
+    {
+
+        maxLastListIndex=numViews-1;
+    }
 }
 void AutoOptions::onInit()
 {
     for(int i=0;i<numViews;i++)
     {
-        views[i]=new Polygon(8);
+        views[i]=new Capsule(8);
         views[i]->setBackgroundColor(1.0,0.2*i,0.1*i,1.0);
         Loge("autooptions","oniit()");
     }
 }
-void AutoOptions::reportActiveViewChanged()
+void AutoOptions::reportChangeOfActiveListIndex()
 {
     Loge("AutoOptions::", "reporting change in active view %d and list first index %d and list last index %d and active listIndex is %d", activeListIndex, listStartIndex, getListLastIndex(),activeListIndex);
 }

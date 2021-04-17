@@ -425,9 +425,9 @@ ImageView::ImageView()
 {
     glGenBuffers(1,&vertexBufId);
     glBindBuffer(GL_ARRAY_BUFFER,vertexBufId);
-    glBufferData(GL_ARRAY_BUFFER,sizeof(float)*8,(void *)0,GL_STATIC_DRAW);///dimensions should be set before this or else reset dimesnion with same dims
+    glBufferData(GL_ARRAY_BUFFER,sizeof(float)*8,(void *)0,GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER,0);
-    setTexture(&defaultImage);
+    setTexture(&defaultImage);///remove release;
 }
 void View::clearRect(float r,float g,float b,float a)
 {

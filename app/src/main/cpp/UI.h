@@ -29,7 +29,7 @@ protected:
     //float vertices[8];///check can be removed as its stored on gpuside in View.
     bool visible=true;
  //Touch:
-      OnTouchListener *onTouchListener=new ViewTouchListener() ;//free in destructor;
+      OnTouchListener *onTouchListener=new ViewTouchListener() ;
 
 
 public:
@@ -94,7 +94,8 @@ public:
    virtual bool isTouched(float touchX,float touchY,int pointerId,TouchAction touchAction);
    virtual void setOnTouchListener(OnTouchListener *touchListener)
    {
-       this->onTouchListener=touchListener;///freeing the old one and current parameter check
+       delete this->onTouchListener;
+       this->onTouchListener=touchListener;
    }
    virtual void setOnClickListener(OnClickListener *clickListener)
    {
