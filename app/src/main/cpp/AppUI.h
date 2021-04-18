@@ -17,7 +17,21 @@ public:
     static View& getFrameBounds();
     void init();
 };
-//suboptions recylcer views;
+
+//options imageViewStack;
+class Options : public ImageViewStack
+{
+public:
+    Options(int numViews,float bitmapWidth,float bitmapHeight);
+};
+
+class OptionsClickListener: public ImageViewStackClickListener{
+public:
+    virtual bool onClick(float clickX,float clickY,ImageViewStack *stackView) override ;
+};
+
+
+//suboptions section recylcer views;
 class AutoOptions:public RecyclerView
 {
 protected:

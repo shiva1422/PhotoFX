@@ -21,7 +21,7 @@ void onCmd(android_app* app, int32_t cmd)
         {
             hideSystemUI(app);
             //  CallbacksLog("the window h is %d and the window w is %d",ANativeWindow_getHeight(app->window),ANativeWindow_getWidth(app->window));
-            AppContext  *appContext=((GlobalData *)app->userData)->appContext;
+            AppContext  *appContext=((PhotoApp *)app->userData)->appContext;
             if(appContext->appFirstOpen)
             {
                 if (Graphics::init_display(appContext) == STATUS_OK)
@@ -45,7 +45,7 @@ void onCmd(android_app* app, int32_t cmd)
             break;
         case APP_CMD_TERM_WINDOW: {
             // clean up the window because it is being hidden/closed
-            AppContext  *appContext=((GlobalData *)app->userData)->appContext;
+            AppContext  *appContext=((PhotoApp *)app->userData)->appContext;
             appContext->windowInitStatus=false;
 
 

@@ -30,8 +30,8 @@ public:
     void setOwnerTexture(GLuint ownerId){this->ownerTexture=ownerId;}
     void setOwnerImage(EditableImage *editableImage){this->ownerImage=editableImage;}
     void compute(int histogramType);//for what should be same as in auto shader//replace for what with enum
-    void glCompute(int binSize);
-    void cpuCompute(int binSize);
+    void glCompute();
+    void cpuCompute();
     void reset();
     void printValues();//same as computeParam
     void updateBuffer(void *values);

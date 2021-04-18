@@ -6,7 +6,7 @@ layout(std430) buffer;
 layout (rgba8ui,binding=0) uniform readonly highp uimage2D image;
 layout (std430, binding=1) buffer binsDat
 {
-    int bins[360];
+    int bins[256];
 };
 const float PI=3.14159265358979311599796346854;
 const float RADIAN=PI/180.0;
@@ -34,31 +34,28 @@ void main()
         {
             atomicAdd(bins[inPix.b], 1);
         }break;
-        case 3://histogram for I;//
-        {
-            atomicAdd(bins[uint(hsi.b)], 1);/////for floats type adtomic load stores not directly but input image as float and ouput as int just  like that check
-        }
-        break;
-        case 4://H
-        {
-            atomicAdd(bins[uint(hsi.r)], 1);///actually igonring decimals check to composate by add or sub difference in ouput
-        }break;
-        case 5:
+        case 3://saturation
         {
             float tempSat=hsi.g*255.0;
             atomicAdd(bins[uint(tempSat)], 1);
         }break;
-        case 6:////Cmy has same histograms like red except they are inverted;
+        case 4://histogram for I;//
         {
-            uint cyan=uint(255)-inPix.r;//instead of 255-inpix her doe in auto.glsl check
-            atomicAdd(bins[uint(cyan)],1);
+            atomicAdd(bins[uint(hsi.b)], 1);/////for floats type adtomic load stores not directly but input image as float and ouput as int just  like that check
+        }
+        break;
+
+        case 5:////Cmy has same histograms like red except they are inverted;
+        {
+            uint cyan=255u-inPix.r;//instead of 255-inpix her doe in auto.glsl check
+            atomicAdd(bins[cyan],1);
+        }break;
+        case 6:
+        {
+            uint magenta=255u-inPix.g;
+            atomicAdd(bins[magenta],1);
         }break;
         case 7:
-        {
-            uint magenta=uint(255)-inPix.g;
-            atomicAdd(bins[uint(magenta)],1);
-        }break;
-        case 8:
         {
             uint magenta=uint(255)-inPix.b;
             atomicAdd(bins[uint(magenta)],1);

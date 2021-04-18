@@ -26,7 +26,7 @@ void android_main(android_app *app)
     app->onInputEvent = onInput;
     AppContext appContext;
     DisplayParams displayParams;
-    GlobalData globalData;
+    PhotoApp globalData;
     getDisplayParams(app,&AppContext::displayParams);
     displayParams=AppContext::displayParams;
     View::setDisplayParams(displayParams);
@@ -68,8 +68,8 @@ void android_main(android_app *app)
 
        //OPENGL AND WINDOW SHOULD BE INITIALIZED BY NOW;
 
-    GlobalData::UIProgram=Shader::createShaderProgram(app,"UIProgram/vertexShader.glsl","UIProgram/fragmentShader.glsl");
-    GlobalData::useGlProgram(GlobalData::UIProgram);
+    PhotoApp::UIProgram=Shader::createShaderProgram(app, "UIProgram/vertexShader.glsl", "UIProgram/fragmentShader.glsl");
+    PhotoApp::useGlProgram(PhotoApp::UIProgram);
     AppContext::UIProgram=globalData.UIProgram;
     InitializeUI();
      //Bitmap defaultKalaImage;//move most of the setup things to seperate function;
@@ -80,7 +80,7 @@ void android_main(android_app *app)
 
 
     //globalData.contentView=&MainImageView;
-    ImageViewStack optionsStack(6,ImageView::defaultImage.width,ImageView::defaultImage.height);
+    Options optionsStack(6,ImageView::defaultImage.width,ImageView::defaultImage.height);
   //  ImageViewStack subOptionsStack(6,ImageView::defaultImage.width,ImageView::defaultImage.height);
     optionsStack.ViewGroup::setBounds(&globalData.appUI.optionsSection);
     optionsStack.setTextureForViewNo(0,"icons/auto.png");
@@ -89,7 +89,7 @@ void android_main(android_app *app)
    // subOptionsStack.setNoViewsVisible(6);
    // subOptionsStack.ViewGroup::setBounds(&globalData.appUI.subOptionsSection);
    // subOptionsStack.fitViewsInBounds();
-    RecyclerView *recyclerView=new AutoOptions(7,7);
+    RecyclerView *recyclerView=new AutoOptions(7,13);
     recyclerView->setBounds(&globalData.appUI.subOptionsSection);
     viewGroup.addView(recyclerView);
 
@@ -98,6 +98,7 @@ void android_main(android_app *app)
     {
         sliderSet[i].setBounds(Graphics::displayParams.screenWidth*5.0/100.0,globalData.appUI.frameBounds.endY()+(i)*(displayParams.screenHeight*2/100+10),(float)displayParams.screenWidth-(displayParams.screenWidth*10.0/100),displayParams.screenHeight*2/100);
         sliderSet[i].setBackgroundColor(1.0,0.0,1.0,1.0);
+        sliderSet[i].setVisibility(false);
 
     }
     ImageView saveButton;
@@ -155,7 +156,7 @@ TimeDiff frameTime;
                frameTime.start();
                 source->process(app, source);
                 editor.process();
-                GlobalData::useGlProgram(GlobalData::UIProgram);
+                PhotoApp::useGlProgram(PhotoApp::UIProgram);
                 glUniform1i(glGetUniformLocation(globalData.UIProgram,"param3"),1);//active stackView;
                 glClearColor(0.0,0.0,0.0,1.0);
                 glClear(GL_COLOR_BUFFER_BIT);
@@ -165,7 +166,7 @@ TimeDiff frameTime;
                 globalData.appUI.subOptionsSection.clearRect();
                 globalData.appUI.optionsSection.clearRect();
                 editor.draw();
-                testTextView.draw();
+              //  testTextView.draw();
                 if(globalData.activeHistogram)
                 {
                     //MainImageView.toggleHistogramView();//editableImage.toggleHistogramView();
@@ -180,7 +181,7 @@ TimeDiff frameTime;
               }
                 if(globalData.testImage)
                 {
-                   // GlobalData::useGlProgram(GlobalData::UIProgram);
+                   // PhotoApp::useGlProgram(PhotoApp::UIProgram);
                     globalData.testImage->drawInput();
                     Loge("testImage","draw");
                 }
@@ -191,7 +192,7 @@ TimeDiff frameTime;
                     Graphics::printGlError("EGLSWAP DRAW LOOP");
 
                 };
-
+                editor.printTotalImageCount();
                 frameTime.end();
                 frameTime.getTimeDiff();
                 //Compute::showGpuCapacity();

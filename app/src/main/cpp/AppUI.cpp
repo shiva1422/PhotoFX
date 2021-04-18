@@ -5,6 +5,7 @@
 #include "AppUI.h"
 #include "Main.h"
 #include "Shapes.h"
+#include "Auto.h"
 
 void AppUI::init()
 {
@@ -19,14 +20,38 @@ void AppUI::init()
    optionsSection.setBackgroundColor(0.2,0.2,0.2,1.0);
 
 }
-//AutoOptionsRecyler view
+//OptionsSection
+Options::Options(int numViews, float bitmapWidth, float bitmapHeight) :ImageViewStack(numViews,bitmapWidth,bitmapHeight)
+{
+    setOnClickListener(reinterpret_cast<OnClickListener *>(new OptionsClickListener()));
+}
+
+bool OptionsClickListener::onClick(float clickX, float clickY, ImageViewStack *stackView)
+{
+    int previousOption=stackView->getActiveViewNo();
+    int optionOnClick=stackView->getViewNoAtLoc(clickX,clickY);
+    if(previousOption!=optionOnClick)
+    {
+        //report to global data changeoFOption;
+        stackView->setActiveViewNo(optionOnClick);
+        PhotoApp *photoApp= static_cast<PhotoApp *>(AppContext::getApp()->userData);
+        if(photoApp)
+        {
+            photoApp->onOptionChanged(optionOnClick);
+        }
+    }
+
+    return true;
+}
+
+//Sub options section AutoOptionsRecyler view
 AutoOptions::AutoOptions(int numViews) : RecyclerView(numViews) {
     onInit();
 }
 AutoOptions::AutoOptions(int numViews, int maxListCount) : AutoOptions(numViews)
 {
     maxLastListIndex=maxListCount-1;
-    if(numViews<maxListCount)                                                                           //ideally this shouldnt happen as numView should be less than maxListCount;
+    if(numViews>maxListCount)                                                                           //ideally this shouldnt happen as numView should be less than maxListCount;
     {
 
         maxLastListIndex=numViews-1;
@@ -44,6 +69,13 @@ void AutoOptions::onInit()
 void AutoOptions::reportChangeOfActiveListIndex()
 {
     Loge("AutoOptions::", "reporting change in active view %d and list first index %d and list last index %d and active listIndex is %d", activeListIndex, listStartIndex, getListLastIndex(),activeListIndex);
+    Auto::setAutoType(activeListIndex);
+    PhotoApp *photoApp= static_cast<PhotoApp *>(AppContext::getApp()->userData);
+    if(photoApp)
+    {
+        photoApp->editor->onInputValuesChanged(0,activeListIndex);
+    }
+
 }
 
 
@@ -53,7 +85,7 @@ void AutoOptions::reportChangeOfActiveListIndex()
 bool SaveButtonClickListener::onClick(View *view)
 {
 
-      GlobalData *globalData=(GlobalData *)app->userData;
+      PhotoApp *globalData=(PhotoApp *)app->userData;
       globalData->onSaveImage();//returns ?
       return true;
 

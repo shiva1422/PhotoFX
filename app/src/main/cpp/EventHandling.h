@@ -5,8 +5,13 @@
 #ifndef PHOTOFX_EVENTHANDLING_H
 #define PHOTOFX_EVENTHANDLING_H
 #include "Commons.h"
+/*
+ * IMPROVE
+ * Make touch and clicklisteners as inner class View;
+ */
 bool touchFunct(float touchX,float touchY,TouchAction touchAction);
 class View;
+class ImageViewStack;
 class OnTouchListener{//can be inner class of view;
 
 
@@ -56,12 +61,17 @@ public:
 
 
 };
-class ImageViewStackTouchListener: public OnTouchListener
+
+class ImageViewStackClickListener: public OnTouchListener
 {
+private:
+    int maxAllowedMove=10;//pixles to consider as move as click;
+    float initialTouchX=0,initialTouchY=0;
+    float totalMoveDisX=0.0f,totalMoveDisY=0.0f,previousTouchX=0.0,previousTouchY=0.0f;
+   // using OnTouchListener::onTouch;
 public:
-    virtual bool onTouch(float touchX,float touchY,int pointerId,TouchAction touchAction,View *view) override ;
-
-
+    virtual bool onTouch(float touchX,float touchY,int pointerId,TouchAction touchAction,View *view) override ;///should not be accesed by derive class make private using delete or using using;
+    virtual bool onClick(float clickX, float clickY, ImageViewStack *view);
 };
 class SliderTouchListener : public OnTouchListener{
 public:

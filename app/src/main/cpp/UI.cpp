@@ -125,7 +125,7 @@ void ImageViewStack::draw()
   ///  Graphics::printGlError("ImageViewStack::draw");
 
 }
-int ImageViewStack::getViewNoAtLoc(float x, float y)
+int ImageViewStack::getViewNoAtLoc(float x, float y)////improve as this returns out of numViews also gaps also account for(should not be)
 {//use x for horizontal orientation ,y for vertical orientation///needs some improvesment as afiter fit view to bounds chnages in dimensions;
     float length=x-startX;
     if(!isPointInside(x,y))
@@ -134,9 +134,11 @@ int ImageViewStack::getViewNoAtLoc(float x, float y)
     }
     else
     {
-        float no=(length/(singleImageWidth+viewGap));
+        float no=(length/(singleImageWidth+viewGap));       //should give accurate improve
       //  Loge("ImageViewStack:GetViewNOLoc","%f",no);
-        return (uint)no;
+      if(no<numViews)
+        return no;
+      else return activeViewNo;
     }
 
 }
@@ -257,7 +259,7 @@ ImageViewStack::ImageViewStack()
     glBindBuffer(GL_ARRAY_BUFFER,vertexBufId);
     glBufferData(GL_ARRAY_BUFFER,sizeof(float)*8,(void *)0,GL_STATIC_DRAW);///dimensions should be set before this or else reset dimesnion with same dims
     glBindBuffer(GL_ARRAY_BUFFER,0);
-    onTouchListener=new ImageViewStackTouchListener();///clear previous touch listeners and current
+    setOnTouchListener(new ImageViewStackClickListener());///clear previous touch listeners and current
 
 }
 void ImageView::draw()

@@ -21,7 +21,7 @@ void customPollProcess(struct android_app* app, struct android_poll_source* sour
          {
              case IMPORTIMAGE:
              {
-                GlobalData *globalData= static_cast<GlobalData *>(app->userData);
+                PhotoApp *globalData= static_cast<PhotoApp *>(app->userData);
                 globalData->onImportImage(msg.fd);
              }break;
 

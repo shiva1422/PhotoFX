@@ -8,7 +8,7 @@
 float touchX,touchY;
 int32_t pointerIndex,pointerId,pointerCount;
 int32_t onInput(android_app* app, AInputEvent* event) {
-    GlobalData *globalData=(GlobalData *)(app->userData);///check if can get without any conversion
+    PhotoApp *globalData=(PhotoApp *)(app->userData);///check if can get without any conversion
     View *ContentView=globalData->contentView;
 
 

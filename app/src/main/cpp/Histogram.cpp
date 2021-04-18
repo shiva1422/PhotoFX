@@ -71,30 +71,24 @@ void Histogram::compute(int histogramFor)
 {
     //isHistorgramCalcuated should be set is success
     eHistogramType=(EHistogramType)histogramFor;
-    int tempBinsSize=256;
-    if(histogramFor == 4)
-    {
-        tempBinsSize=360;
-    }
-
     if(programId)
     {
-       glCompute(tempBinsSize) ;
+       glCompute() ;
     }
     else
         {
-        cpuCompute(tempBinsSize);
+        cpuCompute();
         }
 }
-void Histogram::glCompute(int tempBinSize)
+void Histogram::glCompute()
 {
     reset();
     if(ownerImage)//check not needed
     {
 
         Graphics::printGlError("computeProcess error2");
-        GlobalData::useGlProgram(programId);////this may cause error in Editing check
-        glUniform1i(0,eHistogramType);////may need some mod
+        PhotoApp::useGlProgram(programId);////this may cause error in Editing check
+        glUniform1i(0,(int)eHistogramType);////may need some mod
         glBindBuffer(GL_SHADER_STORAGE_BUFFER,binsBuffer);
         glBindImageTexture(0, ownerTexture, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8UI);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER,1,binsBuffer);
@@ -108,11 +102,11 @@ void Histogram::glCompute(int tempBinSize)
 
         if(Graphics::printGlError("histogramCompute")==GL_NO_ERROR)
         {
-            Loge("Histogram COmpute","SUCCESS");
+            Loge("Histogram COmpute","SUCCESS for type %d",(int)eHistogramType);
             bCalculated=true;//the codintin in if may not exact error;
         }
         else Loge("Histogram Compute","ERROR(warning)");
-        GlobalData::usePreviousProgram();
+        PhotoApp::usePreviousProgram();
     }
     else
         {
@@ -121,38 +115,34 @@ void Histogram::glCompute(int tempBinSize)
 
 
 }
-void Histogram::cpuCompute(int tempBinSize)
+void Histogram::cpuCompute()
 {
     Loge("HistogramCOmpute","using cpuCompute");
 }
 void Histogram::equalize(EditableImage *ownerImage)
 {
-    //this is static method should be called from Editable image check if input histogram is calculated befor this
-    int tempBinsSize=256;///check based on histogramFor
     if(ownerImage)
     {
         ownerImage->bEqualized = false;
-        Loge("Compute Histogram", "started");
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, ownerImage->inputHistogram.binsBuffer);
-        int32_t *binsBefore = (int32_t *) glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0,
-                                                           tempBinsSize * sizeof(int32_t),
-                                                           GL_MAP_READ_BIT);
+        int32_t *binsBefore = (int32_t *) glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0,binsSize * sizeof(int32_t),GL_MAP_READ_BIT);
         if (binsBefore)
         {
             int32_t *eqVals = ownerImage->equalizedValues;
             float imageH = (float) ownerImage->getImageHeight();
             float imageW = (float) ownerImage->getImageWidth();
-            if (imageH != 0 && imageW != 0) {
-                double tempBins[tempBinsSize];
-                for (int i = 0; i < tempBinsSize; i++) {
+            if (imageH != 0 && imageW != 0)
+            {
+                double tempBins[binsSize];
+                for (int i = 0; i < binsSize; i++)
+                {
                     tempBins[i] = (float) (binsBefore[i]);
                     tempBins[i] /= (imageH * imageW);
                 }
-                for (int i = 1; i < tempBinsSize; i++) {
-                   // Loge(" bincal", "before at %d is %lf", i, tempBins[i]);
+                for (int i = 1; i < binsSize; i++)
+                {
                     tempBins[i] += tempBins[i - 1];
-                    eqVals[i] = (int32_t) (tempBins[i] * (float) tempBinsSize);
-                    //   Loge("tests","loop id %d",i);
+                    eqVals[i] = (int32_t) (tempBins[i] * (float) binsSize);
                 }
                 ownerImage->bEqualized = true;
             } else {
@@ -221,9 +211,9 @@ void Histogram::draw()
         tempBinsSize=360;
     }
     int32_t  totalPixelsFromHistogra=0;
-    GlobalData::setDefaultGlProgram();//this need not cause its drawing inside EditableImage::draw as already uses sme program;
+    PhotoApp::setDefaultGlProgram();//this need not cause its drawing inside EditableImage::draw as already uses sme program;
     glUniform1i(0,3);
-    GLuint colorLoc=glGetUniformLocation(GlobalData::getProgramId(),"uniformColor");
+    GLuint colorLoc=glGetUniformLocation(PhotoApp::getProgramId(), "uniformColor");
     glUniform3f(colorLoc,this->r,this->g,this->b);
     float lineVerts[tempBinsSize*4];//////need to set unifrom based on tempBinsSize for drawing
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, binsBuffer);
@@ -259,7 +249,7 @@ void Histogram::drawOutput()
         tempBinsSize=360;
     }
     int32_t  totalPixelsFromHistogra=0;
-    GlobalData::setDefaultGlProgram();
+    PhotoApp::setDefaultGlProgram();
     glUniform1i(0,3);
     float lineVerts[tempBinsSize*4];//////need to set unifrom based on tempBinsSize for drawing
     for(int i=0;i<tempBinsSize;i++)

@@ -20,9 +20,8 @@ void main()
     ivec2 pos=ivec2(gl_GlobalInvocationID.xy);
     uvec4 inPix= imageLoad(imageIn,pos);
     vec3 rgb=vec3(inPix.xyz);
-    vec3 hsi=rgbToHsi(rgb);////Thes covertion no need for rgb histograms
     uvec4 outPix;
-    switch(autoType)//first 6 for histogramequ;//////reduce duplicated code;
+    switch(autoType)//first 5 for histogramequ;//////reduce duplicated code;
     {
 
             case 0:///cases should correspond to in histogram.glsl
@@ -45,56 +44,62 @@ void main()
                 imageStore(imageOut,pos,outPix);
             }break;
             case 3:
-            {
-                hsi.b=float(eqVals[int(hsi.b)]);//check if conversions are correct;
+             {//saturation
+                 vec3 hsi=rgbToHsi(rgb);///needs improve
+                 if(isnan(hsi.b)||isinf(hsi.b))
+                 {
+                      hsi.b=360.0;
+                 }
+                 if(hsi.g<0.0)
+                 {
+                     hsi.g=0.0;
+                     hsi.r=360.0;
+                 }
+                 float tempSat=hsi.g*255.0;
+                 hsi.g=float(eqVals[uint(tempSat)]);
+                 hsi.g=hsi.g/255.0;
+                 outPix.rgb=uvec3(hsiToRgb(hsi));
+                 outPix.a=inPix.a;
+                 imageStore(imageOut,pos,outPix);
+              }break;
+            case 4:
+            {//intensity//////needs improv not accurarte;
+                vec3 hsi=rgbToHsi(rgb);
+                hsi.b=float(eqVals[uint(hsi.b)]);//check if conversions are correct;
                 rgb=hsiToRgb(hsi);
                 imageStore(imageOut,pos,uvec4(rgb,inPix.a));///move this from all cases to out of switch
             }break;
-            case 4:
-            {
-                hsi.r=float(eqVals[uint(hsi.r)]);/////hue values are rounded to ints so check to add /sub difference; for intermediat hues;
-                outPix.rgb=uvec3(hsiToRgb(hsi));
-                outPix.a=inPix.a;
-                imageStore(imageOut,pos,outPix);
-            }break;
-            case 5:
-            {
-                float tempSat=hsi.g*255.0;
-                hsi.g=float(eqVals[uint(tempSat)]);
-                hsi.g=hsi.g/255.0;
-                outPix.rgb=uvec3(hsiToRgb(hsi));
-                outPix.a=inPix.a;
-                imageStore(imageOut,pos,outPix);
-
-            }break;
-            case 6://C
+            case 5://C
             {
                 outPix.r=uint(eqVals[inPix.r]);//check 255-uint(eq) for al cases
                 outPix.gba=inPix.gba;
                 imageStore(imageOut,pos,outPix);
             }break;
-            case 7://M
+            case 6://M
             {
                 outPix.g=uint(eqVals[inPix.g]);//check 255-uint(eq) for al cases
                 outPix.rba=inPix.rba;
                 imageStore(imageOut,pos,outPix);
 
             }break;
-            case 8://Y
+            case 7://Y
             {
                 outPix.b=uint(eqVals[inPix.b]);//check 255-uint(eq) for al cases
                 outPix.rga=inPix.rga;
                 imageStore(imageOut,pos,outPix);
 
             }break;
-            case 9:
+            case 8://cGB
             {
-                imageStore(imageOut,pos,inPix.brga);
+                imageStore(imageOut,pos,uvec4(255u-inPix.r,255u-inPix.g,255u-inPix.b,inPix.a));
+
+
+
 
             }break;
-            case 10:
+            case 9:
             {
-                imageStore(imageOut,pos,inPix.bgra);
+                imageStore(imageOut,pos,uvec4(inPix.r,255u-inPix.g,inPix.ba));
             }break;
 
             default:

@@ -15,27 +15,32 @@
 enum EActiveShader{AUTO_SHADER,ENHANCE_SHADER,EQ_SHADER,HSI_SHADER,BLUR_SHADER,SHARPEN_SHADER,SMOOTHEN_SHADER};///FOR SHADER LOCATIONNS DIFFERENT FX MIGHT HAVE SAME SHADER(tracking glsl files)
 enum EActiveFilter{AUTO_FILTER,LIGHT=0,SATURATION,HUE,GAMMA,CONTRAST,HISTOGRAM,HSI,BLUR,SHARPEN,SMOOTHEN};//should mathc in setActiveFilter and Shaders //BELOW ALSO SAME;
 //enum EditOptions{ENHANCE=0,CHROMA,AUTO,GRAY,BLUR,TRANSFORM,THREED};
+enum EOptions{OPTION_AUTO,OPTION_HUE,OPTION_NONE=INT32_MAX};
 class ImageViewStack;
 ///create editingContext for each image if needed;
 class Editor{
 private:
-    uint optionActive=0,subOptionActive=0,noOfSliders=0.0;
+    int optionActive=0,subOptionActive=0,noOfSliders=0.0;
     GLuint activeShaderId=0;
+    int imageCount=0;
     float sliderValues[4]={0.0f,0.0f,0.0f,0.0f};
     float params[4]={0.0f,0.0f,0.0f,0.0f};
+    EOptions eActiveOption=OPTION_NONE;
     EActiveFilter EactiveFilter;
     EActiveShader eActiveShader=ENHANCE_SHADER,ePreviouShader=ENHANCE_SHADER;//deault;
-    bool useGLCompute=false;
+    bool useGLCompute=true;
     static std::string shadersFolder;
     Layer *layers= NULL;
-    void computeProcess();
+    void computeProcess();//glCompute
     void vfShaderProcess();//vertex and Fragment shaders;
+
 public:
     EditableImage *editableImage=NULL;///first//make private just for tes
     bool isUpdatedNeeded=false;
 
     void addLayer(Layer *layer);
     void addEditableImage(EditableImage *editableImage);
+    void removeEditableImage(EditableImage *editableImage);
 
 public:
     Editor()
@@ -51,6 +56,8 @@ public:
     void process();
     void toggleProcessingType();
     void manageShaders();
+    void printTotalImageCount(){Loge("the total images in editor is ","%d",imageCount);}
+    void setActiveOptions(EOptions activeOptions);
     void draw();
 
 };

@@ -34,6 +34,7 @@ EditableImage::EditableImage(float startX, float startY, float width, float heig
    createLaplaceBuffer();/////check if needed in contructor or just using while Sharpening;
    workGroupSizeX=getImageWidth();
    copyInputToOuput();
+   memset(equalizedValues,0,256*sizeof(int32_t));
   // workGroupSizeY=getImageHeight();
 }
 void EditableImage::equalize(int histogramFor)
@@ -41,7 +42,7 @@ void EditableImage::equalize(int histogramFor)
     eHistogramType=(EHistogramType)histogramFor;
     if(!inputHistogram.isCalculated())
         inputHistogram.compute(histogramFor);
-    Histogram::equalize(this);
+    Histogram::equalize(this);////clear equalizedValues check?
     if(bEqualized)
     {
         outputHistogram.updateBuffer(equalizedValues);//now outputHistogra contains eq values so before drawing call compute histogram on outputHistogram;anyways the bCalculated is false
@@ -60,12 +61,12 @@ void EditableImage::copyInputToOuput()
         Loge("CopyInput to output failes","could not create program");
         return;
     }
-    GlobalData::useGlProgram(copyProgram);
+    PhotoApp::useGlProgram(copyProgram);
     glBindImageTexture(0,getInputTexId(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8UI);
     glBindImageTexture(1,getOutputTexId(), 0, GL_FALSE, 0, GL_WRITE_ONLY,GL_RGBA8UI);
     glDispatchCompute(getImageWidth(),getImageHeight(),1);
     glDeleteProgram(copyProgram);
-    GlobalData::usePreviousProgram();
+    PhotoApp::usePreviousProgram();
 
 }
 void EditableImage::copyOutputToInput()
@@ -77,12 +78,12 @@ void EditableImage::copyOutputToInput()
         Loge("CopyInput to output failes","could not create program");
         return;
     }
-    GlobalData::useGlProgram(copyProgram);
+    PhotoApp::useGlProgram(copyProgram);
     glBindImageTexture(1,getInputTexId(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8UI);
     glBindImageTexture(0,getOutputTexId(), 0, GL_FALSE, 0, GL_WRITE_ONLY,GL_RGBA8UI);
     glDispatchCompute(getImageWidth(),getImageHeight(),1);
     glDeleteProgram(copyProgram);
-    GlobalData::usePreviousProgram();
+    PhotoApp::usePreviousProgram();
 
 }
 void EditableImage::toggleHistogramView()

@@ -21,7 +21,7 @@ bool ToggleHistogramTL::onTouch(float touchX, float touchY, int pointerId, Touch
 {
     if(touchAction==ACTION_DOWN)
     {
-        GlobalData *globalData=(GlobalData *)app->userData;
+        PhotoApp *globalData=(PhotoApp *)app->userData;
         globalData->activeHistogram=!globalData->activeHistogram;
     }
     return true;
@@ -30,7 +30,7 @@ bool ToggleProcessingTypeTouchListener::onTouch(float touchX, float touchY, int 
 {
     if(touchAction==ACTION_DOWN)
     {
-        GlobalData *globalData=(GlobalData *)app->userData;
+        PhotoApp *globalData=(PhotoApp *)app->userData;
         globalData->toggleProcessingType();
     }
     return true;
@@ -90,48 +90,71 @@ bool SliderTouchListener::onTouch(float touchX, float touchY, int pointerId, Tou
     float scaledSliderValue=(slider->getVaule()*360.0);
     if(previousSliderValue!=scaledSliderValue)
     {
-        GlobalData *globalData = (GlobalData *) (app->userData);
+        PhotoApp *globalData = (PhotoApp *) (app->userData);
         globalData->editor->onInputValuesChanged(slider->sliderNo, scaledSliderValue);
         previousSliderValue=scaledSliderValue;
     }
     return true;
 }
-bool ImageViewStackTouchListener::onTouch(float touchX, float touchY, int pointerId, TouchAction touchAction, View *view)
-{
-    ImageViewStack *imageViewStack=(ImageViewStack *)view;
-    static uint touchDownView;
 
-   // Loge("EVEnthand","the view is %d",touchDownView);
+bool ImageViewStackClickListener::onClick(float clickX, float clickY, ImageViewStack *view)
+{
+    view->setActiveViewNo(view->getViewNoAtLoc(clickX, clickY));
+    return true;
+}
+bool ImageViewStackClickListener::onTouch(float touchX, float touchY, int pointerId, TouchAction touchAction, View *view)
+{
+    // Loge("EVEnthand","the view is %d",touchDownView);
 
 
     switch(touchAction)
     {
         case ACTION_DOWN:
         {
-            touchDownView=imageViewStack->getViewNoAtLoc(touchX,touchY);
+            initialTouchX=touchX;
+            initialTouchY=touchY;
             previousPointerId=pointerId;
+            previousTouchX=touchX;
+            previousTouchY=touchY;
+            totalMoveDisX=0;
+            totalMoveDisY=0;
 
         }
-            break;
-        case ACTION_POINTER_DOWN:
+        break;
+        case ACTION_MOVE:
         {
-            touchDownView=imageViewStack->getViewNoAtLoc(touchX,touchY);
-            previousPointerId=pointerId;
-        }
-            break;
+            if(previousPointerId==pointerId)//no need check as already done before calling this meth
+            {
+                float tempMovey=touchY-previousTouchY;
+                if(tempMovey<0){tempMovey*=-1;}
+                float tempMoveX=touchX-previousTouchX;
+                if(tempMoveX<0){tempMoveX*=-1;}
+                totalMoveDisX+=tempMoveX;
+                totalMoveDisY+=tempMovey;
+                previousTouchX=touchX;
+                previousTouchY=touchY;
+            }
+        }break;
+        case ACTION_POINTER_UP:
+        {
+            if(pointerId==previousPointerId)//cancel Touch;
+            {
 
+                previousPointerId=INT32_MAX;
+
+            }
+        }
+        break;
         case ACTION_UP:
         {
             if(pointerId==previousPointerId)
             {
-                if(imageViewStack->getViewNoAtLoc(touchX,touchY)==touchDownView&&imageViewStack->getActiveViewNo()!=touchDownView)
+                if(totalMoveDisX<=maxAllowedMove&&totalMoveDisY<=maxAllowedMove)
                 {
-                    imageViewStack->setActiveViewNo(touchDownView);
-                    GlobalData *globalData=(GlobalData *)(app->userData);
-                    globalData->menuItemChanged();
-                   // Loge("eve","the acitveView is %d",imageViewStack->activeView);
+                    previousPointerId=INT32_MAX;
+                    return onClick(initialTouchX,initialTouchY,(ImageViewStack *)view);
                 }
-                previousPointerId=INT32_MAX;
+
 
             }
 
@@ -139,8 +162,11 @@ bool ImageViewStackTouchListener::onTouch(float touchX, float touchY, int pointe
             break;
     }
 
+
     return true;
 }
+
+
 bool ViewTouchListener::onTouch(float touchX, float touchY, int pointerId, TouchAction touchAction,View *view)
 {
     (*touchFunc)(touchX,touchY,ACTION_DOWN);

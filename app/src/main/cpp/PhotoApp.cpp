@@ -7,15 +7,20 @@
 #include "JavaCalls.h"
 #include "AppUI.h"
 
-GLuint GlobalData::activeProgram=0,GlobalData::previousProgram=0;
-GLuint GlobalData::UIProgram=0;
+GLuint PhotoApp::activeProgram=0,PhotoApp::previousProgram=0;
+GLuint PhotoApp::UIProgram=0;
 ////header Main.h for this .cpp change later;
-void GlobalData::menuItemChanged()
+void PhotoApp::onOptionChanged(int optionNo)
+{
+    Loge("reporting to GlobaData","option changed to %d",optionNo);
+    editor->setActiveOptions(static_cast<EOptions>(optionNo));
+}
+void PhotoApp::menuItemChanged()
 {
     /////instead of setting all options set only that changed using the parameter as the viewthat changed;
     if(editor)
     {
-        Loge("GlobalData","menuitem changed");
+        Loge("PhotoApp","menuitem changed");
         editor->setActiveOption(optionMenu->getActiveViewNo());
         editor->setActiveSubOption(subOptionsMenu->getActiveViewNo());
         /////reset all req inputViews(Sliders);
@@ -27,7 +32,7 @@ void GlobalData::menuItemChanged()
     }
     else
         {
-        Loge("GlobalData::muItemChanged Error","Editing Context Not set Yet");
+        Loge("PhotoApp::muItemChanged Error","Editing Context Not set Yet");
         }
     if(optionMenu->getActiveViewNo()==1)
     {
@@ -45,7 +50,7 @@ void GlobalData::menuItemChanged()
         }
 
 }
-void GlobalData::setMenu(ImageViewStack *imageViewStack, EMenuType menuType)
+void PhotoApp::setMenu(ImageViewStack *imageViewStack, EMenuType menuType)
 {
     switch(menuType)
     {
@@ -60,7 +65,7 @@ void GlobalData::setMenu(ImageViewStack *imageViewStack, EMenuType menuType)
 
     }
 }
-void GlobalData::addInputComponent(SliderSet *sliderSet, EInputType inputType)
+void PhotoApp::addInputComponent(SliderSet *sliderSet, EInputType inputType)
 {
     switch (inputType)
     {
@@ -74,16 +79,16 @@ void GlobalData::addInputComponent(SliderSet *sliderSet, EInputType inputType)
 
     }
 }
-void GlobalData::onImportImage(int fd)///previous Image Should be cleared
+void PhotoApp::onImportImage(int fd)///previous Image Should be cleared
 {
     this->fd=fd;
     imageImportNeeded=true;
 
 
 }
-void GlobalData::importImage()
+void PhotoApp::importImage()
 {
-    importedImage=(Bitmap *)malloc(sizeof(Bitmap));/////all news check
+    importedImage=(Bitmap *)malloc(sizeof(Bitmap));/////all news check no need to separately allocate bitmap as not bitmaps can be done giving locations in imageview
     ::importImage(importedImage,fd);
     useGlProgram(UIProgram);
     EditableImage *importedEditableImage= NULL;
@@ -116,7 +121,7 @@ void GlobalData::importImage()
     usePreviousProgram();
     Graphics::printGlError("import image");
 }
-void GlobalData::onSaveImage()
+void PhotoApp::onSaveImage()
 {
     Loge("on Save Image()","image saved");
     saveImage();

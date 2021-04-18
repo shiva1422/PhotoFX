@@ -10,6 +10,26 @@
 const int PARAMSLOC=5,FILTERTYPELOC=0;
 std::string Editor::shadersFolder="Filters";
 
+void Editor::setActiveOptions(EOptions activeOption)
+{
+    this->eActiveOption=activeOption;
+
+    ///Deleter previous shader;
+    Loge("Editor","set active options");
+    switch(activeOption)
+    {
+        case OPTION_AUTO:
+        {
+            eActiveShader=AUTO_SHADER;
+
+        }break;
+        default:
+        {
+            Loge("OptionChanged","invalid Options");
+        }
+    }
+    manageShaders();
+}
 void Editor::onInputValuesChanged(uint sliderNo, float newInputValue)
 {
     ////////make sliderNo (equal) or attahed to a certain shader input param nad newInputValue to that params value;
@@ -53,18 +73,20 @@ void Editor::process()
 
     if(isUpdatedNeeded&&editableImage)
     {
-        GlobalData::useGlProgram(activeShaderId);
+        PhotoApp::useGlProgram(activeShaderId);
 
         if(useGLCompute)
         {
             //
-            switch (optionActive)
+            switch (eActiveOption)
             {
                 case 0:
                 {
-                    Auto::apply(editableImage,(AutoType)subOptionActive);
+                    if(isUpdatedNeeded)
+                    Auto::apply(editableImage,(EAutoType)params[0]);
                 }break;
             }
+            isUpdatedNeeded=false;
             return;
 
             //
@@ -83,8 +105,8 @@ void Editor::process()
             vfShaderProcess();
         }
            isUpdatedNeeded= false;
-        GlobalData *globalData = (GlobalData *) ((AppContext::getApp())->userData);//GlobalData::use Previous Program is enough;
-        GlobalData::useGlProgram(globalData->UIProgram);
+        PhotoApp *globalData = (PhotoApp *) ((AppContext::getApp())->userData);//PhotoApp::use Previous Program is enough;
+        PhotoApp::useGlProgram(globalData->UIProgram);
     }
 
 }
@@ -396,9 +418,20 @@ void Editor::addEditableImage(EditableImage *editableImage)
 {
     if(this->layers)//later find layer and add to that layer appropriately;
     {
+        if(this->layers->getEditableImages())//remove previous image;
+        {
+            removeEditableImage(nullptr);//for now nullptr is good cuz its deleted in layer //just to keep track if there is image so as to display ui appropritely;
+
+        }
         this->layers->addEditableImage(editableImage);
         Loge("editor ","ADD IMAGE");
+        imageCount++;
     }
+}
+void Editor::removeEditableImage(EditableImage *editableImage)
+{
+ //for now done in global data later move here;
+ imageCount--;
 }
 void Editor::addLayer(Layer *layer)
 {
