@@ -7,6 +7,7 @@ in vec2 textCoodsOut;
 flat in int index;
 out vec4 Fragcolor; 
 in float texZ;
+in float centreX,centreY;
 uniform sampler2D image;
 uniform sampler2D image2;
 layout(location=0) uniform int drawType;

@@ -40,7 +40,7 @@ public:
     {
         setBounds(view);
     }
-    ~View();///////clear buffers if there
+    virtual ~View();///////clear buffers if there
     View(float startX,float startY,float width,float height)
     {
         setBounds(startX,startY,width,height);
@@ -92,6 +92,16 @@ public:
 
     //Touch:
    virtual bool isTouched(float touchX,float touchY,int pointerId,TouchAction touchAction);
+
+   int32_t getPreviousTouchPointerId()
+   {
+       if(onTouchListener)
+       {
+           return onTouchListener->getPreviousPointerId();
+       }
+       else
+           return INT32_MAX;
+   }
    virtual void setOnTouchListener(OnTouchListener *touchListener)
    {
        delete this->onTouchListener;
@@ -166,20 +176,7 @@ public:
     virtual void draw() override ;
 };
 class Shape;
-class SliderSet : public View{
-private:
-    Shape *baseLineView,*pointerView;
-    float value=0.0f;//0.0 to 1.0
-public:
-    static uint sliderCounter;
-    uint sliderNo=sliderCounter++;////////increment in constructor
-    SliderSet();
-    virtual void setBounds(float startX, float startY, float width, float height) override ;
-    float getVaule(){return value;}
-    void setPointerLoc(float x,float y);
-    void reset();
-    virtual void draw() override ;
-};
+
 class ViewGroup : public View{
 private:
     uint noViews=0;
@@ -188,7 +185,9 @@ private:
 protected:
 public:
     ViewGroup();
+    ~ViewGroup();
     void addView(View  *view);
+    void removeView(View *view);
     virtual void draw() override ;
     virtual bool isTouched(float touchX,float touchY,int pointerId,TouchAction touchAction);
 

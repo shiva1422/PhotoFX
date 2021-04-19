@@ -8,7 +8,6 @@
 #include "JavaCalls.h"
 DisplayParams View::displayParams;
 Bitmap ImageView::defaultImage;
-uint SliderSet::sliderCounter=0;
 //float textureCoords[8]={0.0f,1.0f,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f};
 //GLushort drawElementIndices[6]={0,1,2,2,3,0};
 GLuint ImageView::texCoodBufId=0,ImageView::indexBufId=0;
@@ -17,11 +16,29 @@ GLuint ImageView::texCoodBufId=0,ImageView::indexBufId=0;
 void ViewGroup::draw()
 {
     for(int i=0;i<noViews;i++)
+        if(views[i])
         views[i]->draw();
 
 }
+void ViewGroup::removeView(View *view)
+{
+    for(int i=0;i<noViews;i++)
+    {
+        if(views[i]==view)
+        {
+            for(int k=i;k<noViews-1;k++)
+            {
+                views[k]=views[k+1];
+            }
+            noViews--;
+            Loge("Viewgroup","view removed");
+            break;
+        }
+    }
+}
 void ViewGroup::addView(View *view)
 {
+    //Use hashng ids for views;
     ////initialize ViewGroup with predefined size and use malloc if exeded that size instead of doing for every add;
     ///Check malloc error handle accordingly
    if(noViews<defaultSize)
@@ -54,48 +71,17 @@ void ViewGroup::addView(View *view)
 }
 ViewGroup::ViewGroup()
 {//should be edited completey just for times sake use new() if pos also use references instead of pointers.
-    views=(View **)malloc(defaultSize*sizeof(View *));
+    views=new View*[defaultSize];//(View **)malloc(defaultSize*sizeof(View *));
    // onTouch=(OnTouch)&ViewGroup::defaultOnTouch;
 }
-void SliderSet::draw()
+ViewGroup::~ViewGroup()
 {
-  //  View::draw();
-  if(visible){
-     baseLineView->draw();
-     pointerView->draw();
-  }
-}
-
-void SliderSet::reset()
-{
-    pointerView->setBounds(startX + (width / 2), startY, 50, height);
-    value=0.0f;
-    UILogE("the slider is reset");
-
-}
-void SliderSet::setPointerLoc(float x, float y)
-{
-    pointerView->setBounds(x-pointerView->getHeight()/2.0,pointerView->getStartY(),pointerView->getWidth(),pointerView->getHeight());
-    if(isPointToTheLeft(pointerView->centerX()))
-        pointerView->setBounds(startX-pointerView->getHeight()/2.0,pointerView->getStartY(),pointerView->getWidth(),pointerView->getHeight());
-    if(isPointToTheRight(pointerView->centerX()))
-         pointerView->setBounds(endX()-pointerView->getHeight()/2.0,pointerView->getStartY(),pointerView->getWidth(),pointerView->getHeight());
-
-    value=(pointerView->centerX()-startX)/width;//0.0 to 1.0
-  //  UILogE("the slider value is %f",value);
-}
-void SliderSet::setBounds(float startX,float startY, float width, float height)
-{
-    View::setBounds(startX,startY,width,height);
-    pointerView->setBounds(centerX()-height/2.0, startY, height, height);
-    baseLineView->setBounds(startX,startY+height/3.0, width, height/3.0);
-
-}
-SliderSet::SliderSet()
-{
-    baseLineView=new Capsule(8);///////delete destructor;
-    pointerView=new Polygon(8);///delete
-    onTouchListener=new SliderTouchListener();//clear previous
+    for(int i=0;i<noViews;i++)
+    {
+        delete views[i];
+    }
+    delete[] views;
+    Loge("ViewGroup","destructed");
 }
 
 void ImageViewStack::draw()

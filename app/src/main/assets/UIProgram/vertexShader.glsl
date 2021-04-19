@@ -21,6 +21,7 @@ layout(std140,binding=2) uniform binsData
 out vec2 textCoodsOut;
 out vec4 colorOut;
 out float texZ;
+out vec2 centre;
 flat out int index;
 vec2 finalVerts;
 float instanceId;
@@ -58,6 +59,11 @@ void main()
         {
             finalVerts=verts;
             colorOut=uniformColor;
+        }break;
+        case 4:
+        {
+            finalVerts=verts;
+            colorOut=color;
         }break;
         default:
         {

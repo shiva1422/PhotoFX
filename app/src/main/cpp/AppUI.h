@@ -8,14 +8,23 @@
 
 #include "UI.h"
 #include "RecyclerView.h"
+#include "Editing.h"
 
 class AppUI{
+
+private:
+    ImageView *saveButton,*filesButton;
 
 public:
     View frameBounds;//for main image in editor
     View topSection,optionsSection,subOptionsSection,slidersSection;
+    View *options=nullptr,*subOptions=nullptr;
+    ViewGroup contentView;//content
+    View *sliderSets[5];
     static View& getFrameBounds();
     void init();
+    void onOptionChanged(EOptions activeOption);
+    void draw();
 };
 
 //options imageViewStack;

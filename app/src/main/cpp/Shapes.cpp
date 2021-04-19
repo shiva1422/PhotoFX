@@ -13,6 +13,11 @@ Shape::Shape(int32_t numVerts)
     this->numVerts=numVerts;
     createBuffers();
 }
+Shape::~Shape()
+{
+    glDeleteBuffers(1,&vertexBufId);
+    Loge("Shape:","Destroyed");
+}
 void Shape::createBuffers()
 {
     glGenBuffers(1,&vertexBufId);
@@ -38,7 +43,38 @@ void Shape::draw()
         glDrawArrays(GL_LINE_LOOP,0,numVerts);
     glBindBuffer(GL_ARRAY_BUFFER,0);
 }
+//Triangle
 
+Triangle::Triangle():Shape(3)
+{
+
+};
+void Triangle::setBounds(float startX, float startY, float width, float height)
+{
+
+    Shape::setBounds(startX,startY,width,height);
+    glBindBuffer(GL_ARRAY_BUFFER,vertexBufId);
+    float *vertices=(float *)glMapBufferRange(GL_ARRAY_BUFFER,0,sizeof(float)*numVerts*2,GL_MAP_WRITE_BIT|GL_MAP_READ_BIT);//is this needed instead lazy draw would be better;
+    if(vertices)
+    {
+        ///X's
+        vertices[0] = -1.0 + (startX * 2.0) /(float) Graphics::displayParams.screenWidth;//  left bottom X
+        vertices[2] = -1.0 + ((startX + width) * 2.0) / (float) Graphics::displayParams.screenWidth;//rightX
+        vertices[4] = -1.0 + ((startX + width/2.0) * 2.0) / (float) Graphics::displayParams.screenWidth;//rightX
+        ///Y's
+        vertices[1] = 1.0 - ((startY + height) * 2.0) / (float) Graphics::displayParams.screenHeight;//bottomy
+        vertices[3] = vertices[1];
+        vertices[5] = 1.0 - ((startY) * 2.0) / (float) Graphics::displayParams.screenHeight;//topy
+    }
+    else
+    {////lazy draw on
+        ///uploading vertices everydrawcall
+        UILogE("Rect::Bounds:,-error uploading vertices");
+        Graphics::printGlError("Rect::setBouds()");
+    }
+    glUnmapBuffer(GL_ARRAY_BUFFER);//return GL_false if error
+    glBindBuffer(GL_ARRAY_BUFFER,0);
+}
 //Rectangle
 
 Rect::Rect() : Shape(4)
@@ -184,5 +220,68 @@ void Capsule::calculateVerts()
         Graphics::printGlError("Rect::setBouds()");
     }
     glUnmapBuffer(GL_ARRAY_BUFFER);//return GL_false if error
+    glBindBuffer(GL_ARRAY_BUFFER,0);
+}
+
+//
+HueBarShape::HueBarShape():Shape(14)
+{//based on indices 0,1,2,3,4,5---so on;
+    //adjacent line is same color so setting half is enough
+    setColorAtVertexLoc(0,1.0,0.0,0.0,1.0);//0,1
+    setColorAtVertexLoc(1,1.0,1.0,0.0,1.0);//2,3
+    setColorAtVertexLoc(2,0.0,1.0,0.0,1.0);
+    setColorAtVertexLoc(3,0.0,1.0,1.0,1.0);
+    setColorAtVertexLoc(4,0.0,0.0,1.0,1.0);
+    setColorAtVertexLoc(5,1.0,0.0,1.0,1.0);
+    setColorAtVertexLoc(6,1.0,0.0,0.0,1.0);
+
+}
+void HueBarShape::setColorAtVertexLoc(int vertexLoc, float r, float g, float b, float a)
+{
+    for(int k=0;k<2;k++)
+    {
+        int i=vertexLoc*2+k;
+        colors[4*i]=r;
+        colors[4*i+1]=g;
+        colors[4*i+2]=b;
+        colors[4*i+3]=a;
+    }
+
+}
+void HueBarShape::setBounds(float startX, float startY, float width, float height)
+{
+    Shape::setBounds(startX,startY,width,height);
+    float rectWidth=width/((numVerts/2)-1);
+    glBindBuffer(GL_ARRAY_BUFFER,vertexBufId);
+    float *vertices=(float *)glMapBufferRange(GL_ARRAY_BUFFER,0,sizeof(float)*numVerts*2,GL_MAP_WRITE_BIT|GL_MAP_READ_BIT);//is this needed instead lazy draw would be better;
+    if(vertices)
+    {
+        for(int i=0;i<numVerts;i++)
+        {
+            ///X's
+            vertices[i*2]=-1.0+(startX+rectWidth*(i/2))*2.0/Graphics::displayParams.screenWidth;//x
+            vertices[i*2+1]=1.0-(startY+(1-i%2)*height)*2.0/Graphics::displayParams.screenHeight;//y
+        }
+    }
+    else
+    {
+        UILogE("HueBar::Bounds:,-error uploading vertices");
+        Graphics::printGlError("Rect::setBouds()");
+    }
+    glUnmapBuffer(GL_ARRAY_BUFFER);//return GL_false if error
+    glBindBuffer(GL_ARRAY_BUFFER,0);
+}
+void HueBarShape::draw()
+{
+    glUniform1i(DRAWTYPELOC,HUESHAPEDRAWTYPE);
+    glEnableVertexAttribArray(POSITIONATTRIBLOC);
+    glEnableVertexAttribArray(COLORATTRIBLOC);
+    glVertexAttribPointer(COLORATTRIBLOC,4,GL_FLOAT,GL_FALSE,0,colors);
+    glBindBuffer(GL_ARRAY_BUFFER,vertexBufId);
+    glVertexAttribPointer(POSITIONATTRIBLOC, 2, GL_FLOAT, GL_FALSE, 0,(void *)0);
+    if(fillType==FILLTYPE_FILL)
+        glDrawElements( GL_TRIANGLES,36,GL_UNSIGNED_SHORT,indices);////draw as triangle strips;
+    else
+        glDrawElements( GL_LINE_STRIP,36,GL_UNSIGNED_SHORT,indices);//check if working;
     glBindBuffer(GL_ARRAY_BUFFER,0);
 }

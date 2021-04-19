@@ -80,7 +80,6 @@ vec3 rgbToHsi(vec3 rgb)//use seperate r,g,b than a vector;no extram memory and c
     if(r==b&&r==g)
     {
         hue=0.0;
-        saturation=0.0;
     }
     else
     {
@@ -142,20 +141,5 @@ vec3 hsiToRgb(vec3 hsi)
         g=r;
         b=r;
     }
-    /*  if(r>255.0)
-      r=255.0;
-      else if (r<0.0)
-      r=0.0;
-      if(g>255.0)
-      g=255.0;
-      else if(g<0.0)
-      g=0.0;
-      if(b>255.0)
-      b=255.0;
-      else if(b<0.0)
-      b=0.0;*/
-    // r=r/255.0;//////////required in fragmentShader;
-    //  g=g/255.0;
-    // b=b/255.0;
     return vec3(r,g,b);
 }

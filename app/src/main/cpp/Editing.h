@@ -57,6 +57,7 @@ public:
     void toggleProcessingType();
     void manageShaders();
     void printTotalImageCount(){Loge("the total images in editor is ","%d",imageCount);}
+    int getImageCount(){return imageCount;}
     void setActiveOptions(EOptions activeOptions);
     void draw();
 

@@ -13,6 +13,15 @@ GLuint PhotoApp::UIProgram=0;
 void PhotoApp::onOptionChanged(int optionNo)
 {
     Loge("reporting to GlobaData","option changed to %d",optionNo);
+    ///change ui for sub options and sliders;
+    if(editor->getImageCount()>0||true)//////remove true;
+    {
+        appUI.onOptionChanged(static_cast<EOptions>(optionNo));
+    }
+    else
+    {
+        //show Import Image;
+    }
     editor->setActiveOptions(static_cast<EOptions>(optionNo));
 }
 void PhotoApp::menuItemChanged()

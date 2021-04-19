@@ -9,6 +9,8 @@
 
 void AppUI::init()
 {
+    contentView.setBounds(0,0,Graphics::displayParams.screenWidth,Graphics::displayParams.screenHeight);
+    //Bounds
    topSection.setBounds(0, 0, Graphics::displayParams.screenWidth, Graphics::displayParams.screenHeight * 5.0 / 100.0) ;
    topSection.setBackgroundColor(0.2, 0.4, 0.2, 1.0);
    frameBounds.setBounds(0, topSection.endY(), Graphics::displayParams.screenWidth, Graphics::displayParams.screenHeight * 70.0 / 100.0);
@@ -18,6 +20,82 @@ void AppUI::init()
    subOptionsSection.setBackgroundColor(0.2,0.2,0.3,1.0);
    optionsSection.setBounds(0,subOptionsSection.endY(),Graphics::displayParams.screenWidth,Graphics::displayParams.screenHeight*7.0/100.0);
    optionsSection.setBackgroundColor(0.2,0.2,0.2,1.0);
+
+
+   //Options;
+
+
+    Options *options=new Options(6,ImageView::defaultImage.width,ImageView::defaultImage.height);//6 options;////error check for all news in this funct;
+    options->ViewGroup::setBounds(&optionsSection);
+    options->setTextureForViewNo(0,"icons/auto.png");
+    options->setTextureForViewNo(1,"icons/hue.png");
+    options->fitViewsInBounds();
+    this->options=options;
+
+    //save and file buttons
+    saveButton=new ImageView();
+    filesButton=new ImageView();
+    saveButton->setBoundsDeviceIndependent(Graphics::displayParams.screenWidth*80/100, 0,Graphics::displayParams.screenWidth*20.0/100, topSection.getHeight());
+    saveButton->setTexture("icons/save.png",true);
+    saveButton->setOnTouchListener(new SaveButtonClickListener());
+    saveButton->setEndX(Graphics::displayParams.screenWidth);
+
+    filesButton->setBounds(0, 0,Graphics::displayParams.screenWidth*20.0/100,topSection.getHeight());
+    filesButton->setTexture("icons/files.png",true);
+    filesButton->setOnTouchListener(new FilesTouchListener());
+    filesButton->setStartX(0);
+
+    contentView.addView(options);
+    contentView.addView(saveButton);
+    contentView.addView(filesButton);
+
+
+
+}
+void AppUI::onOptionChanged(EOptions activeOption)
+{
+    contentView.removeView(subOptions);
+    delete subOptions;
+    subOptions=nullptr;
+    switch (activeOption)
+    {
+        case OPTION_AUTO:
+        {
+            RecyclerView *recyclerView=new AutoOptions(7,13);
+            recyclerView->setBounds(&subOptionsSection);
+            subOptions=recyclerView;
+
+        }break;
+        case OPTION_HUE:
+        {
+            HueBar *input=new HueBar();
+            HueBar *output=new HueBar();
+            input->setBounds(Graphics::displayParams.screenWidth*5.0/100,frameBounds.endY(),Graphics::displayParams.screenWidth*80.0/100,slidersSection.getHeight()/5.0);
+            output->setBounds(input->getStartX(),input->endY()+10,input->getWidth(),input->getHeight());
+
+            ViewGroup* slidersGroup=new ViewGroup();
+            if(slidersGroup)
+            {
+                slidersGroup->setBounds(&slidersSection);
+                slidersGroup->addView(input);
+             //   slidersGroup->addView(output);
+            }
+            contentView.addView(output);
+            subOptions=slidersGroup;
+        }break;
+        default:
+        {
+
+        }
+
+    }
+    if(subOptions)
+    {
+        contentView.addView(subOptions);
+    }
+}
+void AppUI::draw()
+{
 
 }
 //OptionsSection
@@ -54,7 +132,7 @@ AutoOptions::AutoOptions(int numViews, int maxListCount) : AutoOptions(numViews)
     if(numViews>maxListCount)                                                                           //ideally this shouldnt happen as numView should be less than maxListCount;
     {
 
-        maxLastListIndex=numViews-1;
+        maxLastListIndex=numViews-1 ;                                                                   //may be maxListCount-1, or numView-=1;, check for accuracy
     }
 }
 void AutoOptions::onInit()

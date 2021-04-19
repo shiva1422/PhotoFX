@@ -61,6 +61,10 @@ public:
 
 
 };
+class ViewGroupTouchListener: public OnTouchListener{
+public:
+    virtual bool onTouch(float touchX,float touchY,int pointerId,TouchAction touchAction,View *view);
+};
 
 class ImageViewStackClickListener: public OnTouchListener
 {
@@ -73,11 +77,7 @@ public:
     virtual bool onTouch(float touchX,float touchY,int pointerId,TouchAction touchAction,View *view) override ;///should not be accesed by derive class make private using delete or using using;
     virtual bool onClick(float clickX, float clickY, ImageViewStack *view);
 };
-class SliderTouchListener : public OnTouchListener{
-public:
-    virtual bool onTouch(float touchX,float touchY,int pointerId,TouchAction touchAction,View *view) override ;
 
-};
 /*class ImageViewTouchListener: public OnTouchListener
 {
 public:

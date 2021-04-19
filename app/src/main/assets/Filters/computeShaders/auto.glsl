@@ -1,4 +1,7 @@
 #version 310 es
+/*
+    conver(uint(const)) to constu
+*/
 layout(local_size_x = 1,local_size_y=1,local_size_z=1) in;
 vec3 rgbToHsi(vec3 rgb);
 vec3 hsiToRgb(vec3 hsi);
@@ -12,9 +15,6 @@ layout (std430,binding=2) buffer binsData
 const float PI=3.14159265358979311599796346854;
 const float RADIAN=PI/180.0;
 layout(location=0) uniform int autoType;
-layout(location=1) uniform int paramInt;
-layout(location=2) uniform int inOrOut;//to determina if bins for input or output image;
-layout(location=5) uniform float params[4];///no need for eq has it has no sliders
 void main()
 {
     ivec2 pos=ivec2(gl_GlobalInvocationID.xy);
@@ -92,10 +92,6 @@ void main()
             case 8://cGB
             {
                 imageStore(imageOut,pos,uvec4(255u-inPix.r,255u-inPix.g,255u-inPix.b,inPix.a));
-
-
-
-
             }break;
             case 9:
             {
@@ -128,7 +124,7 @@ vec3 rgbToHsi(vec3 rgb)//use seperate r,g,b than a vector;no extram memory and c
     if(r==b&&r==g)
     {
         hue=0.0;
-        saturation=0.0;
+
     }
     else
     {
@@ -190,20 +186,6 @@ vec3 hsiToRgb(vec3 hsi)
         g=r;
         b=r;
     }
-    /*  if(r>255.0)
-      r=255.0;
-      else if (r<0.0)
-      r=0.0;
-      if(g>255.0)
-      g=255.0;
-      else if(g<0.0)
-      g=0.0;
-      if(b>255.0)
-      b=255.0;
-      else if(b<0.0)
-      b=0.0;*/
-    // r=r/255.0;//////////required in fragmentShader;
-    //  g=g/255.0;
-    // b=b/255.0;
+
     return vec3(r,g,b);
 }

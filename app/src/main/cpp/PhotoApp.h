@@ -10,6 +10,7 @@
 #include "android/log.h"
 #include "JniMethods.h"
 #include "AppUI.h"
+#include "SliderSet.h"
 
 enum EMenuType{OPTIONS_MENU,SUBOPTIONS_MENU};
 enum EInputType{R_INPUT};

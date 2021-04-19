@@ -26,14 +26,14 @@ void android_main(android_app *app)
     app->onInputEvent = onInput;
     AppContext appContext;
     DisplayParams displayParams;
-    PhotoApp globalData;
+    PhotoApp photoApp;
     getDisplayParams(app,&AppContext::displayParams);
     displayParams=AppContext::displayParams;
     View::setDisplayParams(displayParams);
-    globalData.displayParams=&displayParams;///set App Global data
+    photoApp.displayParams=&displayParams;///set App Global data
     Graphics::displayParams=displayParams;
-    globalData.appContext=&appContext;
-    app->userData=(void *)&globalData;
+    photoApp.appContext=&appContext;
+    app->userData=(void *)&photoApp;
     appContext.app=app;
     OnTouchListener::setApp(app);
 
@@ -43,7 +43,6 @@ void android_main(android_app *app)
 
     int32_t eventId, events, fdesc;
     android_poll_source *source;
-    globalData.appUI.init();//move to construcor?
     CustomLooperEvents customLooperEvents;
     CustomLooperEvents::init();
 
@@ -67,50 +66,34 @@ void android_main(android_app *app)
 
 
        //OPENGL AND WINDOW SHOULD BE INITIALIZED BY NOW;
-
     PhotoApp::UIProgram=Shader::createShaderProgram(app, "UIProgram/vertexShader.glsl", "UIProgram/fragmentShader.glsl");
     PhotoApp::useGlProgram(PhotoApp::UIProgram);
-    AppContext::UIProgram=globalData.UIProgram;
+    AppContext::UIProgram=photoApp.UIProgram;
     InitializeUI();
-     //Bitmap defaultKalaImage;//move most of the setup things to seperate function;
+    //Bitmap defaultKalaImage;//move most of the setup things to seperate function;
     //getPhoto(app,&defaultKalaI,3);
     JavaCalls::importImageFromAssets("icons/hue.png",&ImageView::defaultImage);
     ViewGroup viewGroup;
-    globalData.appUI.frameBounds.setBackgroundColor(0.05,0.05,0.05,1.0);
+    photoApp.appUI.frameBounds.setBackgroundColor(0.05, 0.05, 0.05, 1.0);
+    photoApp.appUI.init();//move to construcor?
 
 
-    //globalData.contentView=&MainImageView;
-    Options optionsStack(6,ImageView::defaultImage.width,ImageView::defaultImage.height);
-  //  ImageViewStack subOptionsStack(6,ImageView::defaultImage.width,ImageView::defaultImage.height);
-    optionsStack.ViewGroup::setBounds(&globalData.appUI.optionsSection);
-    optionsStack.setTextureForViewNo(0,"icons/auto.png");
-    optionsStack.setTextureForViewNo(1,"icons/hue.png");
-    optionsStack.fitViewsInBounds();
-   // subOptionsStack.setNoViewsVisible(6);
-   // subOptionsStack.ViewGroup::setBounds(&globalData.appUI.subOptionsSection);
+
+    // subOptionsStack.setNoViewsVisible(6);
+   // subOptionsStack.ViewGroup::setBounds(&photoApp.appUI.subOptionsSection);
    // subOptionsStack.fitViewsInBounds();
-    RecyclerView *recyclerView=new AutoOptions(7,13);
-    recyclerView->setBounds(&globalData.appUI.subOptionsSection);
-    viewGroup.addView(recyclerView);
+
 
     SliderSet sliderSet[4];
     for(int i=0;i<4;i++)
     {
-        sliderSet[i].setBounds(Graphics::displayParams.screenWidth*5.0/100.0,globalData.appUI.frameBounds.endY()+(i)*(displayParams.screenHeight*2/100+10),(float)displayParams.screenWidth-(displayParams.screenWidth*10.0/100),displayParams.screenHeight*2/100);
+        sliderSet[i].setBounds(Graphics::displayParams.screenWidth*5.0/100.0, photoApp.appUI.frameBounds.endY() + (i) * (displayParams.screenHeight * 2 / 100 + 10), (float)displayParams.screenWidth - (displayParams.screenWidth * 10.0 / 100), displayParams.screenHeight * 2 / 100);
         sliderSet[i].setBackgroundColor(1.0,0.0,1.0,1.0);
-        sliderSet[i].setVisibility(false);
+       // sliderSet[i].setVisibility(false);
 
     }
-    ImageView saveButton;
-    saveButton.setBoundsDeviceIndependent(displayParams.screenWidth*80/100,0,displayParams.screenWidth*20.0/100,globalData.appUI.topSection.getHeight());
-    saveButton.setTexture("icons/save.png",true);
-    saveButton.setOnTouchListener(new SaveButtonClickListener());
-    saveButton.setEndX(displayParams.screenWidth);
-    ImageView fileExplorer;
-    fileExplorer.setBounds(0,0,displayParams.screenWidth*20.0/100,globalData.appUI.topSection.getHeight());
-    fileExplorer.setTexture("icons/files.png",true);
-    fileExplorer.setOnTouchListener(new FilesTouchListener());
-    fileExplorer.setStartX(0);
+
+
     ImageView toggleComputeView(displayParams.screenWidth*90/100,400,100,100);
     toggleComputeView.setOnTouchListener(new ToggleProcessingTypeTouchListener());//delete when done;
     ImageView toggleHistogram(displayParams.screenWidth*90/100,500,100,100);
@@ -118,27 +101,24 @@ void android_main(android_app *app)
 
 
 
-viewGroup.addView(&optionsStack);
-//viewGroup.addView(&subOptionsStack);
-//viewGroup.addView(&MainImageView);
+HueBarShape hueBarShape;
+hueBarShape.setBounds(Graphics::displayParams.screenWidth*5.0/100.0, photoApp.appUI.frameBounds.endY() , (float)displayParams.screenWidth - (displayParams.screenWidth * 10.0 / 100), displayParams.screenHeight * 2 / 100);
+viewGroup.addView(photoApp.appUI.options);
 viewGroup.setBounds(0,0,displayParams.screenWidth,displayParams.screenHeight);
 for(int i=0;i<4;i++)
 viewGroup.addView(&sliderSet[i]);
-viewGroup.addView(&fileExplorer);
 viewGroup.addView(&toggleComputeView);
 viewGroup.addView(&toggleHistogram);
-viewGroup.addView(&saveButton);
-globalData.contentView=&viewGroup;
+    photoApp.contentView=&photoApp.appUI.contentView;
 
 Editor editor;
-Layer layer(&globalData.appUI.frameBounds);
+Layer layer(&photoApp.appUI.frameBounds);
 layer.setBackgroundColor(0.0,0.0,0.0,1.0);
 editor.addLayer(&layer);
 //editor.setOptions(&optionsStack, &subOptionsStack);
-globalData.setEditingContext(&editor);
-//globalData.setMenu(&subOptionsStack,SUBOPTIONS_MENU);
-globalData.setMenu(&optionsStack,OPTIONS_MENU);
-globalData.addInputComponent(&sliderSet[0],R_INPUT);
+photoApp.setEditingContext(&editor);
+//photoApp.setMenu(&subOptionsStack,SUBOPTIONS_MENU);
+photoApp.addInputComponent(&sliderSet[0], R_INPUT);
 
 TextView testTextView;
 testTextView.setBounds(0,100,400,400);
@@ -157,44 +137,45 @@ TimeDiff frameTime;
                 source->process(app, source);
                 editor.process();
                 PhotoApp::useGlProgram(PhotoApp::UIProgram);
-                glUniform1i(glGetUniformLocation(globalData.UIProgram,"param3"),1);//active stackView;
+                glUniform1i(glGetUniformLocation(photoApp.UIProgram, "param3"), 1);//active stackView;
                 glClearColor(0.0,0.0,0.0,1.0);
                 glClear(GL_COLOR_BUFFER_BIT);
-                globalData.appUI.topSection.clearRect();
-                globalData.appUI.frameBounds.clearRect();
-                globalData.appUI.slidersSection.clearRect();
-                globalData.appUI.subOptionsSection.clearRect();
-                globalData.appUI.optionsSection.clearRect();
+                photoApp.appUI.topSection.clearRect();
+                photoApp.appUI.frameBounds.clearRect();
+                photoApp.appUI.slidersSection.clearRect();
+                photoApp.appUI.subOptionsSection.clearRect();
+                photoApp.appUI.optionsSection.clearRect();
                 editor.draw();
+                photoApp.appUI.draw();
               //  testTextView.draw();
-                if(globalData.activeHistogram)
+                if(photoApp.activeHistogram)
                 {
                     //MainImageView.toggleHistogramView();//editableImage.toggleHistogramView();
-                    globalData.activeHistogram=false;
+                    photoApp.activeHistogram=false;
                 }
-                globalData.contentView->draw();
-              //  globalData.editor->editableImage->draw();
-              if(globalData.imageImportNeeded&&appContext.windowInitStatus)/////////do this onWindowInit in callbacks; or here
+                photoApp.contentView->draw();
+              //  photoApp.editor->editableImage->draw();
+              if(photoApp.imageImportNeeded && appContext.windowInitStatus)/////////do this onWindowInit in callbacks; or here
               {
-                  globalData.importImage();
-                  globalData.imageImportNeeded= false;
+                  photoApp.importImage();
+                  photoApp.imageImportNeeded= false;
               }
-                if(globalData.testImage)
+                if(photoApp.testImage)
                 {
                    // PhotoApp::useGlProgram(PhotoApp::UIProgram);
-                    globalData.testImage->drawInput();
+                    photoApp.testImage->drawInput();
                     Loge("testImage","draw");
                 }
-                glUniform1i(glGetUniformLocation(globalData.UIProgram,"frameBuf"),(int)0);
+                glUniform1i(glGetUniformLocation(photoApp.UIProgram, "frameBuf"), (int)0);
                 if(eglSwapBuffers(appContext.eglDisplay, appContext.eglSurface) == EGL_FALSE)
                 {
                     Loge("Main:draw","swap buffers failure");
                     Graphics::printGlError("EGLSWAP DRAW LOOP");
 
                 };
-                editor.printTotalImageCount();
+              //  editor.printTotalImageCount();
                 frameTime.end();
-                frameTime.getTimeDiff();
+               // frameTime.getTimeDiff();
                 //Compute::showGpuCapacity();
             }
         }

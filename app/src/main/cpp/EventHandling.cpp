@@ -46,56 +46,6 @@ bool FilesTouchListener::onClick(View *view)
 
 }
 
-bool SliderTouchListener::onTouch(float touchX, float touchY, int pointerId, TouchAction touchAction, View *view)
-{
-    SliderSet *slider=(SliderSet *)view;
-    static float previousSliderValue=0.0;
-    switch (touchAction)
-    {
-        case ACTION_DOWN:
-        {
-            previousPointerId=pointerId;
-            slider->setPointerLoc(touchX,touchY);
-
-        }break;
-        case ACTION_POINTER_DOWN:
-        {}break;
-        case ACTION_MOVE:
-        {
-            if(pointerId==previousPointerId)
-            {
-                slider->setPointerLoc(touchX,touchY);
-            }
-
-        }break;
-        case ACTION_POINTER_UP:
-        {
-            if(pointerId==previousPointerId)
-            {
-                previousPointerId=INT32_MAX;
-            }
-        }
-        break;
-        case ACTION_UP:
-        {
-            if(pointerId==previousPointerId)
-            {
-                previousPointerId=INT32_MAX;
-            }
-        }break;
-         default:
-        {}
-
-    }
-    float scaledSliderValue=(slider->getVaule()*360.0);
-    if(previousSliderValue!=scaledSliderValue)
-    {
-        PhotoApp *globalData = (PhotoApp *) (app->userData);
-        globalData->editor->onInputValuesChanged(slider->sliderNo, scaledSliderValue);
-        previousSliderValue=scaledSliderValue;
-    }
-    return true;
-}
 
 bool ImageViewStackClickListener::onClick(float clickX, float clickY, ImageViewStack *view)
 {
@@ -169,8 +119,55 @@ bool ImageViewStackClickListener::onTouch(float touchX, float touchY, int pointe
 
 bool ViewTouchListener::onTouch(float touchX, float touchY, int pointerId, TouchAction touchAction,View *view)
 {
-    (*touchFunc)(touchX,touchY,ACTION_DOWN);
+   // (*touchFunc)(touchX,touchY,ACTION_DOWN);
+    switch (touchAction)
+    {
+        case ACTION_DOWN:
+        {
+            previousPointerId=pointerId;
+        }break;
+        case ACTION_POINTER_DOWN:
+        {}break;
+        case ACTION_MOVE:
+        {
+            if(pointerId==previousPointerId)
+            {
 
+            }
+        }break;
+        case ACTION_POINTER_UP:
+        {
+            if(pointerId=previousPointerId)
+            {
+                previousPointerId=INT32_MAX;
+            }
+        }break;
+        case ACTION_UP:
+        {
+            if(pointerId=previousPointerId)
+            {
+                previousPointerId=INT32_MAX;
+            }
+        }break;
+
+
+    }
+
+    return true;
+}
+bool ViewGroupTouchListener::onTouch(float touchX, float touchY, int pointerId, TouchAction touchAction, View *view)
+{
+    ViewGroup *viewGroup=(ViewGroup *)view;
+    switch (touchAction)
+    {
+        case ACTION_DOWN:
+        {
+            previousPointerId=pointerId;
+
+        }
+        break;
+
+    }
     return true;
 }
 bool OnClickListener::onTouch(float touchX, float touchY, int pointerId, TouchAction touchAction, View *view)
