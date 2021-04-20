@@ -72,6 +72,7 @@ void ViewGroup::addView(View *view)
 ViewGroup::ViewGroup()
 {//should be edited completey just for times sake use new() if pos also use references instead of pointers.
     views=new View*[defaultSize];//(View **)malloc(defaultSize*sizeof(View *));
+    setOnTouchListener(new ViewGroupTouchListener());
    // onTouch=(OnTouch)&ViewGroup::defaultOnTouch;
 }
 ViewGroup::~ViewGroup()
@@ -616,38 +617,36 @@ void InitializeUI()
 
 
 ////Touch Methods for all Views below only
-bool ViewGroup::isTouched(float touchX, float touchY,int pointerId,TouchAction touchAction)
+bool ViewGroup::dispatchTouchToChildViews(float touchX, float touchY, int32_t pointerId, TouchAction touchAction)
 {
-    //  (View::*onTouch)(x,y,ACTION_DOWN);
-    if(touchX >= startX && touchY >= startY && touchX <= (startX + width) &&touchY <= (startY + height))
+    //use switch case for all options;
+    for(int i=0;i<noViews;i++)
     {
-        // (this->*onTouch)(touchX,touchY,ACTION_DOWN);
-     //   UILogE("ViewGroup touched");
-        for(int i=0;i<noViews;i++)
+        if(views[i]&&views[i]->getVisibility())
         {
-            if(views[i]->getVisibility())
             if(views[i]->isTouched(touchX,touchY,pointerId,touchAction))
             {
-                break;
-               // onTouchListener->defaultOnTouch(touchX,touchY,ACTION_DOWN);
+                return true;
             }
         }
-       // onTouchListener->defaultOnTouch(touchX,touchY,ACTION_DOWN);
-        return true;
-
     }
     return false;
+}
+bool ViewGroup::isTouched(float touchX, float touchY,int pointerId,TouchAction touchAction)
+{
+   return View::isTouched(touchX,touchY,pointerId,touchAction);
 
 }
 bool View::isTouched(float touchX,float touchY,int pointerId,TouchAction touchAction){
 
  //   UILogE("view touched");
+ ////Use switch case for all actions;
 
     bool touched= touchX >= startX && touchY >= startY && touchX <= (startX + width) &&
                   touchY <= (startY + height);
     if(touched||(pointerId==onTouchListener->getPreviousPointerId())){
       //  onTouchListener->defaultOnTouch(touchX,touchY,ACTION_DOWN);
-      onTouchListener->onTouch (touchX,touchY,pointerId,touchAction,this);
+     return onTouchListener->onTouch (touchX,touchY,pointerId,touchAction,this);
     };
-    return touched;
+    return false;
 };

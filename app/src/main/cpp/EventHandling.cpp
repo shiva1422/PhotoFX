@@ -71,6 +71,10 @@ bool ImageViewStackClickListener::onTouch(float touchX, float touchY, int pointe
 
         }
         break;
+        case ACTION_POINTER_DOWN:
+        {
+            return false;
+        }break;
         case ACTION_MOVE:
         {
             if(previousPointerId==pointerId)//no need check as already done before calling this meth
@@ -83,7 +87,13 @@ bool ImageViewStackClickListener::onTouch(float touchX, float touchY, int pointe
                 totalMoveDisY+=tempMovey;
                 previousTouchX=touchX;
                 previousTouchY=touchY;
+                if(totalMoveDisY>=maxAllowedMove||totalMoveDisX>=maxAllowedMove)
+                {
+                    previousPointerId=INT32_MAX;
+                }
             }
+            else
+                return false;
         }break;
         case ACTION_POINTER_UP:
         {
@@ -93,6 +103,8 @@ bool ImageViewStackClickListener::onTouch(float touchX, float touchY, int pointe
                 previousPointerId=INT32_MAX;
 
             }
+            else
+                return false;
         }
         break;
         case ACTION_UP:
@@ -107,6 +119,7 @@ bool ImageViewStackClickListener::onTouch(float touchX, float touchY, int pointe
 
 
             }
+            else return false;
 
         }
             break;
@@ -127,13 +140,17 @@ bool ViewTouchListener::onTouch(float touchX, float touchY, int pointerId, Touch
             previousPointerId=pointerId;
         }break;
         case ACTION_POINTER_DOWN:
-        {}break;
+        {
+            previousPointerId=INT32_MAX;
+            return false;
+        }break;
         case ACTION_MOVE:
         {
             if(pointerId==previousPointerId)
             {
-
+                return true;
             }
+            return false;
         }break;
         case ACTION_POINTER_UP:
         {
@@ -163,9 +180,55 @@ bool ViewGroupTouchListener::onTouch(float touchX, float touchY, int pointerId, 
         case ACTION_DOWN:
         {
             previousPointerId=pointerId;
+            if(!viewGroup->dispatchTouchToChildViews(touchX,touchY,pointerId,touchAction))
+            {
+                previousPointerId=INT32_MAX;
+                return false;
+            }
 
         }
         break;
+        case ACTION_POINTER_DOWN:
+        {
+           // previousPointerId=INT32_MAX;
+            return false;
+        }break;
+        case ACTION_MOVE:
+        {
+            if(previousPointerId==pointerId)
+            {
+                if(!viewGroup->dispatchTouchToChildViews(touchX,touchY,pointerId,touchAction))
+                {
+                    previousPointerId=INT32_MAX;
+                    return false;
+                }
+            }
+            else
+                return false;
+        }break;
+        case ACTION_POINTER_UP:
+        {
+            if(previousPointerId==pointerId)
+            {
+                if(!viewGroup->dispatchTouchToChildViews(touchX,touchY,pointerId,touchAction))
+                {
+
+                }
+                previousPointerId=INT32_MAX;
+            }
+
+        }break;
+        case ACTION_UP:
+        {
+            if(previousPointerId==pointerId)
+            {
+                if(!viewGroup->dispatchTouchToChildViews(touchX,touchY,pointerId,touchAction))
+                {
+
+                }
+                previousPointerId=INT32_MAX;
+            }
+        }break;
 
     }
     return true;
@@ -182,6 +245,7 @@ bool OnClickListener::onTouch(float touchX, float touchY, int pointerId, TouchAc
         case ACTION_POINTER_DOWN:
         {
             previousPointerId=INT32_MAX;//calcel the action;
+            return false;
         }break;
         case ACTION_MOVE:
         {
@@ -190,8 +254,11 @@ bool OnClickListener::onTouch(float touchX, float touchY, int pointerId, TouchAc
                if(!view->isPointInside(touchX,touchY))
                {
                    previousPointerId=INT32_MAX;//cancel the touch as moved out
+                   return false;
                }
            }
+           else
+               return false;
         }break;
         case ACTION_POINTER_UP:
         {

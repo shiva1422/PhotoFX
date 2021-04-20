@@ -188,6 +188,7 @@ public:
     ~ViewGroup();
     void addView(View  *view);
     void removeView(View *view);
+    bool dispatchTouchToChildViews(float touchX,float touchY,int32_t pointerId,TouchAction touchAction);
     virtual void draw() override ;
     virtual bool isTouched(float touchX,float touchY,int pointerId,TouchAction touchAction);
 

@@ -83,13 +83,17 @@ bool SliderTouchListener::onTouch(float touchX, float touchY, int pointerId, Tou
 
         }break;
         case ACTION_POINTER_DOWN:
-        {}break;
+        {
+            return false;
+        }break;
         case ACTION_MOVE:
         {
             if(pointerId==previousPointerId)
             {
                 slider->setPointerLoc(touchX,touchY);
             }
+            else
+                return false;
 
         }break;
         case ACTION_POINTER_UP:

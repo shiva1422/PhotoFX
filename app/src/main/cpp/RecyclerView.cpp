@@ -216,7 +216,9 @@ bool RecyclerTouchListener::onTouch(float touchX, float touchY, int pointerId, T
 
         }break;
         case ACTION_POINTER_DOWN:
-        {}break;
+        {
+            return false;
+        }break;
         case ACTION_MOVE:
         {
             if(pointerId==previousPointerId)
@@ -228,9 +230,11 @@ bool RecyclerTouchListener::onTouch(float touchX, float touchY, int pointerId, T
                     tempMoveDisX*=-1;
                 }
                 totalMoveDisX+=tempMoveDisX;
+                previousTouchX=touchX;
+                return true;
             }
-            previousTouchX=touchX;
-            return true;
+            else return false;
+
 
         }break;
         case ACTION_POINTER_UP://actually this is not needed as pointerDown is not counted for;
@@ -242,8 +246,8 @@ bool RecyclerTouchListener::onTouch(float touchX, float touchY, int pointerId, T
                     recyclerView->setActiveListIndex(touchX, touchY);
                 }
                 previousPointerId=INT32_MAX;
-                return false;
             }
+            else return false;
         }
             break;
         case ACTION_UP:
@@ -255,8 +259,8 @@ bool RecyclerTouchListener::onTouch(float touchX, float touchY, int pointerId, T
                     recyclerView->setActiveListIndex(touchX, touchY);
                 }
                 previousPointerId=INT32_MAX;
-                return false;
             }
+            else return false;
         }break;
         default:
         {
@@ -264,5 +268,5 @@ bool RecyclerTouchListener::onTouch(float touchX, float touchY, int pointerId, T
         }
 
     }
-    return false;
+    return true;
 }

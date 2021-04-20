@@ -45,12 +45,13 @@ int32_t onInput(android_app* app, AInputEvent* event) {
                     touchX = AMotionEvent_getX(event, i);
                     touchY = AMotionEvent_getY(event, i);
                     pointerId = AMotionEvent_getPointerId(event, i);
+                       if(ContentView)//not req;
+                       {
+                          return ContentView->isTouched(touchX,touchY,pointerId,ACTION_MOVE);
+                       }
 
                    }
-                    if(ContentView)//not req;
-                    {
-                        ContentView->isTouched(touchX,touchY,pointerId,ACTION_MOVE);
-                    }
+
                 }
                 break;
             case AMOTION_EVENT_ACTION_POINTER_UP:

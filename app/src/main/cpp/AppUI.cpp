@@ -70,7 +70,7 @@ void AppUI::onOptionChanged(EOptions activeOption)
         {
             HueBar *input=new HueBar();
             HueBar *output=new HueBar();
-            input->setBounds(Graphics::displayParams.screenWidth*5.0/100,frameBounds.endY(),Graphics::displayParams.screenWidth*80.0/100,slidersSection.getHeight()/5.0);
+            input->setBounds(Graphics::displayParams.screenWidth*5.0/100,frameBounds.endY(),Graphics::displayParams.screenWidth*80.0/100,(slidersSection.getHeight()+subOptionsSection.getHeight()/2)/5.0);
             output->setBounds(input->getStartX(),input->endY()+10,input->getWidth(),input->getHeight());
 
             ViewGroup* slidersGroup=new ViewGroup();
@@ -78,9 +78,9 @@ void AppUI::onOptionChanged(EOptions activeOption)
             {
                 slidersGroup->setBounds(&slidersSection);
                 slidersGroup->addView(input);
+                slidersGroup->addView(output);
              //   slidersGroup->addView(output);
             }
-            contentView.addView(output);
             subOptions=slidersGroup;
         }break;
         default:
