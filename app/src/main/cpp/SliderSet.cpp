@@ -67,7 +67,51 @@ HueBar::HueBar()
     pointerView=new Triangle();
     Loge("HueBar","constructed");
 }
+//HueRange
+HueRange::HueRange()
+{
+    rangeLow=new Triangle();
+    rangeHigh=new Triangle();
+    rangeLow->setBackgroundColor(0.3,0.3,0.3,1.0);
+    rangeHigh->setBackgroundColor(1.0,1.0,1.0,1.0);
+    setOnTouchListener(new HueRangeTouchListener());
+}
+HueRange ::~HueRange()
+{
+    delete rangeLow;
+    delete rangeHigh;
+}
+void HueRange::setBounds(float startX, float startY, float width, float height)
+{
+    View::setBounds(startX,startY,width,height);
+    if(rangeHigh)
+    {
+        rangeHigh->setBounds(centerX()+upperLimit-height/2.0,startY,height,height);
+    }
+    if(rangeLow)
+    {
+        rangeLow->setBounds(centerX()-lowerLimit-height/2.0,startY,height,height);
+    }
+}
+void HueRange::draw()
+{
+   // clearRect(1.0,0.0,0.0,1.0);
+    rangeLow->draw();
+    rangeHigh->draw();
+}
+void HueRange::calculateLowerLimit()
+{
+    lowerLimit=(rangeLow->centerX()-centerX())*360/(centerX()-startX);//-360 to 0
+}
+void HueRange::calculateUpperLimit()
+{
+    upperLimit=360.0-(endX()-rangeHigh->centerX())*360.0/(endX()-centerX());
 
+}
+float HueRange::rangeToDistance(float limitValue)
+{
+    return (centerX()-startX)*limitValue/360.0;
+}
 ///Touch
 
 bool SliderTouchListener::onTouch(float touchX, float touchY, int pointerId, TouchAction touchAction, View *view)
@@ -122,6 +166,132 @@ bool SliderTouchListener::onTouch(float touchX, float touchY, int pointerId, Tou
         PhotoApp *globalData = (PhotoApp *) (app->userData);
         globalData->editor->onInputValuesChanged(slider->sliderNo, scaledSliderValue);
         previousSliderValue=scaledSliderValue;
+    }
+    return true;
+}
+//Hue Range
+bool HueRange::onDispatchTouchToChildViews(float touchX, float touchY, int32 pointerId, TouchAction touchAction,float moveX)
+{
+    switch(touchAction)
+    {
+        case ACTION_DOWN:
+        {
+            if(touchX<=centerX())
+            {
+                rangeLow->setStartX(touchX-rangeLow->getWidth()/2.0);
+                calculateLowerLimit();
+                if((upperLimit-lowerLimit)>360.0)
+                {
+                    lowerLimit=upperLimit-360.0;
+                    rangeLow->setStartX(centerX()+rangeToDistance(lowerLimit)-rangeLow->getWidth()/2.0);
+
+                }
+                activePointer=0;//for monitoring which pointer moved;
+            }
+            else if(touchX>=centerX())
+            {
+                rangeHigh->setStartX(touchX-rangeHigh->getWidth()/2.0);
+                calculateUpperLimit();
+                if((upperLimit-lowerLimit)>360.0)
+                {
+                    upperLimit=360.0+lowerLimit;
+                    rangeHigh->setStartX(centerX()+rangeToDistance(upperLimit)-rangeLow->getWidth()/2.0);
+                }
+
+                activePointer=1;
+            }
+            else return false;
+        }break;
+        case ACTION_MOVE:
+        {
+            if(activePointer==0)//left pointer;or rangeLow;
+            {
+
+                //if(rangeLow->getStartX()+moveX)
+                rangeLow->moveHorizontalByDistance(moveX);
+                calculateLowerLimit();
+                if((upperLimit-lowerLimit)>360.0)
+                {
+                    lowerLimit=upperLimit-360.0;
+                    rangeLow->setStartX(centerX()+rangeToDistance(lowerLimit)-rangeLow->getWidth()/2.0);
+
+                }
+                if(rangeLow->centerX()>centerX())
+                {
+                    rangeLow->setStartX(centerX()-rangeLow->getWidth()/2.0);
+                    calculateLowerLimit();
+                }
+               // lowerLimit=(rangeLow->centerX()-centerX())*360/(centerX()-startX);//-360 to 0
+                Loge("the hue range lower limiet","is %f",lowerLimit);
+            }
+            else
+            {
+                rangeHigh->moveHorizontalByDistance(moveX);
+                calculateUpperLimit();
+                if((upperLimit-lowerLimit)>360.0)
+                {
+                    upperLimit=360.0+lowerLimit;
+                    rangeHigh->setStartX(centerX()+rangeToDistance(upperLimit)-rangeLow->getWidth()/2.0);
+                }
+               if(rangeHigh->centerX()<centerX())
+                {
+                    rangeHigh->setStartX(centerX()-rangeHigh->getWidth()/2.0);
+                      calculateUpperLimit();
+                }
+                Loge("the hue range upper limiet","is %f",upperLimit);
+
+            }
+        }break;
+    }
+    return true;
+}
+bool HueRangeTouchListener::onTouch(float touchX, float touchY, int32 pointerId, TouchAction touchAction, View *view)
+{
+    HueRange *hueRange=(HueRange *)view;
+    switch (touchAction)
+    {
+        case ACTION_DOWN:
+        {
+            if(!hueRange->isPointInside(touchX,touchY))//should not happen but happens check the view
+            {
+                return false;
+            }
+            previousPointerId=pointerId;
+            previousTouchY=touchY;
+            previousTouchX=touchX;
+            return hueRange->onDispatchTouchToChildViews(touchX,touchY,pointerId,touchAction,0);
+
+        }break;
+        case ACTION_POINTER_DOWN:
+        {
+            return false;
+        }
+            break;
+        case ACTION_MOVE:
+        {
+            if(previousPointerId==pointerId)
+            {
+                float moveX=touchX-previousTouchX;
+                hueRange->onDispatchTouchToChildViews(touchX,touchY,pointerId,touchAction,moveX);
+                previousTouchX=touchX;
+                previousTouchY=touchY;
+            }
+            else return false;
+        }break;
+        case ACTION_POINTER_UP:
+        {
+            if(pointerId==previousPointerId)
+                previousPointerId==INT32_MAX;
+            else
+                return false;
+        }break;
+        case ACTION_UP:
+        {
+            if(pointerId==previousPointerId)
+                previousPointerId==INT32_MAX;
+            else return false;
+        }break;
+
     }
     return true;
 }

@@ -262,7 +262,10 @@ bool OnClickListener::onTouch(float touchX, float touchY, int pointerId, TouchAc
         }break;
         case ACTION_POINTER_UP:
         {
-
+            if(pointerId==previousPointerId)
+                previousPointerId==INT32_MAX;
+            else
+            return false;
         }
             break;
         case ACTION_UP:
@@ -271,6 +274,7 @@ bool OnClickListener::onTouch(float touchX, float touchY, int pointerId, TouchAc
             {
                 return onClick(view);
             }
+            else return false;
         }break;
         default:
         {}

@@ -23,7 +23,7 @@ void InitializeUI();
 class View{
     //////displayParams should be set first;
 protected:
-    float startX,startY,width,height;
+    float startX=0.0,startY=0.0,width=0.0,height=0.0;
     float r=0.5,g=0.5,b=0.5,a=1.0;
     float backgroundColor[4];
     //float vertices[8];///check can be removed as its stored on gpuside in View.

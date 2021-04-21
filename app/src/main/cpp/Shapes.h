@@ -17,7 +17,7 @@ protected:
     virtual void createBuffers();///numVerts Should be set Before this
 public:
     Shape();
-    ~Shape();
+    virtual ~Shape();
     Shape(int32_t numVerts);
     void setFillType(ShapeFillType fillType);
     virtual void draw();

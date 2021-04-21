@@ -60,7 +60,7 @@ void Triangle::setBounds(float startX, float startY, float width, float height)
         ///X's
         vertices[0] = -1.0 + (startX * 2.0) /(float) Graphics::displayParams.screenWidth;//  left bottom X
         vertices[2] = -1.0 + ((startX + width) * 2.0) / (float) Graphics::displayParams.screenWidth;//rightX
-        vertices[4] = -1.0 + ((startX + width/2.0) * 2.0) / (float) Graphics::displayParams.screenWidth;//rightX
+        vertices[4] = -1.0 + ((startX + width/2.0) * 2.0) / (float) Graphics::displayParams.screenWidth;//topx
         ///Y's
         vertices[1] = 1.0 - ((startY + height) * 2.0) / (float) Graphics::displayParams.screenHeight;//bottomy
         vertices[3] = vertices[1];
