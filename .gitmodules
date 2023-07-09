@@ -1,3 +1,6 @@
 [submodule "Core"]
 	path = Core
 	url = https://github.com/shiva1422/Core.git
+[submodule "KSApplication"]
+	path = KSApplication
+	url = https://github.com/shiva1422/KSApplication.git
