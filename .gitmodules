@@ -1,0 +1,3 @@
+[submodule "Core"]
+	path = Core
+	url = https://github.com/shiva1422/Core.git
